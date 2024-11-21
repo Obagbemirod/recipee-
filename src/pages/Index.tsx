@@ -7,7 +7,7 @@ const Index = () => {
   return (
     <main className="min-h-screen">
       <Hero />
-      <div className="py-12 bg-accent">
+      <div className="py-12 bg-gradient-to-b from-accent to-white">
         <SearchBar />
       </div>
       <FeatureHighlights />

@@ -6,21 +6,25 @@ const features = [
     icon: Camera,
     title: "Ingredient Recognition",
     description: "Take a photo of your ingredients and let AI suggest delicious recipes",
+    image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80"
   },
   {
     icon: ChefHat,
     title: "Interactive Cooking Assistant",
     description: "Step-by-step guidance with voice commands and timers",
+    image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80"
   },
   {
     icon: Calendar,
     title: "Personalized Meal Plans",
     description: "Get customized weekly meal plans based on your preferences",
+    image: "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?auto=format&fit=crop&q=80"
   },
   {
     icon: Users,
     title: "Community",
     description: "Share recipes and connect with food enthusiasts worldwide",
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80"
   },
 ];
 
@@ -48,11 +52,21 @@ export const FeatureHighlights = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="p-6 rounded-lg bg-accent hover:shadow-lg transition-shadow"
+              className="group relative overflow-hidden rounded-xl bg-accent hover:shadow-xl transition-shadow duration-300"
             >
-              <feature.icon className="w-12 h-12 text-primary mb-4 mx-auto" />
-              <h3 className="text-xl font-semibold mb-2 text-secondary">{feature.title}</h3>
-              <p className="text-secondary/70">{feature.description}</p>
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 to-transparent" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <feature.icon className="w-10 h-10 mb-4 text-primary" />
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-white/90">{feature.description}</p>
+              </div>
             </motion.div>
           ))}
         </div>
