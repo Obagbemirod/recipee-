@@ -24,8 +24,11 @@ export function Footer() {
           {/* Logo and Description */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <img src="/placeholder.svg" alt="Recipee Logo" className="h-8 w-8" />
-              <span className="text-xl font-bold">Recipee</span>
+              <img 
+                src="/lovable-uploads/1be4cc88-b859-4a91-869b-0925222463a7.png" 
+                alt="Recipee Logo" 
+                className="h-8" 
+              />
             </div>
             <p className="text-sm text-secondary-foreground/80">
               Your AI-powered cooking companion that turns ingredients into delicious meals.
