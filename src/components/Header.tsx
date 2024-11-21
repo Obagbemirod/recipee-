@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, ChefHat, Search, LogIn, X } from "lucide-react";
+import { Menu, Search, LogIn, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,8 +27,11 @@ export const Header = () => {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <ChefHat className="h-6 w-6 md:h-8 md:w-8 text-primary" />
-              <span className="text-lg md:text-xl font-bold text-secondary">Recipee</span>
+              <img 
+                src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png" 
+                alt="Recipee Logo" 
+                className="h-8 md:h-10" 
+              />
             </div>
 
             {/* Navigation - Desktop */}
