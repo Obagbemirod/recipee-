@@ -1,24 +1,40 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "./ui/carousel";
 
 export const Hero = () => {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16 md:pt-20">
       <div className="absolute inset-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&q=80"
-        >
-          <source
-            src="https://player.vimeo.com/external/478147096.sd.mp4?s=c3c472a8efa1e0a5a80e41c3387ffd80f8e09c54&profile_id=164&oauth2_token_id=57447761"
-            type="video/mp4"
-          />
-          Your browser does not support the video tag.
-        </video>
+        <Carousel className="w-full h-full" opts={{ loop: true, duration: 20 }}>
+          <CarouselContent>
+            <CarouselItem>
+              <img
+                src="https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&q=80"
+                alt="Person cooking in modern kitchen 1"
+                className="w-full h-full object-cover"
+              />
+            </CarouselItem>
+            <CarouselItem>
+              <img
+                src="https://images.unsplash.com/photo-1556910638-6cdac31d44dc?auto=format&fit=crop&q=80"
+                alt="Person cooking in modern kitchen 2"
+                className="w-full h-full object-cover"
+              />
+            </CarouselItem>
+            <CarouselItem>
+              <img
+                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&q=80"
+                alt="Person cooking in modern kitchen 3"
+                className="w-full h-full object-cover"
+              />
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-secondary/90 mix-blend-multiply" />
       </div>
       
