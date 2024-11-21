@@ -1,13 +1,16 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Hero } from "@/components/Hero";
+import { SearchBar } from "@/components/SearchBar";
+import { FeaturedRecipes } from "@/components/FeaturedRecipes";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <main className="min-h-screen">
+      <Hero />
+      <div className="py-12 bg-muted">
+        <SearchBar />
       </div>
-    </div>
+      <FeaturedRecipes />
+    </main>
   );
 };
 
