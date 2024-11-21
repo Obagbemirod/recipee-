@@ -30,21 +30,21 @@ const features = [
 
 export const FeatureHighlights = () => {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-12 md:py-20 bg-white">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4 text-secondary">Key Features</h2>
-          <p className="text-lg text-secondary/70 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-secondary">Key Features</h2>
+          <p className="text-base md:text-lg text-secondary/70 max-w-2xl mx-auto px-4">
             Discover how Recipee transforms your cooking experience
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -62,10 +62,10 @@ export const FeatureHighlights = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 to-transparent" />
               </div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <feature.icon className="w-10 h-10 mb-4 text-primary" />
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-white/90">{feature.description}</p>
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
+                <feature.icon className="w-8 h-8 md:w-10 md:h-10 mb-3 md:mb-4 text-primary" />
+                <h3 className="text-lg md:text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-sm md:text-base text-white/90">{feature.description}</p>
               </div>
             </motion.div>
           ))}
