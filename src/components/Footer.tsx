@@ -25,7 +25,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/1be4cc88-b859-4a91-869b-0925222463a7.png" 
+                src="/lovable-uploads/2db23d64-bf99-47af-817e-063cd82c9b69.png" 
                 alt="Recipee Logo" 
                 className="h-8" 
               />
