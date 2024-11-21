@@ -46,7 +46,7 @@ export const Hero = () => {
           className="text-center max-w-3xl mx-auto"
         >
           <span className="inline-block px-4 py-1.5 mb-6 text-xs md:text-sm font-medium bg-white/10 text-white rounded-full backdrop-blur-sm">
-            Your Smart Kitchen Companion
+            Your Smart Kitchen Assistant
           </span>
           
           <h1 className="text-3xl sm:text-4xl md:text-7xl font-bold mb-6 tracking-tight text-balance text-white">
