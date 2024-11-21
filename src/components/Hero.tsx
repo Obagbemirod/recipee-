@@ -66,9 +66,6 @@ export const Hero = () => {
             <Button size="lg" variant="default" className="text-base md:text-lg px-6 md:px-8 bg-primary hover:bg-primary/90 w-full sm:w-auto">
               Get Started
             </Button>
-            <Button size="lg" variant="outline" className="text-base md:text-lg px-6 md:px-8 text-white border-white hover:bg-white/10 w-full sm:w-auto">
-              Watch Demo
-            </Button>
           </motion.div>
         </motion.div>
       </div>
