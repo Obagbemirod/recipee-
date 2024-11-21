@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { FeaturedRecipes } from "@/components/FeaturedRecipes";
 import { FeatureHighlights } from "@/components/FeatureHighlights";
 import { Header } from "@/components/Header";
+import { PricingSection } from "@/components/PricingSection";
 
 const Index = () => {
   return (
@@ -14,6 +15,7 @@ const Index = () => {
       </div>
       <FeatureHighlights />
       <FeaturedRecipes />
+      <PricingSection />
     </main>
   );
 };
