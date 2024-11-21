@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
+import { Button } from "./ui/button";
 
 export const Hero = () => {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-accent">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
@@ -16,12 +17,12 @@ export const Hero = () => {
             Your Smart Kitchen Companion
           </span>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-balance">
-            Cook with confidence
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-balance text-secondary">
+            Revolutionize Your Kitchen with Recipee
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 text-balance">
-            Discover recipes, plan meals, and cook like a pro with AI-powered assistance
+          <p className="text-xl text-secondary/80 mb-8 text-balance">
+            AI-Powered Meal Planning and Interactive Cooking
           </p>
           
           <motion.div
@@ -30,12 +31,12 @@ export const Hero = () => {
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <button className="px-8 py-4 bg-primary text-white rounded-lg font-medium hover-scale">
+            <Button size="lg" className="text-lg px-8">
               Get Started
-            </button>
-            <button className="px-8 py-4 bg-white border border-gray-200 rounded-lg font-medium hover-scale">
-              Browse Recipes
-            </button>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8">
+              Watch Demo
+            </Button>
           </motion.div>
         </motion.div>
       </div>
