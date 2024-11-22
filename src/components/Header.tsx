@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, Search, LogIn, UserPlus, X } from "lucide-react";
+import { LogIn, UserPlus, X, Menu } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -40,25 +40,16 @@ export const Header = () => {
               <Link to="/marketplace" className="text-secondary hover:text-primary transition-colors">
                 Marketplace
               </Link>
-              <Link to="/saved" className="text-secondary hover:text-primary transition-colors">
-                Saved
-              </Link>
-              <Link to="/features" className="text-secondary hover:text-primary transition-colors">
-                Features
-              </Link>
             </nav>
 
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="hidden md:flex">
-                <Search className="h-5 w-5" />
-              </Button>
               <Link to="/auth">
-                <Button variant="ghost" className="hidden md:flex">
+                <Button variant="ghost">
                   <LogIn className="mr-2 h-4 w-4" /> Sign In
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button variant="default" className="hidden md:flex">
+                <Button variant="default">
                   <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </Button>
               </Link>
@@ -91,20 +82,6 @@ export const Header = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Marketplace
-                </Link>
-                <Link 
-                  to="/saved" 
-                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Saved
-                </Link>
-                <Link 
-                  to="/features" 
-                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Features
                 </Link>
                 <div className="flex flex-col gap-2 px-4 py-2">
                   <Link to="/auth">

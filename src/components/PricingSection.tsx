@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -110,12 +111,14 @@ export function PricingSection() {
               </div>
               
               <CardFooter>
-                <Button 
-                  className="w-full" 
-                  variant={plan.buttonVariant}
-                >
-                  {plan.buttonText}
-                </Button>
+                <Link to="/auth" className="w-full">
+                  <Button 
+                    className="w-full" 
+                    variant={plan.buttonVariant}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           ))}

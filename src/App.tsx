@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import UploadIngredients from "./pages/UploadIngredients";
 import GenerateMealPlan from "./pages/GenerateMealPlan";
 import GenerateRecipes from "./pages/GenerateRecipes";
+import Marketplace from "./pages/Marketplace";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => {
             <Route path="/upload-ingredients" element={<UploadIngredients />} />
             <Route path="/generate-meal-plan" element={<GenerateMealPlan />} />
             <Route path="/generate-recipes" element={<GenerateRecipes />} />
+            <Route path="/marketplace" element={<Marketplace />} />
           </Routes>
           <Toaster />
           <Sonner />
