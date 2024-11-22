@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Menu, Search, LogIn, X } from "lucide-react";
+import { Menu, Search, LogIn, UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Add scroll listener
   if (typeof window !== "undefined") {
     window.addEventListener("scroll", () => {
       setIsScrolled(window.scrollY > 20);
@@ -25,36 +26,42 @@ export const Header = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
             <div className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png" 
-                alt="Recipee Logo" 
-                className="h-8 md:h-10" 
-              />
+              <Link to="/">
+                <img 
+                  src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png" 
+                  alt="Recipee Logo" 
+                  className="h-8 md:h-10" 
+                />
+              </Link>
             </div>
 
-            {/* Navigation - Desktop */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#recipes" className="text-secondary hover:text-primary transition-colors">
-                Recipes
-              </a>
-              <a href="#features" className="text-secondary hover:text-primary transition-colors">
+              <Link to="/marketplace" className="text-secondary hover:text-primary transition-colors">
+                Marketplace
+              </Link>
+              <Link to="/saved" className="text-secondary hover:text-primary transition-colors">
+                Saved
+              </Link>
+              <Link to="/features" className="text-secondary hover:text-primary transition-colors">
                 Features
-              </a>
-              <a href="#about" className="text-secondary hover:text-primary transition-colors">
-                About
-              </a>
+              </Link>
             </nav>
 
-            {/* Actions */}
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="icon" className="hidden md:flex">
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="default" className="hidden md:flex">
-                <LogIn className="mr-2 h-4 w-4" /> Sign In
-              </Button>
+              <Link to="/login">
+                <Button variant="ghost" className="hidden md:flex">
+                  <LogIn className="mr-2 h-4 w-4" /> Login
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="default" className="hidden md:flex">
+                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                </Button>
+              </Link>
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -68,7 +75,6 @@ export const Header = () => {
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -79,34 +85,38 @@ export const Header = () => {
           >
             <div className="bg-white/95 backdrop-blur-md shadow-lg p-4">
               <nav className="flex flex-col space-y-4">
-                <a 
-                  href="#recipes" 
+                <Link 
+                  to="/marketplace" 
                   className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Recipes
-                </a>
-                <a 
-                  href="#features" 
+                  Marketplace
+                </Link>
+                <Link 
+                  to="/saved" 
+                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Saved
+                </Link>
+                <Link 
+                  to="/features" 
                   className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Features
-                </a>
-                <a 
-                  href="#about" 
-                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  About
-                </a>
-                <div className="flex items-center gap-2 px-4 py-2">
-                  <Button variant="ghost" size="icon">
-                    <Search className="h-5 w-5" />
-                  </Button>
-                  <Button variant="default" className="w-full">
-                    <LogIn className="mr-2 h-4 w-4" /> Sign In
-                  </Button>
+                </Link>
+                <div className="flex flex-col gap-2 px-4 py-2">
+                  <Link to="/login">
+                    <Button variant="ghost" className="w-full">
+                      <LogIn className="mr-2 h-4 w-4" /> Login
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button variant="default" className="w-full">
+                      <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                    </Button>
+                  </Link>
                 </div>
               </nav>
             </div>
