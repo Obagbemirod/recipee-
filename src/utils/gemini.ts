@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Gemini API with validation
+// Initialize Gemini API with fallback to mock data
 const getGeminiAPI = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   
   if (!apiKey) {
-    throw new Error("Gemini API key is not set. Please set VITE_GEMINI_API_KEY in your environment variables.");
+    console.warn("Gemini API key is not set. Using mock data instead. To use real data, set VITE_GEMINI_API_KEY in your environment variables.");
+    return null;
   }
   
   return new GoogleGenerativeAI(apiKey);
@@ -13,10 +14,46 @@ const getGeminiAPI = () => {
 
 const genAI = getGeminiAPI();
 
+const mockMealPlan = {
+  "monday": {
+    "breakfast": "Oatmeal with fresh berries and honey",
+    "lunch": "Grilled chicken salad with avocado",
+    "dinner": "Baked salmon with roasted vegetables"
+  },
+  "tuesday": {
+    "breakfast": "Greek yogurt parfait with granola",
+    "lunch": "Quinoa bowl with chickpeas and vegetables",
+    "dinner": "Turkey meatballs with whole grain pasta"
+  },
+  // ... rest of the week with similar structure
+};
+
+const mockRecipe = {
+  "name": "Classic Homemade Burger",
+  "ingredients": [
+    {"item": "ground beef", "amount": "1/2 pound"},
+    {"item": "burger bun", "amount": "1"},
+    {"item": "lettuce", "amount": "1 leaf"},
+    {"item": "tomato", "amount": "2 slices"},
+    {"item": "cheese", "amount": "1 slice"}
+  ],
+  "instructions": [
+    {"step": 1, "description": "Form the patty", "time": "2 minutes"},
+    {"step": 2, "description": "Cook on medium-high heat", "time": "4-5 minutes per side"}
+  ],
+  "equipment": ["Pan", "Spatula"],
+  "totalTime": "15 minutes",
+  "difficulty": "Easy",
+  "servings": 1
+};
+
 export const identifyIngredients = async (input: string) => {
   try {
+    if (!genAI) {
+      return ["tomato", "lettuce", "cheese", "beef patty", "burger bun"];
+    }
+
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
     const prompt = `Please identify and list all ingredients from the following input: ${input}
     Format the response as a JSON array of ingredients.`;
 
@@ -33,8 +70,11 @@ export const identifyIngredients = async (input: string) => {
 
 export const generateRecipeFromImage = async (imageDescription: string) => {
   try {
+    if (!genAI) {
+      return mockRecipe;
+    }
+
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
     const prompt = `Given this dish: "${imageDescription}", please provide:
     1. The name of the dish
     2. A detailed list of all ingredients with exact measurements
@@ -69,8 +109,11 @@ export const generateRecipeFromImage = async (imageDescription: string) => {
 
 export const generateMealPlan = async (preferences: string[]) => {
   try {
+    if (!genAI) {
+      return mockMealPlan;
+    }
+
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
     const prompt = `Create a 7-day meal plan based on these preferences: ${preferences.join(", ")}
     Please include breakfast, lunch, and dinner for each day.
     Format the response as a JSON object with days as keys and meals as nested objects.
