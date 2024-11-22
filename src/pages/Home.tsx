@@ -33,23 +33,6 @@ const Home = () => {
               alt="Logo" 
               className="h-8 md:h-12 mb-4"
             />
-            <div className="flex flex-col w-full md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mt-auto">
-              <Link to="/marketplace" className="w-full md:w-auto">
-                <Button variant="outline" className="w-full md:w-auto border-red-500 text-white hover:bg-red-500 hover:text-white rounded-lg">
-                  Marketplace
-                </Button>
-              </Link>
-              <Link to="/saved-items" className="w-full md:w-auto">
-                <Button variant="outline" className="w-full md:w-auto border-red-500 text-white hover:bg-red-500 hover:text-white rounded-lg">
-                  Saved Recipes & Meal Plans
-                </Button>
-              </Link>
-              <Link to="/profile" className="w-full md:w-auto">
-                <Button variant="outline" className="w-full md:w-auto border-red-500 text-white hover:bg-red-500 hover:text-white rounded-lg">
-                  Profile
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
       </div>
@@ -65,42 +48,46 @@ const Home = () => {
             <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link to="/upload-ingredients" className="w-full">
-                <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 border border-red-500 hover:bg-red-500 hover:text-white group">
-                  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 group-hover:text-white">
-                    <Camera className="h-5 w-5 text-red-500 group-hover:text-white" />
+                <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 hover:shadow-lg group">
+                  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-secondary group-hover:text-primary transition-colors">
+                    <Camera className="h-5 w-5 text-primary group-hover:text-white transition-colors" />
                     Upload Your Ingredients to Generate Personalized Meal Plans
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2 text-sm border border-red-500 rounded-lg p-2 group-hover:border-white group-hover:text-white">
-                      <Camera className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2 group-hover:bg-primary/10 transition-colors">
+                      <Camera className="h-4 w-4 text-primary group-hover:text-primary" />
                       Photo
                     </div>
-                    <div className="flex items-center gap-2 text-sm border border-red-500 rounded-lg p-2 group-hover:border-white group-hover:text-white">
-                      <Video className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2 group-hover:bg-primary/10 transition-colors">
+                      <Video className="h-4 w-4 text-primary group-hover:text-primary" />
                       Video
                     </div>
-                    <div className="flex items-center gap-2 text-sm border border-red-500 rounded-lg p-2 group-hover:border-white group-hover:text-white">
-                      <Mic className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2 group-hover:bg-primary/10 transition-colors">
+                      <Mic className="h-4 w-4 text-primary group-hover:text-primary" />
                       Audio
                     </div>
-                    <div className="flex items-center gap-2 text-sm border border-red-500 rounded-lg p-2 group-hover:border-white group-hover:text-white">
-                      <FileText className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2 group-hover:bg-primary/10 transition-colors">
+                      <FileText className="h-4 w-4 text-primary group-hover:text-primary" />
                       Text
                     </div>
                   </div>
                 </div>
               </Link>
               <Link to="/generate-meal-plan" className="w-full">
-                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-red-500 text-primary hover:bg-red-500 group">
-                  <ChefHat className="h-8 w-8 text-red-500 group-hover:text-white" />
-                  <span className="group-hover:text-white">Generate Meal Plan with AI</span>
-                </Button>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 hover:shadow-lg group">
+                  <div className="h-full flex flex-col items-center justify-center gap-2">
+                    <ChefHat className="h-8 w-8 text-primary group-hover:text-white transition-colors" />
+                    <span className="text-center text-secondary group-hover:text-primary transition-colors">Generate Meal Plan with AI</span>
+                  </div>
+                </div>
               </Link>
               <Link to="/generate-recipes" className="w-full">
-                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-red-500 text-primary hover:bg-red-500 group">
-                  <ImageIcon className="h-8 w-8 text-red-500 group-hover:text-white" />
-                  <span className="group-hover:text-white">Generate Recipes from Dish Photos</span>
-                </Button>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 hover:shadow-lg group">
+                  <div className="h-full flex flex-col items-center justify-center gap-2">
+                    <ImageIcon className="h-8 w-8 text-primary group-hover:text-white transition-colors" />
+                    <span className="text-center text-secondary group-hover:text-primary transition-colors">Generate Recipes from Dish Photos</span>
+                  </div>
+                </div>
               </Link>
             </div>
           </div>
@@ -114,7 +101,7 @@ const Home = () => {
                   <div className="p-4">
                     <h3 className="font-semibold text-lg">{plan.title}</h3>
                     <p className="text-gray-600">{plan.description}</p>
-                    <Button variant="link" className="mt-2 p-0 text-red-500 hover:text-red-600">
+                    <Button variant="link" className="mt-2 p-0 text-primary hover:text-primary/80">
                       View Plan →
                     </Button>
                   </div>
