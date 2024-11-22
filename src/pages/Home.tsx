@@ -28,38 +28,32 @@ const Home = () => {
           <div className="col-span-full mb-8">
             <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                  <Camera className="h-5 w-5 text-primary" />
-                  Upload Your Ingredients to Generate Personalized Meal Plans
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <Link to="/upload/photo">
-                    <Button variant="outline" className="flex items-center gap-2 w-full">
+              <Link to="/upload-ingredients" className="w-full">
+                <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                    <Camera className="h-5 w-5 text-primary" />
+                    Upload Your Ingredients to Generate Personalized Meal Plans
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Camera className="h-4 w-4" />
                       Photo
-                    </Button>
-                  </Link>
-                  <Link to="/upload/video">
-                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Video className="h-4 w-4" />
                       Video
-                    </Button>
-                  </Link>
-                  <Link to="/upload/audio">
-                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Mic className="h-4 w-4" />
                       Audio
-                    </Button>
-                  </Link>
-                  <Link to="/upload/text">
-                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                       <FileText className="h-4 w-4" />
                       Text
-                    </Button>
-                  </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
               <Link to="/generate-meal-plan" className="w-full">
                 <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full">
                   <ChefHat className="h-8 w-8 text-primary" />
