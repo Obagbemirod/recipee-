@@ -1,11 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { Camera, Video, Mic, FileText } from "lucide-react";
+import { Camera, Video, Mic, FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { identifyIngredients } from "@/utils/gemini";
+import RecognizedIngredients from "@/components/RecognizedIngredients";
+
+interface Ingredient {
+  name: string;
+  confidence: number;
+}
 
 const UploadIngredients = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
   const navigate = useNavigate();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
@@ -13,24 +21,45 @@ const UploadIngredients = () => {
     if (!file) return;
 
     setIsUploading(true);
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsUploading(false);
-    toast.success(`${type} uploaded successfully!`);
-    navigate("/generate-meal-plan");
-  };
-
-  const handleAudioRecording = () => {
-    setIsUploading(true);
-    // Simulate recording delay
-    setTimeout(() => {
+    try {
+      // Convert image to base64 for API
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+        const ingredients = await identifyIngredients(base64String);
+        setRecognizedIngredients(ingredients.map(name => ({ name, confidence: 0.9 })));
+        toast.success(`${type} processed successfully!`);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error(`Failed to process ${type.toLowerCase()}. Please try again.`);
+    } finally {
       setIsUploading(false);
-      toast.success("Audio recorded successfully!");
-      navigate("/generate-meal-plan");
-    }, 2000);
+    }
   };
 
-  const handleTextSubmit = (e: React.FormEvent) => {
+  const handleAudioRecording = async () => {
+    setIsUploading(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Here you would implement audio recording and conversion
+      // For now, we'll just simulate it
+      setTimeout(() => {
+        setRecognizedIngredients([
+          { name: "tomatoes", confidence: 0.95 },
+          { name: "onions", confidence: 0.92 },
+          { name: "garlic", confidence: 0.88 }
+        ]);
+        toast.success("Audio processed successfully!");
+      }, 2000);
+    } catch (error) {
+      toast.error("Failed to access microphone. Please check permissions.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const text = (form.elements.namedItem('ingredients') as HTMLTextAreaElement).value;
@@ -41,12 +70,29 @@ const UploadIngredients = () => {
     }
 
     setIsUploading(true);
-    // Simulate submission delay
-    setTimeout(() => {
+    try {
+      const ingredients = await identifyIngredients(text);
+      setRecognizedIngredients(ingredients.map(name => ({ name, confidence: 1 })));
+      toast.success("Ingredients processed successfully!");
+    } catch (error) {
+      toast.error("Failed to process ingredients. Please try again.");
+    } finally {
       setIsUploading(false);
-      toast.success("Ingredients submitted successfully!");
-      navigate("/generate-meal-plan");
-    }, 1000);
+    }
+  };
+
+  const removeIngredient = (index: number) => {
+    setRecognizedIngredients(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const confirmIngredients = () => {
+    if (recognizedIngredients.length === 0) {
+      toast.error("Please add some ingredients first");
+      return;
+    }
+    // Here you would typically save the ingredients to your user context
+    // For now, we'll just navigate to the meal plan page
+    navigate("/generate-meal-plan");
   };
 
   return (
@@ -103,10 +149,14 @@ const UploadIngredients = () => {
                 onClick={handleAudioRecording}
                 disabled={isUploading}
               >
-                <Mic className={`h-12 w-12 ${isUploading ? 'animate-pulse' : ''}`} />
+                {isUploading ? (
+                  <Loader2 className="h-12 w-12 animate-spin" />
+                ) : (
+                  <Mic className="h-12 w-12" />
+                )}
               </Button>
               <p className="mt-4 text-secondary">
-                {isUploading ? 'Recording...' : 'Click to start recording'}
+                {isUploading ? 'Processing...' : 'Click to start recording'}
               </p>
             </div>
           </div>
@@ -127,12 +177,25 @@ const UploadIngredients = () => {
                   disabled={isUploading}
                   className="bg-primary hover:bg-primary/90 text-white transition-colors"
                 >
-                  {isUploading ? "Submitting..." : "Submit Ingredients"}
+                  {isUploading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processing...
+                    </div>
+                  ) : (
+                    "Submit Ingredients"
+                  )}
                 </Button>
               </div>
             </form>
           </div>
         </div>
+
+        <RecognizedIngredients
+          ingredients={recognizedIngredients}
+          onRemove={removeIngredient}
+          onConfirm={confirmIngredients}
+        />
       </div>
     </div>
   );
