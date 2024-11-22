@@ -38,9 +38,14 @@ const GenerateMealPlan = () => {
     setIsGenerating(true);
     try {
       const plan = await generateMealPlan([values.preferences]);
-      setMealPlan(plan);
-      toast.success("Meal plan generated successfully!");
+      if (plan) {
+        setMealPlan(plan);
+        toast.success("Meal plan generated successfully!");
+      } else {
+        toast.error("Failed to generate meal plan");
+      }
     } catch (error) {
+      console.error("Error generating meal plan:", error);
       toast.error("Error generating meal plan");
     } finally {
       setIsGenerating(false);
