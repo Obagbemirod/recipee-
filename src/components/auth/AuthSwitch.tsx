@@ -25,7 +25,7 @@ export const AuthSwitch = ({ isLogin, onToggle }: AuthSwitchProps) => {
           id="auth-mode"
           checked={!isLogin}
           onCheckedChange={onToggle}
-          className="data-[state=checked]:bg-primary"
+          className="data-[state=checked]:bg-primary data-[state=unchecked]:border-2 data-[state=unchecked]:border-primary"
         />
         <span className={`text-sm ${isLogin ? "text-primary" : "text-muted-foreground"}`}>
           Login
