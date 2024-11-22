@@ -14,11 +14,11 @@ export const AuthSwitch = ({ isLogin, onToggle }: AuthSwitchProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center space-y-2 mb-8"
     >
-      <h3 className="text-lg font-medium text-secondary">
-        {isLogin ? "Don't have an account?" : "Already have an account?"}
-      </h3>
       <div className="flex items-center justify-center space-x-3">
-        <span className={`text-sm ${!isLogin ? "text-primary" : "text-muted-foreground"}`}>
+        <span 
+          className={`text-sm font-medium cursor-pointer ${!isLogin ? "text-primary" : "text-muted-foreground"}`}
+          onClick={() => onToggle(true)}
+        >
           Sign Up
         </span>
         <Switch
@@ -27,7 +27,10 @@ export const AuthSwitch = ({ isLogin, onToggle }: AuthSwitchProps) => {
           onCheckedChange={onToggle}
           className="data-[state=checked]:bg-primary data-[state=unchecked]:border-2 data-[state=unchecked]:border-primary"
         />
-        <span className={`text-sm ${isLogin ? "text-primary" : "text-muted-foreground"}`}>
+        <span 
+          className={`text-sm font-medium cursor-pointer ${isLogin ? "text-primary" : "text-muted-foreground"}`}
+          onClick={() => onToggle(false)}
+        >
           Login
         </span>
       </div>

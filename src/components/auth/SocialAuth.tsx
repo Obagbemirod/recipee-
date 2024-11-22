@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Github, Mail } from "lucide-react";
+import { Facebook, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const SocialAuth = () => {
@@ -10,8 +10,8 @@ export const SocialAuth = () => {
       className="space-y-4"
     >
       <Button variant="outline" className="w-full" onClick={() => {}}>
-        <Github className="mr-2 h-4 w-4" />
-        Continue with GitHub
+        <Facebook className="mr-2 h-4 w-4" />
+        Continue with Facebook
       </Button>
       <Button variant="outline" className="w-full" onClick={() => {}}>
         <Mail className="mr-2 h-4 w-4" />
