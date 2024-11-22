@@ -35,7 +35,7 @@ export const Hero = () => {
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/signup">
+            <Link to="/auth">
               <Button size="lg" variant="default" className="text-base md:text-lg px-6 md:px-8 bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 Get Started
               </Button>

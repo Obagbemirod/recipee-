@@ -52,12 +52,12 @@ export const Header = () => {
               <Button variant="ghost" size="icon" className="hidden md:flex">
                 <Search className="h-5 w-5" />
               </Button>
-              <Link to="/login">
+              <Link to="/auth">
                 <Button variant="ghost" className="hidden md:flex">
-                  <LogIn className="mr-2 h-4 w-4" /> Login
+                  <LogIn className="mr-2 h-4 w-4" /> Sign In
                 </Button>
               </Link>
-              <Link to="/signup">
+              <Link to="/auth">
                 <Button variant="default" className="hidden md:flex">
                   <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </Button>
@@ -107,12 +107,12 @@ export const Header = () => {
                   Features
                 </Link>
                 <div className="flex flex-col gap-2 px-4 py-2">
-                  <Link to="/login">
+                  <Link to="/auth">
                     <Button variant="ghost" className="w-full">
-                      <LogIn className="mr-2 h-4 w-4" /> Login
+                      <LogIn className="mr-2 h-4 w-4" /> Sign In
                     </Button>
                   </Link>
-                  <Link to="/signup">
+                  <Link to="/auth">
                     <Button variant="default" className="w-full">
                       <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                     </Button>
