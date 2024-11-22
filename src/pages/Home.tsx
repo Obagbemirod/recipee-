@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image, ShoppingCart, Settings, Heart, Store, Video, Mic, FileText, User } from "lucide-react";
+import { Camera, ChefHat, Image, Video, Mic, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -55,13 +55,13 @@ const Home = () => {
                 </div>
               </Link>
               <Link to="/generate-meal-plan" className="w-full">
-                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full">
+                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-primary text-primary hover:bg-primary hover:text-white">
                   <ChefHat className="h-8 w-8 text-primary" />
                   <span>Generate Meal Plan with AI</span>
                 </Button>
               </Link>
               <Link to="/generate-recipes" className="w-full">
-                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full">
+                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-primary text-primary hover:bg-primary hover:text-white">
                   <Image className="h-8 w-8 text-primary" />
                   <span>Generate Recipes from Dish Photos</span>
                 </Button>
@@ -78,35 +78,13 @@ const Home = () => {
                   <div className="p-4">
                     <h3 className="font-semibold text-lg">{plan.title}</h3>
                     <p className="text-gray-600">{plan.description}</p>
-                    <Button variant="link" className="mt-2 p-0">
+                    <Button variant="link" className="mt-2 p-0 rounded-lg">
                       View Plan →
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Quick Navigation</h2>
-            <nav className="space-y-2">
-              <Link to="/profile" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
-                <User className="h-5 w-5 text-primary" />
-                <span>Profile</span>
-              </Link>
-              <Link to="/saved-items" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
-                <Heart className="h-5 w-5 text-primary" />
-                <span>Saved Items</span>
-              </Link>
-              <Link to="/marketplace" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
-                <Store className="h-5 w-5 text-primary" />
-                <span>Recipe Marketplace</span>
-              </Link>
-              <Link to="/settings" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
-                <Settings className="h-5 w-5 text-primary" />
-                <span>Settings</span>
-              </Link>
-            </nav>
           </div>
         </motion.div>
       </div>

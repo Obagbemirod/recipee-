@@ -27,8 +27,6 @@ const Profile = () => {
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Here you would typically upload the file to your server
-      // For now, we'll just show a success message
       toast({
         title: "Photo updated",
         description: "Your profile photo has been updated successfully.",
@@ -53,7 +51,6 @@ const Profile = () => {
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     try {
-      // Here you would typically make an API call to update the profile
       console.log("Profile values:", values);
       toast({
         title: "Profile updated!",
@@ -79,14 +76,15 @@ const Profile = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Profile Settings</h1>
             <nav className="space-x-4">
-              <Link to="/saved-items" className="text-primary hover:underline">
-                Saved Items
+              <Link to="/saved-items">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                  Saved Recipes & Meal Plans
+                </Button>
               </Link>
-              <Link to="/marketplace" className="text-primary hover:underline">
-                Marketplace
-              </Link>
-              <Link to="/meal-plans" className="text-primary hover:underline">
-                Meal Plans
+              <Link to="/marketplace">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                  Marketplace
+                </Button>
               </Link>
             </nav>
           </div>
@@ -103,7 +101,7 @@ const Profile = () => {
               accept="image/*"
               onChange={handlePhotoChange}
             />
-            <Button variant="outline" onClick={handlePhotoClick}>
+            <Button variant="outline" onClick={handlePhotoClick} className="rounded-lg">
               Change Photo
             </Button>
           </div>
@@ -117,7 +115,7 @@ const Profile = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your name" {...field} />
+                      <Input placeholder="Enter your name" {...field} className="rounded-lg" />
                     </FormControl>
                   </FormItem>
                 )}
@@ -130,7 +128,7 @@ const Profile = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
+                      <Input placeholder="Enter your email" {...field} className="rounded-lg" />
                     </FormControl>
                   </FormItem>
                 )}
@@ -139,7 +137,7 @@ const Profile = () => {
               <DietaryPreferences form={form} />
               <AllergiesSection form={form} />
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full rounded-lg">
                 Save Changes
               </Button>
             </form>

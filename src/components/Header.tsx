@@ -35,21 +35,33 @@ export const Header = () => {
               </Link>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link to="/marketplace" className="text-secondary hover:text-primary transition-colors">
-                Marketplace
+            <nav className="hidden md:flex items-center space-x-4">
+              <Link to="/marketplace">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                  Marketplace
+                </Button>
+              </Link>
+              <Link to="/saved-items">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                  Saved Recipes & Meal Plans
+                </Button>
+              </Link>
+              <Link to="/profile">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                  Profile
+                </Button>
               </Link>
             </nav>
 
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center space-x-4">
                 <Link to="/auth">
-                  <Button variant="ghost">
+                  <Button variant="ghost" className="rounded-lg">
                     <LogIn className="mr-2 h-4 w-4" /> Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="default">
+                  <Button variant="default" className="rounded-lg">
                     <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                   </Button>
                 </Link>
@@ -84,14 +96,28 @@ export const Header = () => {
                 >
                   Marketplace
                 </Link>
+                <Link 
+                  to="/saved-items" 
+                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Saved Recipes & Meal Plans
+                </Link>
+                <Link 
+                  to="/profile" 
+                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Profile
+                </Link>
                 <div className="flex flex-col gap-2 px-4 py-2">
                   <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full">
+                    <Button variant="ghost" className="w-full rounded-lg">
                       <LogIn className="mr-2 h-4 w-4" /> Sign In
                     </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="default" className="w-full">
+                    <Button variant="default" className="w-full rounded-lg">
                       <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                     </Button>
                   </Link>
