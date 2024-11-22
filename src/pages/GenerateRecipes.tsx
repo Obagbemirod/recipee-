@@ -25,8 +25,6 @@ const GenerateRecipes = () => {
 
     setIsUploading(true);
     try {
-      // In a real app, you would upload the image to a server and get its description
-      // For now, we'll use a mock description
       const mockDescription = "A homemade burger with lettuce, tomato, and cheese";
       const generatedRecipe = await generateRecipeFromImage(mockDescription);
       setRecipe(generatedRecipe);
@@ -41,17 +39,17 @@ const GenerateRecipes = () => {
   return (
     <div className="container mx-auto px-4 py-20">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Generate Recipes from Photos</h1>
+        <h1 className="text-3xl font-bold mb-6 text-secondary">Generate Recipes from Photos</h1>
         
         <div className="grid gap-8 md:grid-cols-2">
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+          <div className="bg-white rounded-lg shadow-md p-8 border-2 border-primary hover:border-primary/80 transition-colors">
+            <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-primary/50 rounded-lg cursor-pointer hover:bg-accent/50 transition-all">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Image className="h-12 w-12 text-gray-400 mb-4" />
-                <p className="mb-2 text-sm text-gray-500">
+                <Image className="h-12 w-12 text-primary mb-4" />
+                <p className="mb-2 text-sm text-secondary">
                   <span className="font-semibold">Upload a photo of your dish</span>
                 </p>
-                <p className="text-xs text-gray-500">PNG, JPG or HEIC (MAX. 10MB)</p>
+                <p className="text-xs text-secondary/70">PNG, JPG or HEIC (MAX. 10MB)</p>
               </div>
               <input
                 type="file"
@@ -64,16 +62,16 @@ const GenerateRecipes = () => {
           </div>
 
           {isUploading ? (
-            <div className="bg-white rounded-lg shadow-md p-8 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-md p-8 flex items-center justify-center border-2 border-primary">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2">Generating recipe...</span>
+              <span className="ml-2 text-secondary">Generating recipe...</span>
             </div>
           ) : recipe ? (
-            <ScrollArea className="bg-white rounded-lg shadow-md p-8 h-[500px]">
+            <ScrollArea className="bg-white rounded-lg shadow-md p-8 h-[500px] border-2 border-primary hover:border-primary/80 transition-colors">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">{recipe.name}</h2>
-                  <div className="flex gap-4 text-sm text-gray-500">
+                  <h2 className="text-2xl font-bold mb-2 text-secondary">{recipe.name}</h2>
+                  <div className="flex gap-4 text-sm text-secondary/70">
                     <span>🕒 {recipe.totalTime}</span>
                     <span>📊 {recipe.difficulty}</span>
                     <span>👥 Serves {recipe.servings}</span>
@@ -81,8 +79,8 @@ const GenerateRecipes = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Ingredients</h3>
-                  <ul className="list-disc list-inside space-y-1">
+                  <h3 className="text-lg font-semibold mb-2 text-secondary">Ingredients</h3>
+                  <ul className="list-disc list-inside space-y-1 text-secondary/80">
                     {recipe.ingredients.map((ingredient, index) => (
                       <li key={index}>
                         {ingredient.amount} {ingredient.item}
@@ -92,8 +90,8 @@ const GenerateRecipes = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Equipment Needed</h3>
-                  <ul className="list-disc list-inside space-y-1">
+                  <h3 className="text-lg font-semibold mb-2 text-secondary">Equipment Needed</h3>
+                  <ul className="list-disc list-inside space-y-1 text-secondary/80">
                     {recipe.equipment.map((item, index) => (
                       <li key={index}>{item}</li>
                     ))}
@@ -101,8 +99,8 @@ const GenerateRecipes = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Instructions</h3>
-                  <ol className="list-decimal list-inside space-y-3">
+                  <h3 className="text-lg font-semibold mb-2 text-secondary">Instructions</h3>
+                  <ol className="list-decimal list-inside space-y-3 text-secondary/80">
                     {recipe.instructions.map((instruction) => (
                       <li key={instruction.step} className="pl-2">
                         <span className="font-medium">({instruction.time})</span>
