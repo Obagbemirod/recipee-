@@ -6,7 +6,7 @@ const features = [
     icon: Calendar,
     title: "Personalized Meal Plans",
     description: "Get customized weekly meal plans based on your preferences",
-    image: "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?auto=format&fit=crop&q=80"
+    image: "/lovable-uploads/0b797584-97a3-40b9-ad6a-ec5b8f5f7443.png"
   },
   {
     icon: Camera,
