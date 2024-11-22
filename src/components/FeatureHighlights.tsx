@@ -3,6 +3,12 @@ import { Camera, ChefHat, Calendar, Users } from "lucide-react";
 
 const features = [
   {
+    icon: Calendar,
+    title: "Personalized Meal Plans",
+    description: "Get customized weekly meal plans based on your preferences",
+    image: "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?auto=format&fit=crop&q=80"
+  },
+  {
     icon: Camera,
     title: "Ingredient Recognition",
     description: "Take a photo of your ingredients and let AI suggest delicious recipes",
@@ -13,12 +19,6 @@ const features = [
     title: "Interactive Cooking Assistant",
     description: "Step-by-step guidance with voice commands and timers",
     image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80"
-  },
-  {
-    icon: Calendar,
-    title: "Personalized Meal Plans",
-    description: "Get customized weekly meal plans based on your preferences",
-    image: "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?auto=format&fit=crop&q=80"
   },
   {
     icon: Users,
