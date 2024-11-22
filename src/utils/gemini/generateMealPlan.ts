@@ -15,14 +15,14 @@ const getGeminiAPI = () => {
 
 export const generateMealPlan = async (preferences: string[]) => {
   const genAI = getGeminiAPI();
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
   
   const prompt = `Create a 7-day meal plan (Monday through Sunday) based on these preferences: ${preferences.join(", ")}
   Each meal should be unique and different from previous generations.
-  Return ONLY a JSON object with the following structure for each day and meal:
+  Return ONLY a JSON object with the following structure for each day:
   {
-    "dayOfWeek": {
-      "breakfast/lunch/dinner": {
+    "Monday": {
+      "breakfast": {
         "name": "meal name",
         "nutrition": {
           "calories": "amount",
@@ -36,8 +36,12 @@ export const generateMealPlan = async (preferences: string[]) => {
         "steps": [
           {"step": number, "instruction": "step description", "time": "duration"}
         ]
-      }
-    }
+      },
+      "lunch": { same structure as breakfast },
+      "dinner": { same structure as breakfast }
+    },
+    "Tuesday": { same structure as Monday },
+    ... continue for all days of the week
   }`;
 
   try {
@@ -45,28 +49,41 @@ export const generateMealPlan = async (preferences: string[]) => {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.9,
-        maxOutputTokens: 2000,
+        maxOutputTokens: 4000,
       }
     });
 
     const response = await result.response;
     const text = response.text().trim();
+    
+    // Remove any markdown code block syntax if present
     const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
     
     try {
       const mealPlan = JSON.parse(jsonStr);
       
-      // Add appropriate images to each meal
-      Object.keys(mealPlan).forEach(day => {
-        ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
-          if (mealPlan[day][mealType]) {
-            mealPlan[day][mealType].image = getImageForMeal(
-              mealPlan[day][mealType].name,
-              mealType as 'breakfast' | 'lunch' | 'dinner'
-            );
+      // Validate the structure of the meal plan
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const meals = ['breakfast', 'lunch', 'dinner'];
+      
+      // Ensure all days and meals are present
+      for (const day of days) {
+        if (!mealPlan[day]) {
+          throw new Error(`Missing day: ${day}`);
+        }
+        
+        for (const meal of meals) {
+          if (!mealPlan[day][meal]) {
+            throw new Error(`Missing ${meal} for ${day}`);
           }
-        });
-      });
+          
+          // Add image for each meal
+          mealPlan[day][meal].image = getImageForMeal(
+            mealPlan[day][meal].name,
+            meal as 'breakfast' | 'lunch' | 'dinner'
+          );
+        }
+      }
       
       return mealPlan;
     } catch (parseError) {
