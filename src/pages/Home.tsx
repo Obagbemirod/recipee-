@@ -1,13 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText, ShoppingBag, BookMarked, User } from "lucide-react";
+import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText, ShoppingBag, BookMarked, User, LogOut, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { toast } from "sonner";
 
 const Home = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   
+  const handleLogout = () => {
+    // Add your logout logic here
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
+
   const suggestedMealPlans = [
     {
       title: "Vegetarian Week",
@@ -63,6 +71,13 @@ const Home = () => {
                     <User className="mr-2 h-4 w-4" /> Profile
                   </Button>
                 </Link>
+                <Button 
+                  variant="ghost" 
+                  className="rounded-lg border border-primary text-white hover:bg-primary/20"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="mr-2 h-4 w-4" /> Logout
+                </Button>
               </div>
               <Button 
                 variant="ghost" 
@@ -102,6 +117,16 @@ const Home = () => {
                       <User className="mr-2 h-4 w-4" /> Profile
                     </Button>
                   </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full rounded-lg border border-primary text-white hover:bg-primary/20"
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Logout
+                  </Button>
                 </nav>
               </div>
             )}

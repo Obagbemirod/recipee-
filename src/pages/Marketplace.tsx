@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { RecipeCard } from "@/components/RecipeCard";
+import { ArrowLeft } from "lucide-react";
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -35,7 +36,16 @@ const Marketplace = () => {
   return (
     <div className="min-h-screen pt-20 bg-background">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Recipe Marketplace</h1>
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            variant="ghost"
+            className="border border-primary text-primary hover:bg-primary hover:text-white rounded-lg"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
+          <h1 className="text-3xl font-bold">Recipe Marketplace</h1>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recipes.map((recipe, index) => (

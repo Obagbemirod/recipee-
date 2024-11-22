@@ -7,10 +7,11 @@ import * as z from "zod";
 import { useToast } from "@/components/ui/use-toast";
 import { DietaryPreferences } from "@/components/onboarding/DietaryPreferences";
 import { AllergiesSection } from "@/components/onboarding/AllergiesSection";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { useRef } from "react";
+import { ArrowLeft, ShoppingBag, BookMarked } from "lucide-react";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -23,6 +24,7 @@ const profileSchema = z.object({
 const Profile = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -73,20 +75,28 @@ const Profile = () => {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto space-y-8"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="ghost"
+              className="border border-primary text-primary hover:bg-primary hover:text-white rounded-lg"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
             <h1 className="text-3xl font-bold">Profile Settings</h1>
-            <nav className="space-x-4">
-              <Link to="/saved-items">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
-                  Saved Recipes & Meal Plans
-                </Button>
-              </Link>
-              <Link to="/marketplace">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
-                  Marketplace
-                </Button>
-              </Link>
-            </nav>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+            <Link to="/marketplace">
+              <Button variant="outline" className="w-full md:w-auto border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                <ShoppingBag className="mr-2 h-4 w-4" /> Marketplace
+              </Button>
+            </Link>
+            <Link to="/saved-items">
+              <Button variant="outline" className="w-full md:w-auto border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+                <BookMarked className="mr-2 h-4 w-4" /> Saved Recipes & Meal Plans
+              </Button>
+            </Link>
           </div>
 
           <div className="flex items-center space-x-4 mb-8">

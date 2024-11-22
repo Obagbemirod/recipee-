@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecipeCard } from "@/components/RecipeCard";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const SavedItems = () => {
   const [activeTab, setActiveTab] = useState<"recipes" | "mealPlans">("recipes");
+  const navigate = useNavigate();
 
   const savedRecipes = [
     {
@@ -29,6 +32,17 @@ const SavedItems = () => {
   return (
     <div className="min-h-screen pt-20 bg-background">
       <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            variant="ghost"
+            className="border border-primary text-primary hover:bg-primary hover:text-white rounded-lg"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
+          <h1 className="text-3xl font-bold">Saved Items</h1>
+        </div>
+
         <div className="flex justify-center space-x-4 mb-8">
           <Button
             variant={activeTab === "recipes" ? "default" : "outline"}
