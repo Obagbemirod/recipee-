@@ -17,9 +17,7 @@ export const generateMealPlan = async (preferences: string[]) => {
   const genAI = getGeminiAPI();
   const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
   
-  const prompt = `Create a 7-day meal plan (Monday through Sunday) based on these preferences: ${preferences.join(", ")}
-  Each meal should be unique and different from previous generations.
-  Return ONLY a JSON object with the following structure for each day:
+  const prompt = `Generate a meal plan for one day only with exactly this JSON structure (no additional text or markdown):
   {
     "Monday": {
       "breakfast": {
@@ -39,61 +37,47 @@ export const generateMealPlan = async (preferences: string[]) => {
       },
       "lunch": { same structure as breakfast },
       "dinner": { same structure as breakfast }
-    },
-    "Tuesday": { same structure as Monday },
-    ... continue for all days of the week
+    }
   }`;
 
   try {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.9,
-        maxOutputTokens: 4000,
+        temperature: 0.7,
+        maxOutputTokens: 2000,
       }
     });
 
     const response = await result.response;
     const text = response.text().trim();
     
-    // Remove any markdown code block syntax if present
+    // Remove any markdown code block syntax and clean the response
     const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
     
     try {
       const mealPlan = JSON.parse(jsonStr);
       
-      // Validate the structure of the meal plan
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      const meals = ['breakfast', 'lunch', 'dinner'];
-      
-      // Ensure all days and meals are present
-      for (const day of days) {
-        if (!mealPlan[day]) {
-          throw new Error(`Missing day: ${day}`);
-        }
-        
-        for (const meal of meals) {
-          if (!mealPlan[day][meal]) {
-            throw new Error(`Missing ${meal} for ${day}`);
-          }
-          
-          // Add image for each meal
-          mealPlan[day][meal].image = getImageForMeal(
-            mealPlan[day][meal].name,
-            meal as 'breakfast' | 'lunch' | 'dinner'
-          );
-        }
+      // Validate the structure
+      if (!mealPlan.Monday || !mealPlan.Monday.breakfast || !mealPlan.Monday.lunch || !mealPlan.Monday.dinner) {
+        throw new Error("Invalid meal plan structure");
       }
+      
+      // Add images for each meal
+      ['breakfast', 'lunch', 'dinner'].forEach(meal => {
+        mealPlan.Monday[meal].image = getImageForMeal(
+          mealPlan.Monday[meal].name,
+          meal as 'breakfast' | 'lunch' | 'dinner'
+        );
+      });
       
       return mealPlan;
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', jsonStr);
-      toast.error("Failed to parse the generated meal plan. Please try again.");
-      throw new Error("Failed to parse meal plan response");
+      throw new Error("Failed to parse the meal plan response");
     }
   } catch (error) {
     console.error('Error generating meal plan:', error);
-    toast.error("Failed to generate meal plan. Please try again.");
     throw error;
   }
 };

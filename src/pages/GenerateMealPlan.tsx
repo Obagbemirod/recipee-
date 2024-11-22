@@ -44,12 +44,10 @@ const GenerateMealPlan = () => {
       if (plan) {
         setMealPlan({ ...plan, name: values.planName });
         toast.success("Meal plan generated successfully!");
-      } else {
-        toast.error("Failed to generate meal plan");
       }
     } catch (error) {
       console.error("Error generating meal plan:", error);
-      toast.error("Error generating meal plan");
+      toast.error("Error generating meal plan. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -147,7 +145,7 @@ const GenerateMealPlan = () => {
           <div className="bg-white rounded-lg shadow-md p-8 border border-primary hover:border-2 transition-all duration-300 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-secondary">
-                {mealPlan.name || "Your Weekly Meal Plan"}
+                {mealPlan.name || "Your Meal Plan"}
               </h2>
               <Button
                 onClick={saveMealPlan}
