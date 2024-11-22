@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image, ShoppingCart, Settings, Heart, Store, Video, Mic, FileText } from "lucide-react";
+import { Camera, ChefHat, Image, ShoppingCart, Settings, Heart, Store, Video, Mic, FileText, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -90,17 +90,17 @@ const Home = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Quick Navigation</h2>
             <nav className="space-y-2">
+              <Link to="/profile" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
+                <User className="h-5 w-5 text-primary" />
+                <span>Profile</span>
+              </Link>
+              <Link to="/saved-items" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
+                <Heart className="h-5 w-5 text-primary" />
+                <span>Saved Items</span>
+              </Link>
               <Link to="/marketplace" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
                 <Store className="h-5 w-5 text-primary" />
                 <span>Recipe Marketplace</span>
-              </Link>
-              <Link to="/saved" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
-                <Heart className="h-5 w-5 text-primary" />
-                <span>Saved Recipes</span>
-              </Link>
-              <Link to="/grocery-list" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
-                <ShoppingCart className="h-5 w-5 text-primary" />
-                <span>Grocery List</span>
               </Link>
               <Link to="/settings" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md">
                 <Settings className="h-5 w-5 text-primary" />

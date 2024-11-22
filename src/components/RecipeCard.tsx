@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface RecipeCardProps {
   title: string;
@@ -8,6 +9,17 @@ interface RecipeCardProps {
 }
 
 export const RecipeCard = ({ title, image, time, difficulty }: RecipeCardProps) => {
+  const navigate = useNavigate();
+  const isAuthenticated = false; // This should come from your auth context
+
+  const handleViewRecipe = () => {
+    if (isAuthenticated) {
+      navigate("/marketplace");
+    } else {
+      navigate("/auth");
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -33,7 +45,10 @@ export const RecipeCard = ({ title, image, time, difficulty }: RecipeCardProps) 
         
         <h3 className="text-xl font-semibold mb-2 text-balance">{title}</h3>
         
-        <button className="text-primary font-medium hover:opacity-80 transition-opacity">
+        <button 
+          className="text-primary font-medium hover:opacity-80 transition-opacity"
+          onClick={handleViewRecipe}
+        >
           View Recipe →
         </button>
       </div>

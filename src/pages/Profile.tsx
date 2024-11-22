@@ -10,6 +10,7 @@ import { AllergiesSection } from "@/components/onboarding/AllergiesSection";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
+import { useRef } from "react";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,7 +22,24 @@ const profileSchema = z.object({
 
 const Profile = () => {
   const { toast } = useToast();
-  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Here you would typically upload the file to your server
+      // For now, we'll just show a success message
+      toast({
+        title: "Photo updated",
+        description: "Your profile photo has been updated successfully.",
+      });
+    }
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -61,11 +79,11 @@ const Profile = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Profile Settings</h1>
             <nav className="space-x-4">
+              <Link to="/saved-items" className="text-primary hover:underline">
+                Saved Items
+              </Link>
               <Link to="/marketplace" className="text-primary hover:underline">
                 Marketplace
-              </Link>
-              <Link to="/saved-recipes" className="text-primary hover:underline">
-                Saved Recipes
               </Link>
               <Link to="/meal-plans" className="text-primary hover:underline">
                 Meal Plans
@@ -78,7 +96,16 @@ const Profile = () => {
               <AvatarImage src="/placeholder.svg" />
               <AvatarFallback>UN</AvatarFallback>
             </Avatar>
-            <Button variant="outline">Change Photo</Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handlePhotoChange}
+            />
+            <Button variant="outline" onClick={handlePhotoClick}>
+              Change Photo
+            </Button>
           </div>
 
           <Form {...form}>

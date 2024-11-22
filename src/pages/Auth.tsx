@@ -44,12 +44,14 @@ const Auth = () => {
   const onSubmit = async (values: any) => {
     try {
       if (isLogin) {
+        // Login logic here
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        navigate("/");
+        navigate("/home");
       } else {
+        // Signup logic here
         toast({
           title: "Account created successfully!",
           description: "Please complete the onboarding process.",
