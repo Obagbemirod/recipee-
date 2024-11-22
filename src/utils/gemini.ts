@@ -25,7 +25,31 @@ const mockMealPlan = {
     "lunch": "Quinoa bowl with chickpeas and vegetables",
     "dinner": "Turkey meatballs with whole grain pasta"
   },
-  // ... rest of the week with similar structure
+  "wednesday": {
+    "breakfast": "Smoothie bowl with banana and spinach",
+    "lunch": "Veggie wrap with hummus",
+    "dinner": "Chicken stir-fry with vegetables"
+  },
+  "thursday": {
+    "breakfast": "Eggs and toast with avocado",
+    "lunch": "Caesar salad with shrimp",
+    "dinner": "Pasta primavera"
+  },
+  "friday": {
+    "breakfast": "Pancakes with maple syrup",
+    "lunch": "Beef taco salad",
+    "dinner": "Grilled tilapia with asparagus"
+  },
+  "saturday": {
+    "breakfast": "Muffins with coffee",
+    "lunch": "Vegetable soup with bread",
+    "dinner": "Stir-fried tofu with broccoli"
+  },
+  "sunday": {
+    "breakfast": "Fruit salad with yogurt",
+    "lunch": "Chicken club sandwich",
+    "dinner": "Beef and vegetable curry"
+  }
 };
 
 const mockRecipe = {
@@ -53,7 +77,7 @@ export const identifyIngredients = async (input: string) => {
       return ["tomato", "lettuce", "cheese", "beef patty", "burger bun"];
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Please identify and list all ingredients from the following input: ${input}
     Format the response as a JSON array of ingredients.`;
 
@@ -74,7 +98,7 @@ export const generateRecipeFromImage = async (imageDescription: string) => {
       return mockRecipe;
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Given this dish: "${imageDescription}", please provide:
     1. The name of the dish
     2. A detailed list of all ingredients with exact measurements
@@ -113,7 +137,7 @@ export const generateMealPlan = async (preferences: string[]) => {
       return mockMealPlan;
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Create a 7-day meal plan based on these preferences: ${preferences.join(", ")}
     Please include breakfast, lunch, and dinner for each day.
     Format the response as a JSON object with days as keys and meals as nested objects.
@@ -124,7 +148,36 @@ export const generateMealPlan = async (preferences: string[]) => {
         "lunch": "meal description",
         "dinner": "meal description"
       },
-      // ... rest of the week
+      "tuesday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      },
+      "wednesday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      },
+      "thursday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      },
+      "friday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      },
+      "saturday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      },
+      "sunday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      }
     }`;
 
     const result = await model.generateContent(prompt);
