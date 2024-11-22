@@ -18,7 +18,43 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="relative">
+        <img 
+          src="https://images.unsplash.com/photo-1495195134817-aeb325a55b65?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" 
+          alt="Header Background" 
+          className="w-full h-[300px] object-cover"
+        />
+        <div className="absolute inset-0 bg-black/50">
+          <div className="container mx-auto px-4 h-full flex items-center justify-between">
+            <img 
+              src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png" 
+              alt="Logo" 
+              className="h-12"
+            />
+            <div className="flex items-center space-x-4">
+              <Link to="/marketplace">
+                <Button variant="outline" className="border-red-500 text-white hover:bg-red-500 hover:text-white rounded-lg">
+                  Marketplace
+                </Button>
+              </Link>
+              <Link to="/saved-items">
+                <Button variant="outline" className="border-red-500 text-white hover:bg-red-500 hover:text-white rounded-lg">
+                  Saved Recipes & Meal Plans
+                </Button>
+              </Link>
+              <Link to="/profile">
+                <Button variant="outline" className="border-red-500 text-white hover:bg-red-500 hover:text-white rounded-lg">
+                  Profile
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -55,13 +91,13 @@ const Home = () => {
                 </div>
               </Link>
               <Link to="/generate-meal-plan" className="w-full">
-                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-primary text-primary hover:bg-primary hover:text-white">
+                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-red-500 text-primary hover:bg-red-500 hover:text-white">
                   <ChefHat className="h-8 w-8 text-primary" />
                   <span>Generate Meal Plan with AI</span>
                 </Button>
               </Link>
               <Link to="/generate-recipes" className="w-full">
-                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-primary text-primary hover:bg-primary hover:text-white">
+                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full rounded-lg border-red-500 text-primary hover:bg-red-500 hover:text-white">
                   <Image className="h-8 w-8 text-primary" />
                   <span>Generate Recipes from Dish Photos</span>
                 </Button>
