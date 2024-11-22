@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Camera, ChefHat, Calendar, Users } from "lucide-react";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -9,34 +9,28 @@ const features = [
     title: "Personalized Meal Plans",
     description: "Get customized weekly meal plans based on your preferences",
     image: "/lovable-uploads/0b797584-97a3-40b9-ad6a-ec5b8f5f7443.png",
-    action: "/generate-meal-plan"
   },
   {
     icon: Camera,
     title: "Ingredient Recognition",
     description: "Share your ingredients through photo, video, voice, or text, and let AI generate a personalized weekly Meal Plan",
     image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80",
-    action: "/upload-ingredients"
   },
   {
     icon: ChefHat,
     title: "Interactive Cooking Assistant",
     description: "Step-by-step guidance with voice commands and timers",
     image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80",
-    action: "/generate-recipes"
   },
   {
     icon: Users,
     title: "Community",
     description: "Share recipes and connect with food enthusiasts worldwide",
     image: "/lovable-uploads/d5c09235-22d5-4ade-a71d-9b0d44ca21d9.png",
-    action: "/home"
   },
 ];
 
 export const FeatureHighlights = () => {
-  const navigate = useNavigate();
-
   return (
     <section className="py-12 md:py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -74,13 +68,11 @@ export const FeatureHighlights = () => {
                 <feature.icon className="w-8 h-8 md:w-10 md:h-10 mb-3 md:mb-4 text-primary" />
                 <h3 className="text-lg md:text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-sm md:text-base text-white/90 mb-4">{feature.description}</p>
-                <Button 
-                  onClick={() => navigate(feature.action)}
-                  variant="secondary" 
-                  className="w-full"
-                >
-                  Get Started
-                </Button>
+                <Link to="/auth" className="w-full">
+                  <Button variant="secondary" className="w-full">
+                    Get Started
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           ))}

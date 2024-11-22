@@ -2,12 +2,11 @@ import { Button } from "@/components/ui/button";
 import { LogIn, UserPlus, X, Menu } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
   if (typeof window !== "undefined") {
     window.addEventListener("scroll", () => {
@@ -43,16 +42,18 @@ export const Header = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <Link to="/auth">
-                <Button variant="ghost">
-                  <LogIn className="mr-2 h-4 w-4" /> Sign In
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button variant="default">
-                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
-                </Button>
-              </Link>
+              <div className="hidden md:flex items-center space-x-4">
+                <Link to="/auth">
+                  <Button variant="ghost">
+                    <LogIn className="mr-2 h-4 w-4" /> Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="default">
+                    <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                  </Button>
+                </Link>
+              </div>
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -84,12 +85,12 @@ export const Header = () => {
                   Marketplace
                 </Link>
                 <div className="flex flex-col gap-2 px-4 py-2">
-                  <Link to="/auth">
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full">
                       <LogIn className="mr-2 h-4 w-4" /> Sign In
                     </Button>
                   </Link>
-                  <Link to="/auth">
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="default" className="w-full">
                       <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                     </Button>
