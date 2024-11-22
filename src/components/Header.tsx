@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, X, Menu, ShoppingBag, BookMarked, User } from "lucide-react";
+import { LogIn, UserPlus, X, Menu } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -37,21 +37,6 @@ export const Header = () => {
 
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center space-x-4">
-                <Link to="/marketplace">
-                  <Button variant="ghost" className="rounded-lg">
-                    <ShoppingBag className="mr-2 h-4 w-4" /> Marketplace
-                  </Button>
-                </Link>
-                <Link to="/saved-items">
-                  <Button variant="ghost" className="rounded-lg">
-                    <BookMarked className="mr-2 h-4 w-4" /> Saved Items
-                  </Button>
-                </Link>
-                <Link to="/profile">
-                  <Button variant="ghost" className="rounded-lg">
-                    <User className="mr-2 h-4 w-4" /> Profile
-                  </Button>
-                </Link>
                 <Link to="/auth">
                   <Button variant="ghost" className="rounded-lg">
                     <LogIn className="mr-2 h-4 w-4" /> Sign In
@@ -87,21 +72,6 @@ export const Header = () => {
             <div className="bg-white/95 backdrop-blur-md shadow-lg p-4">
               <nav className="flex flex-col space-y-4">
                 <div className="flex flex-col gap-2 px-4 py-2">
-                  <Link to="/marketplace" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full rounded-lg">
-                      <ShoppingBag className="mr-2 h-4 w-4" /> Marketplace
-                    </Button>
-                  </Link>
-                  <Link to="/saved-items" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full rounded-lg">
-                      <BookMarked className="mr-2 h-4 w-4" /> Saved Items
-                    </Button>
-                  </Link>
-                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full rounded-lg">
-                      <User className="mr-2 h-4 w-4" /> Profile
-                    </Button>
-                  </Link>
                   <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full rounded-lg">
                       <LogIn className="mr-2 h-4 w-4" /> Sign In

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText } from "lucide-react";
+import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText, ShoppingBag, BookMarked, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -28,11 +28,39 @@ const Home = () => {
         />
         <div className="absolute inset-0 bg-black/40">
           <div className="container mx-auto px-4 h-full flex flex-col items-center justify-between py-4 md:py-8">
-            <img 
-              src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png" 
-              alt="Logo" 
-              className="h-8 md:h-12 mb-4"
-            />
+            <div className="w-full flex items-center justify-between">
+              <img 
+                src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png" 
+                alt="Logo" 
+                className="h-8 md:h-12"
+              />
+              <div className="hidden md:flex items-center space-x-4">
+                <Link to="/marketplace">
+                  <Button 
+                    variant="ghost" 
+                    className="rounded-lg border border-primary text-white hover:bg-primary/20"
+                  >
+                    <ShoppingBag className="mr-2 h-4 w-4" /> Marketplace
+                  </Button>
+                </Link>
+                <Link to="/saved-items">
+                  <Button 
+                    variant="ghost" 
+                    className="rounded-lg border border-primary text-white hover:bg-primary/20"
+                  >
+                    <BookMarked className="mr-2 h-4 w-4" /> Saved Items
+                  </Button>
+                </Link>
+                <Link to="/profile">
+                  <Button 
+                    variant="ghost" 
+                    className="rounded-lg border border-primary text-white hover:bg-primary/20"
+                  >
+                    <User className="mr-2 h-4 w-4" /> Profile
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
