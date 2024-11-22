@@ -9,6 +9,11 @@ const getGeminiAPI = () => {
     throw new Error("Gemini API key is not set");
   }
   
+  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdE") {
+    toast.error("Please replace the default API key with your own Gemini API key in the .env file");
+    throw new Error("Default API key detected - please use your own key");
+  }
+  
   return new GoogleGenerativeAI(apiKey);
 };
 
