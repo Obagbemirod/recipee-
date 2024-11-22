@@ -11,7 +11,7 @@ const features = [
   {
     icon: Camera,
     title: "Ingredient Recognition",
-    description: "Take a photo of your ingredients and let AI suggest delicious recipes",
+    description: "Share your ingredients through photo, video, voice, or text, and let AI suggest delicious recipes",
     image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80"
   },
   {
