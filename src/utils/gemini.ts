@@ -56,3 +56,31 @@ export const generateRecipeFromImage = async (imageDescription: string) => {
     throw error;
   }
 };
+
+export const generateMealPlan = async (preferences: string[]) => {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    const prompt = `Create a 7-day meal plan based on these preferences: ${preferences.join(", ")}
+    Please include breakfast, lunch, and dinner for each day.
+    Format the response as a JSON object with days as keys and meals as nested objects.
+    Example structure:
+    {
+      "monday": {
+        "breakfast": "meal description",
+        "lunch": "meal description",
+        "dinner": "meal description"
+      },
+      // ... rest of the week
+    }`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    return JSON.parse(text);
+  } catch (error) {
+    console.error('Error generating meal plan:', error);
+    throw error;
+  }
+};
