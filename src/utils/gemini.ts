@@ -1,7 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Gemini API
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+// Initialize Gemini API with validation
+const getGeminiAPI = () => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("Gemini API key is not set. Please set VITE_GEMINI_API_KEY in your environment variables.");
+  }
+  
+  return new GoogleGenerativeAI(apiKey);
+};
+
+const genAI = getGeminiAPI();
 
 export const identifyIngredients = async (input: string) => {
   try {
