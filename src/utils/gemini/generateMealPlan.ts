@@ -16,7 +16,7 @@ export const generateMealPlan = async (preferences: string[]) => {
   const genAI = getGeminiAPI();
   const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
   
-  const prompt = `Generate a complete 7-day meal plan with exactly this JSON structure (no additional text or markdown):
+  const prompt = `Generate a complete 7-day meal plan with exactly this JSON structure for EACH day (Monday through Sunday):
   {
     "Monday": {
       "breakfast": {
@@ -43,14 +43,16 @@ export const generateMealPlan = async (preferences: string[]) => {
     "Friday": { same structure as Monday },
     "Saturday": { same structure as Monday },
     "Sunday": { same structure as Monday }
-  }`;
+  }
+  
+  Important: Return ONLY the JSON, no additional text or formatting.`;
 
   try {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: `${prompt} Consider these preferences: ${preferences.join(", ")}` }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 4000,
+        maxOutputTokens: 8000,
       }
     });
 
