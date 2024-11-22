@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { AuthSwitch } from "@/components/auth/AuthSwitch";
 import { SocialAuth } from "@/components/auth/SocialAuth";
@@ -38,20 +38,23 @@ const Auth = () => {
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { 
+      name: "", 
+      email: "", 
+      password: "", 
+      confirmPassword: "" 
+    },
   });
 
   const onSubmit = async (values: any) => {
     try {
       if (isLogin) {
-        // Login logic here
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
         navigate("/home");
       } else {
-        // Signup logic here
         toast({
           title: "Account created successfully!",
           description: "Please complete the onboarding process.",
@@ -127,7 +130,11 @@ const Auth = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your name" {...field} />
+                      <Input 
+                        type="text"
+                        placeholder="Enter your name" 
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
