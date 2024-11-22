@@ -78,14 +78,39 @@ export const identifyIngredients = async (input: string) => {
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const prompt = `Please identify and list all ingredients from the following input: ${input}
-    Format the response as a JSON array of ingredients.`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const prompt = `Analyze the following input and identify food ingredients. 
+    Return ONLY a JSON array of ingredient names, nothing else. 
+    Example format: ["ingredient1", "ingredient2"]
     
-    return JSON.parse(text);
+    Input: ${input}`;
+
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1, // Lower temperature for more consistent output
+        maxOutputTokens: 1000,
+      }
+    });
+    
+    const response = await result.response;
+    const text = response.text().trim();
+    
+    // Handle cases where the response might include markdown code blocks
+    const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
+    
+    try {
+      return JSON.parse(jsonStr);
+    } catch (parseError) {
+      // If parsing fails, attempt to extract array-like content
+      const matches = jsonStr.match(/\[(.*)\]/);
+      if (matches) {
+        // Try parsing just the array portion
+        return JSON.parse(matches[0]);
+      }
+      // If all parsing attempts fail, return a default array
+      console.error('Failed to parse ingredients response:', jsonStr);
+      return ["ingredient parsing failed"];
+    }
   } catch (error) {
     console.error('Error identifying ingredients:', error);
     throw error;
