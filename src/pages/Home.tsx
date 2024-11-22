@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image, ShoppingCart, Settings, Heart, Store } from "lucide-react";
+import { Camera, ChefHat, Image, ShoppingCart, Settings, Heart, Store, Video, Mic, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -29,17 +29,37 @@ const Home = () => {
           <div className="col-span-full mb-8">
             <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2">
-                <Camera className="h-8 w-8 text-primary" />
-                <span>Upload Ingredients Photo</span>
-              </Button>
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                  <Camera className="h-5 w-5 text-primary" />
+                  Upload Ingredients
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Camera className="h-4 w-4" />
+                    Photo
+                  </Button>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Video className="h-4 w-4" />
+                    Video
+                  </Button>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Mic className="h-4 w-4" />
+                    Audio
+                  </Button>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Text
+                  </Button>
+                </div>
+              </div>
               <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2">
                 <ChefHat className="h-8 w-8 text-primary" />
-                <span>Generate AI Meal Plans</span>
+                <span>Generate Meal Plan with AI</span>
               </Button>
               <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2">
                 <Image className="h-8 w-8 text-primary" />
-                <span>Get Recipes from Photos</span>
+                <span>Generate Recipes from Dish Photos</span>
               </Button>
             </div>
           </div>
