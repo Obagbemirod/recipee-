@@ -188,7 +188,7 @@ const Auth = () => {
           </div>
         </div>
 
-        <SocialAuth />
+        <SocialAuth isLogin={isLogin} />
       </motion.div>
     </div>
   );
