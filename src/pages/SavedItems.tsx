@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecipeCard } from "@/components/RecipeCard";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { MealPlanDay } from "@/components/MealPlanDay";
 
 const SavedItems = () => {
   const [activeTab, setActiveTab] = useState<"recipes" | "mealPlans">("recipes");
+  const [savedMealPlans, setSavedMealPlans] = useState<any[]>([]);
   const navigate = useNavigate();
 
   const savedRecipes = [
@@ -16,18 +18,26 @@ const SavedItems = () => {
       time: "30 min",
       difficulty: "Easy",
     },
-    // Add more saved recipes as needed
   ];
 
-  const savedMealPlans = [
-    {
-      title: "Vegetarian Week",
-      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999",
-      time: "7 days",
-      difficulty: "Medium",
-    },
-    // Add more saved meal plans as needed
-  ];
+  useEffect(() => {
+    const plans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
+    setSavedMealPlans(plans);
+  }, []);
+
+  const updateMealPlan = (planId: number, day: string, meals: any) => {
+    const updatedPlans = savedMealPlans.map(plan => {
+      if (plan.id === planId) {
+        return {
+          ...plan,
+          [day]: meals,
+        };
+      }
+      return plan;
+    });
+    setSavedMealPlans(updatedPlans);
+    localStorage.setItem('savedMealPlans', JSON.stringify(updatedPlans));
+  };
 
   return (
     <div className="min-h-screen pt-20 bg-background">
@@ -64,15 +74,34 @@ const SavedItems = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {activeTab === "recipes"
-              ? savedRecipes.map((recipe, index) => (
+            {activeTab === "recipes" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {savedRecipes.map((recipe, index) => (
                   <RecipeCard key={index} {...recipe} />
-                ))
-              : savedMealPlans.map((plan, index) => (
-                  <RecipeCard key={index} {...plan} />
                 ))}
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {savedMealPlans.map((plan) => (
+                  <div key={plan.id} className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-xl font-semibold mb-4">{plan.name}</h2>
+                    <div className="space-y-4">
+                      {Object.entries(plan)
+                        .filter(([key]) => !['id', 'name', 'date'].includes(key))
+                        .map(([day, meals]: [string, any]) => (
+                          <MealPlanDay
+                            key={day}
+                            day={day}
+                            meals={meals}
+                            onUpdate={(day, meals) => updateMealPlan(plan.id, day, meals)}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

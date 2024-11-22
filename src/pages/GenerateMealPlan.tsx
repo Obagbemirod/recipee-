@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChefHat } from "lucide-react";
+import { ChefHat, Save } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { generateMealPlan } from "@/utils/gemini";
@@ -16,6 +16,8 @@ import {
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MealPlanDay } from "@/components/MealPlanDay";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   planName: z.string().min(1, "Plan name is required"),
@@ -25,6 +27,7 @@ const formSchema = z.object({
 const GenerateMealPlan = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,7 +42,7 @@ const GenerateMealPlan = () => {
     try {
       const plan = await generateMealPlan([values.preferences]);
       if (plan) {
-        setMealPlan(plan);
+        setMealPlan({ ...plan, name: values.planName });
         toast.success("Meal plan generated successfully!");
       } else {
         toast.error("Failed to generate meal plan");
@@ -49,6 +52,29 @@ const GenerateMealPlan = () => {
       toast.error("Error generating meal plan");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const updateDayMeals = (day: string, meals: any) => {
+    setMealPlan((prev: any) => ({
+      ...prev,
+      [day]: meals,
+    }));
+  };
+
+  const saveMealPlan = () => {
+    try {
+      const savedPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
+      savedPlans.push({
+        ...mealPlan,
+        id: Date.now(),
+        date: new Date().toISOString(),
+      });
+      localStorage.setItem('savedMealPlans', JSON.stringify(savedPlans));
+      toast.success("Meal plan saved successfully!");
+      navigate("/saved-items");
+    } catch (error) {
+      toast.error("Failed to save meal plan");
     }
   };
 
@@ -86,13 +112,7 @@ const GenerateMealPlan = () => {
                     <FormLabel className="text-secondary">Your Preferences</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Tell us about your dietary preferences and requirements. For example:
-- Preferred cuisines (Italian, Asian, Mediterranean, etc.)
-- Dietary restrictions (vegetarian, gluten-free, dairy-free)
-- Caloric requirements
-- Meal timing preferences for breakfast, lunch, and dinner
-- Any ingredients you want to avoid
-- Cooking skill level and time availability"
+                        placeholder="Tell us about your dietary preferences and requirements..."
                         className="min-h-[200px] border-primary/20 focus:border-primary hover:border-primary transition-colors"
                         {...field}
                       />
@@ -125,21 +145,30 @@ const GenerateMealPlan = () => {
 
         {mealPlan && (
           <div className="bg-white rounded-lg shadow-md p-8 border border-primary hover:border-2 transition-all duration-300 animate-fade-in">
-            <h2 className="text-xl font-semibold mb-4 text-secondary">Your Weekly Meal Plan</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-secondary">
+                {mealPlan.name || "Your Weekly Meal Plan"}
+              </h2>
+              <Button
+                onClick={saveMealPlan}
+                className="flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                Save Plan
+              </Button>
+            </div>
+
             <div className="space-y-4">
-              {Object.entries(mealPlan).map(([day, meals]: [string, any]) => (
-                <div key={day} className="border-b border-primary/20 pb-4">
-                  <h3 className="font-medium mb-2 capitalize text-secondary">{day}</h3>
-                  <div className="space-y-2">
-                    {Object.entries(meals).map(([mealType, meal]: [string, any]) => (
-                      <div key={mealType}>
-                        <span className="font-medium capitalize text-primary">{mealType}: </span>
-                        <span>{meal}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              {Object.entries(mealPlan)
+                .filter(([key]) => key !== 'name')
+                .map(([day, meals]: [string, any]) => (
+                  <MealPlanDay
+                    key={day}
+                    day={day}
+                    meals={meals}
+                    onUpdate={updateDayMeals}
+                  />
+                ))}
             </div>
           </div>
         )}
