@@ -17,6 +17,7 @@ const loginSchema = z.object({
 });
 
 const signUpSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string()
@@ -37,7 +38,7 @@ const Auth = () => {
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
   const onSubmit = async (values: any) => {
@@ -74,12 +75,11 @@ const Auth = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create your account"}</h2>
           <p className="text-muted-foreground mt-2">
-            {isLogin ? "Sign in to your account" : "Start your culinary journey today"}
+            {isLogin ? "Sign in to your account" : "Start your journey today"}
           </p>
         </div>
 
         <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(!checked)} />
-        <SocialAuth />
 
         {isLogin ? (
           <Form {...loginForm}>
@@ -118,6 +118,19 @@ const Auth = () => {
         ) : (
           <Form {...signUpForm}>
             <form onSubmit={signUpForm.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={signUpForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={signUpForm.control}
                 name="email"
@@ -163,6 +176,19 @@ const Auth = () => {
             </form>
           </Form>
         )}
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <SocialAuth />
       </motion.div>
     </div>
   );
