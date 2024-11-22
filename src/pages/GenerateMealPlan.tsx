@@ -1,50 +1,43 @@
 import { Button } from "@/components/ui/button";
-import { ChefHat, Edit2, Trash2 } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { generateMealPlan, identifyIngredients } from "@/utils/gemini";
+import { generateMealPlan } from "@/utils/gemini";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface Ingredient {
-  name: string;
-  quantity?: string;
-}
+const formSchema = z.object({
+  planName: z.string().min(1, "Plan name is required"),
+  preferences: z.string().min(10, "Please provide more details about your preferences"),
+});
 
 const GenerateMealPlan = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [mealPlan, setMealPlan] = useState<any>(null);
-  const [isEditing, setIsEditing] = useState<number | null>(null);
 
-  const handleIdentifyIngredients = async (input: string) => {
-    try {
-      const identified = await identifyIngredients(input);
-      setIngredients(identified.map((name: string) => ({ name })));
-      toast.success("Ingredients identified successfully!");
-    } catch (error) {
-      toast.error("Error identifying ingredients");
-    }
-  };
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      planName: "",
+      preferences: "",
+    },
+  });
 
-  const handleEditIngredient = (index: number, newName: string) => {
-    const newIngredients = [...ingredients];
-    newIngredients[index] = { ...newIngredients[index], name: newName };
-    setIngredients(newIngredients);
-    setIsEditing(null);
-  };
-
-  const handleDeleteIngredient = (index: number) => {
-    setIngredients(ingredients.filter((_, i) => i !== index));
-  };
-
-  const handleGenerate = async () => {
-    if (ingredients.length === 0) {
-      toast.error("Please add ingredients first");
-      return;
-    }
-
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
     try {
-      const plan = await generateMealPlan(ingredients.map(i => i.name));
+      const plan = await generateMealPlan([values.preferences]);
       setMealPlan(plan);
       toast.success("Meal plan generated successfully!");
     } catch (error) {
@@ -59,66 +52,70 @@ const GenerateMealPlan = () => {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Generate Your Meal Plan</h1>
         
-        {/* Ingredients List */}
         <div className="bg-white rounded-lg shadow-md p-8 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Identified Ingredients</h2>
-          <div className="space-y-2">
-            {ingredients.map((ingredient, index) => (
-              <div key={index} className="flex items-center justify-between">
-                {isEditing === index ? (
-                  <input
-                    type="text"
-                    value={ingredient.name}
-                    onChange={(e) => handleEditIngredient(index, e.target.value)}
-                    onBlur={() => setIsEditing(null)}
-                    autoFocus
-                    className="border rounded px-2 py-1"
-                  />
-                ) : (
-                  <span>{ingredient.name}</span>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="planName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meal Plan Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., My Weekly Healthy Plan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <div className="space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsEditing(index)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteIngredient(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              />
+
+              <FormField
+                control={form.control}
+                name="preferences"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Preferences</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Tell us about your dietary preferences and requirements. For example:
+- Preferred cuisines (Italian, Asian, Mediterranean, etc.)
+- Dietary restrictions (vegetarian, gluten-free, dairy-free)
+- Caloric requirements
+- Meal timing preferences for breakfast, lunch, and dinner
+- Any ingredients you want to avoid
+- Cooking skill level and time availability"
+                        className="min-h-[200px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <div className="flex items-center gap-2">
+                    <ChefHat className="animate-spin" />
+                    Generating your meal plan...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <ChefHat />
+                    Generate Meal Plan
+                  </div>
+                )}
+              </Button>
+            </form>
+          </Form>
         </div>
 
-        {/* Generate Button */}
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <div className="flex flex-col items-center justify-center gap-6">
-            <ChefHat className="h-16 w-16 text-primary" />
-            <p className="text-gray-600 text-center">
-              Our AI will analyze your ingredients and preferences to create a personalized meal plan.
-            </p>
-            <Button
-              size="lg"
-              className="w-full max-w-md"
-              onClick={handleGenerate}
-              disabled={isGenerating || ingredients.length === 0}
-            >
-              {isGenerating ? "Generating..." : "Generate Meal Plan"}
-            </Button>
-          </div>
-        </div>
-
-        {/* Meal Plan Display */}
         {mealPlan && (
-          <div className="bg-white rounded-lg shadow-md p-8 mt-6">
+          <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-xl font-semibold mb-4">Your Weekly Meal Plan</h2>
             <div className="space-y-4">
               {Object.entries(mealPlan).map(([day, meals]: [string, any]) => (
