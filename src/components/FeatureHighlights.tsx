@@ -24,7 +24,7 @@ const features = [
     icon: Users,
     title: "Community",
     description: "Share recipes and connect with food enthusiasts worldwide",
-    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80"
+    image: "/lovable-uploads/d5c09235-22d5-4ade-a71d-9b0d44ca21d9.png"
   },
 ];
 
