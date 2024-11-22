@@ -79,7 +79,7 @@ const GenerateMealPlan = () => {
   return (
     <div className="container mx-auto px-4 py-20">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-secondary">Generate Your Meal Plan</h1>
+        <h1 className="text-3xl font-bold mb-6 text-secondary">Generate Your Weekly Meal Plan</h1>
         
         <div className="bg-white rounded-lg shadow-md p-8 mb-6 border border-primary hover:border-2 transition-all duration-300">
           <Form {...form}>
@@ -145,7 +145,7 @@ const GenerateMealPlan = () => {
           <div className="bg-white rounded-lg shadow-md p-8 border border-primary hover:border-2 transition-all duration-300 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-secondary">
-                {mealPlan.name || "Your Meal Plan"}
+                {mealPlan.name || "Your Weekly Meal Plan"}
               </h2>
               <Button
                 onClick={saveMealPlan}
