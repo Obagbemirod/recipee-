@@ -25,46 +25,56 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {/* Quick Actions */}
           <div className="col-span-full mb-8">
             <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                   <Camera className="h-5 w-5 text-primary" />
-                  Upload Ingredients
+                  Upload Your Ingredients to Generate Personalized Meal Plans
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Camera className="h-4 w-4" />
-                    Photo
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Video className="h-4 w-4" />
-                    Video
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Mic className="h-4 w-4" />
-                    Audio
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Text
-                  </Button>
+                  <Link to="/upload/photo">
+                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                      <Camera className="h-4 w-4" />
+                      Photo
+                    </Button>
+                  </Link>
+                  <Link to="/upload/video">
+                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                      <Video className="h-4 w-4" />
+                      Video
+                    </Button>
+                  </Link>
+                  <Link to="/upload/audio">
+                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                      <Mic className="h-4 w-4" />
+                      Audio
+                    </Button>
+                  </Link>
+                  <Link to="/upload/text">
+                    <Button variant="outline" className="flex items-center gap-2 w-full">
+                      <FileText className="h-4 w-4" />
+                      Text
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2">
-                <ChefHat className="h-8 w-8 text-primary" />
-                <span>Generate Meal Plan with AI</span>
-              </Button>
-              <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2">
-                <Image className="h-8 w-8 text-primary" />
-                <span>Generate Recipes from Dish Photos</span>
-              </Button>
+              <Link to="/generate-meal-plan" className="w-full">
+                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full">
+                  <ChefHat className="h-8 w-8 text-primary" />
+                  <span>Generate Meal Plan with AI</span>
+                </Button>
+              </Link>
+              <Link to="/generate-recipes" className="w-full">
+                <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2 w-full">
+                  <Image className="h-8 w-8 text-primary" />
+                  <span>Generate Recipes from Dish Photos</span>
+                </Button>
+              </Link>
             </div>
           </div>
 
-          {/* Suggested Meal Plans */}
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Suggested for You</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -83,7 +93,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Navigation Sidebar */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Quick Navigation</h2>
             <nav className="space-y-2">

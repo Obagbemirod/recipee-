@@ -8,6 +8,12 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
+import UploadPhoto from "./pages/UploadPhoto";
+import UploadVideo from "./pages/UploadVideo";
+import UploadAudio from "./pages/UploadAudio";
+import UploadText from "./pages/UploadText";
+import GenerateMealPlan from "./pages/GenerateMealPlan";
+import GenerateRecipes from "./pages/GenerateRecipes";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +28,12 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/upload/photo" element={<UploadPhoto />} />
+            <Route path="/upload/video" element={<UploadVideo />} />
+            <Route path="/upload/audio" element={<UploadAudio />} />
+            <Route path="/upload/text" element={<UploadText />} />
+            <Route path="/generate-meal-plan" element={<GenerateMealPlan />} />
+            <Route path="/generate-recipes" element={<GenerateRecipes />} />
           </Routes>
           <Toaster />
           <Sonner />
