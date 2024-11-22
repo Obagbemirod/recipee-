@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { getImageForMeal } from "./mealImages";
 import { toast } from "sonner";
 
 const getGeminiAPI = () => {
@@ -48,7 +47,7 @@ export const generateMealPlan = async (preferences: string[]) => {
 
   try {
     const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      contents: [{ role: 'user', parts: [{ text: `${prompt} Consider these preferences: ${preferences.join(", ")}` }] }],
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 4000,
@@ -77,12 +76,6 @@ export const generateMealPlan = async (preferences: string[]) => {
           if (!mealPlan[day][meal]) {
             throw new Error(`Missing ${meal} for ${day}`);
           }
-          
-          // Add image for each meal
-          mealPlan[day][meal].image = getImageForMeal(
-            mealPlan[day][meal].name,
-            meal as 'breakfast' | 'lunch' | 'dinner'
-          );
         }
       }
       

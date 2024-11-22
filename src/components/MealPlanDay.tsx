@@ -65,14 +65,6 @@ const MealCard = ({ meal, title }: { meal: MealDetails; title: string }) => {
         </Button>
       </div>
 
-      <div className="aspect-video rounded-lg overflow-hidden">
-        <img
-          src={meal.image}
-          alt={meal.name}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
       <h5 className="font-medium">{meal.name}</h5>
 
       <Collapsible open={showDetails}>
