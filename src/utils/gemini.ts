@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize Gemini API with fallback to mock data
 const getGeminiAPI = () => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdE;
   
   if (!apiKey) {
     console.warn("Gemini API key is not set. Using mock data instead. To use real data, set VITE_GEMINI_API_KEY in your environment variables.");
