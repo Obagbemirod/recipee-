@@ -2,8 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText, ShoppingBag, BookMarked, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 const Home = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   const suggestedMealPlans = [
     {
       title: "Vegetarian Week",
@@ -60,7 +64,47 @@ const Home = () => {
                   </Button>
                 </Link>
               </div>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="md:hidden text-white"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
             </div>
+            
+            {/* Mobile Menu */}
+            {isMobileMenuOpen && (
+              <div className="md:hidden w-full mt-4 bg-white/10 backdrop-blur-md rounded-lg p-4">
+                <nav className="flex flex-col space-y-2">
+                  <Link to="/marketplace" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full rounded-lg border border-primary text-white hover:bg-primary/20"
+                    >
+                      <ShoppingBag className="mr-2 h-4 w-4" /> Marketplace
+                    </Button>
+                  </Link>
+                  <Link to="/saved-items" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full rounded-lg border border-primary text-white hover:bg-primary/20"
+                    >
+                      <BookMarked className="mr-2 h-4 w-4" /> Saved Items
+                    </Button>
+                  </Link>
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full rounded-lg border border-primary text-white hover:bg-primary/20"
+                    >
+                      <User className="mr-2 h-4 w-4" /> Profile
+                    </Button>
+                  </Link>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>
