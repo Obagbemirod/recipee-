@@ -4,7 +4,7 @@ import { RecipeCard } from "./RecipeCard";
 const recipes = [
   {
     title: "Creamy Mushroom Pasta",
-    image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800",
+    image: "/lovable-uploads/a2632717-e343-4ca8-bb0f-024fa3c6f5e1.png",
     time: "30 min",
     difficulty: "Easy",
   },
