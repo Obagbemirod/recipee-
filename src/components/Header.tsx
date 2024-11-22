@@ -35,24 +35,6 @@ export const Header = () => {
               </Link>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-4">
-              <Link to="/marketplace">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
-                  Marketplace
-                </Button>
-              </Link>
-              <Link to="/saved-items">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
-                  Saved Recipes & Meal Plans
-                </Button>
-              </Link>
-              <Link to="/profile">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
-                  Profile
-                </Button>
-              </Link>
-            </nav>
-
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center space-x-4">
                 <Link to="/auth">
@@ -89,27 +71,6 @@ export const Header = () => {
           >
             <div className="bg-white/95 backdrop-blur-md shadow-lg p-4">
               <nav className="flex flex-col space-y-4">
-                <Link 
-                  to="/marketplace" 
-                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Marketplace
-                </Link>
-                <Link 
-                  to="/saved-items" 
-                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Saved Recipes & Meal Plans
-                </Link>
-                <Link 
-                  to="/profile" 
-                  className="text-secondary hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Profile
-                </Link>
                 <div className="flex flex-col gap-2 px-4 py-2">
                   <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full rounded-lg">
