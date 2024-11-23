@@ -9,7 +9,7 @@ const getGeminiAPI = () => {
     throw new Error("Invalid or missing Gemini API key");
   }
   
-  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdE") {
+  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdZ") {
     toast.error(
       "Please replace the default API key with your own Gemini API key from https://makersuite.google.com/app/apikey"
     );
