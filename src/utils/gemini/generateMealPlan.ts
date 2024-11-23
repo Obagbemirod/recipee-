@@ -9,7 +9,7 @@ const getGeminiAPI = () => {
     throw new Error("Invalid or missing Gemini API key");
   }
   
-  if (apiKey === "BIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdZ") {
+  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdE") {
     toast.error(
       "Please replace the default API key with your own Gemini API key from https://makersuite.google.com/app/apikey"
     );
@@ -19,38 +19,75 @@ const getGeminiAPI = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
+const parseMealDetails = (text: string) => {
+  const caloriesMatch = text.match(/Calories: (\d+)/);
+  const proteinMatch = text.match(/Protein: (\d+)g/);
+  const carbsMatch = text.match(/Carbs: (\d+)g/);
+  const fatMatch = text.match(/Fat: (\d+)g/);
+
+  return {
+    name: text.split('(')[0].trim(),
+    nutrition: {
+      calories: caloriesMatch ? `${caloriesMatch[1]} kcal` : "N/A",
+      protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
+      carbs: carbsMatch ? `${carbsMatch[1]}g` : "N/A",
+      fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
+    },
+    ingredients: [
+      { item: "Ingredients will be added", amount: "as needed" }
+    ],
+    steps: [
+      { step: 1, instruction: "Detailed cooking instructions will be provided", time: "TBD" }
+    ]
+  };
+};
+
+const parseMarkdownToMealPlan = (markdown: string) => {
+  const days: Record<string, any> = {};
+  const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
+  const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
+
+  let currentDay = "";
+  let matches;
+
+  // Split the markdown into day sections
+  const sections = markdown.split(dayRegex);
+  sections.shift(); // Remove the first empty element
+
+  // Process each day
+  for (let i = 0; i < sections.length; i += 2) {
+    const day = sections[i];
+    const content = sections[i + 1];
+    const meals: Record<string, any> = {};
+
+    // Find all meals in the current day's content
+    while ((matches = mealRegex.exec(content)) !== null) {
+      const [, mealType, mealText] = matches;
+      meals[mealType.toLowerCase()] = parseMealDetails(mealText);
+    }
+
+    days[day.toLowerCase()] = meals;
+  }
+
+  return days;
+};
+
 export const generateMealPlan = async (preferences: string[]) => {
   try {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    const prompt = `Generate a 7-day meal plan with exactly this structure for each day:
-    {
-      "Monday": {
-        "breakfast": {
-          "name": "string",
-          "nutrition": {
-            "calories": "string",
-            "protein": "string",
-            "carbs": "string",
-            "fat": "string"
-          },
-          "ingredients": [
-            {"item": "string", "amount": "string"}
-          ],
-          "steps": [
-            {"step": 1, "instruction": "string", "time": "string"}
-          ]
-        },
-        "lunch": {"same structure as breakfast"},
-        "dinner": {"same structure as breakfast"}
-      }
-    }
-    Include all 7 days from Monday to Sunday. Keep responses concise but complete.
-    Consider these preferences: ${preferences.join(", ")}`;
+    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. Format as follows:
 
-    console.log("Sending prompt to Gemini API...");
-    
+**Monday:**
+- Breakfast: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+- Lunch: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+- Dinner: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+
+[Continue for all days]
+
+Consider these preferences: ${preferences.join(", ")}`;
+
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
@@ -59,45 +96,11 @@ export const generateMealPlan = async (preferences: string[]) => {
       }
     });
 
-    console.log("Received response from Gemini API");
     const response = await result.response;
     const text = response.text().trim();
     
-    console.log("Processing response text:", text);
-
     try {
-      // Remove any markdown code block syntax if present
-      const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
-      console.log("Cleaned JSON string:", jsonStr);
-      
-      const mealPlan = JSON.parse(jsonStr);
-      
-      // Basic validation of the meal plan structure
-      const requiredDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      const requiredMeals = ['breakfast', 'lunch', 'dinner'];
-      
-      for (const day of requiredDays) {
-        if (!mealPlan[day]) {
-          console.error(`Missing day: ${day}`);
-          throw new Error(`Missing day: ${day}`);
-        }
-        
-        for (const meal of requiredMeals) {
-          if (!mealPlan[day][meal]) {
-            console.error(`Missing ${meal} for ${day}`);
-            throw new Error(`Missing ${meal} for ${day}`);
-          }
-          
-          // Validate meal structure
-          const mealData = mealPlan[day][meal];
-          if (!mealData.name || !mealData.nutrition || !mealData.ingredients || !mealData.steps) {
-            console.error(`Invalid meal structure for ${day} ${meal}`);
-            throw new Error(`Invalid meal structure for ${day} ${meal}`);
-          }
-        }
-      }
-      
-      console.log("Meal plan validation successful");
+      const mealPlan = parseMarkdownToMealPlan(text);
       return mealPlan;
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
