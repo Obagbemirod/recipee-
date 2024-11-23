@@ -28,41 +28,49 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const processAudioData = async (audioBlob: Blob) => {
     try {
-      // Create FormData with audio blob
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
+      // Convert audio blob to base64
+      const base64Audio = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = (reader.result as string).split(',')[1];
+          resolve(base64data);
+        };
+        reader.readAsDataURL(audioBlob);
+      });
 
       // Send to Google Cloud Speech-to-Text API
       const response = await fetch('https://speech.googleapis.com/v1/speech:recognize', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_GOOGLE_API_KEY}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           config: {
             encoding: 'WEBM_OPUS',
             sampleRateHertz: 48000,
             languageCode: 'en-US',
+            model: 'default',
           },
           audio: {
-            content: await new Promise<string>((resolve) => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                const base64data = (reader.result as string).split(',')[1];
-                resolve(base64data);
-              };
-              reader.readAsDataURL(audioBlob);
-            }),
+            content: base64Audio,
           },
         }),
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Speech-to-Text API error:', errorData);
         throw new Error('Failed to transcribe audio');
       }
 
       const data = await response.json();
-      const transcript = data.results[0]?.alternatives[0]?.transcript || '';
+      const transcript = data.results?.[0]?.alternatives?.[0]?.transcript;
+
+      if (!transcript) {
+        toast.error("No speech detected in the audio");
+        return;
+      }
 
       // Use Gemini to identify ingredients from transcript
       const genAI = new window.GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
