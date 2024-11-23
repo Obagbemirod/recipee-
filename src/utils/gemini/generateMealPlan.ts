@@ -4,12 +4,14 @@ import { toast } from "sonner";
 const getGeminiAPI = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   
-  if (!apiKey) {
-    toast.error("Please set up your Gemini API key in the .env file");
+  if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
+    toast.error(
+      "Please set up your Gemini API key in the .env file. Get your API key from https://makersuite.google.com/app/apikey"
+    );
     throw new Error("Invalid or missing Gemini API key");
   }
   
-  if (apiKey === "BIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdZ") {
+  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdZ") {
     toast.error(
       "Please replace the default API key with your own Gemini API key from https://makersuite.google.com/app/apikey"
     );
@@ -24,39 +26,42 @@ export const generateMealPlan = async (preferences: string[]) => {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    const prompt = `Generate a 7-day meal plan (Monday through Sunday) with exactly 3 meals per day (breakfast, lunch, dinner). Each meal should include name, nutrition info, ingredients with amounts, and cooking steps with times. Format as a clean JSON object with this exact structure for each day:
+    const prompt = `Generate a complete 7-day meal plan with exactly this JSON structure for EACH day (Monday through Sunday):
     {
       "Monday": {
         "breakfast": {
-          "name": "string",
+          "name": "meal name",
           "nutrition": {
-            "calories": "number",
-            "protein": "string",
-            "carbs": "string",
-            "fat": "string"
+            "calories": "amount",
+            "protein": "amount",
+            "carbs": "amount",
+            "fat": "amount"
           },
           "ingredients": [
-            {"item": "string", "amount": "string"}
+            {"item": "ingredient", "amount": "measurement"}
           ],
           "steps": [
-            {"step": number, "instruction": "string", "time": "string"}
+            {"step": "number", "instruction": "step description", "time": "duration"}
           ]
         },
-        "lunch": {...},
-        "dinner": {...}
+        "lunch": { same structure as breakfast },
+        "dinner": { same structure as breakfast }
       },
-      "Tuesday": {...},
-      ...etc for all days
+      "Tuesday": { same structure as Monday },
+      "Wednesday": { same structure as Monday },
+      "Thursday": { same structure as Monday },
+      "Friday": { same structure as Monday },
+      "Saturday": { same structure as Monday },
+      "Sunday": { same structure as Monday }
     }
     
-    Consider these preferences: ${preferences.join(", ")}
-    Return ONLY valid JSON, no additional text.`;
+    Important: Return ONLY the JSON, no additional text or formatting.`;
 
     const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      contents: [{ role: 'user', parts: [{ text: `${prompt} Consider these preferences: ${preferences.join(", ")}` }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 32000,
+        maxOutputTokens: 8000,
       }
     });
 
@@ -64,20 +69,19 @@ export const generateMealPlan = async (preferences: string[]) => {
     const text = response.text().trim();
     
     try {
-      // Remove any markdown code block syntax if present
       const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
       const mealPlan = JSON.parse(jsonStr);
       
-      // Validate the structure
-      const requiredDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      const requiredMeals = ['breakfast', 'lunch', 'dinner'];
+      // Validate the structure for all days
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const meals = ['breakfast', 'lunch', 'dinner'];
       
-      for (const day of requiredDays) {
+      for (const day of days) {
         if (!mealPlan[day]) {
           throw new Error(`Missing day: ${day}`);
         }
         
-        for (const meal of requiredMeals) {
+        for (const meal of meals) {
           if (!mealPlan[day][meal]) {
             throw new Error(`Missing ${meal} for ${day}`);
           }
