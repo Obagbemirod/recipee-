@@ -5,6 +5,8 @@ import { AudioRecordingSection } from "@/components/AudioRecordingSection";
 import { TextInputSection } from "@/components/TextInputSection";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
+import { toast } from "sonner";
+import { generateMealPlan } from "@/utils/gemini";
 
 interface Ingredient {
   name: string;
