@@ -30,15 +30,24 @@ const mockRecipe = {
   servings: 1
 };
 
-export const generateRecipeFromImage = async (imageDescription: string) => {
+export const generateRecipeFromImage = async (imageData: string) => {
   try {
     const genAI = getGeminiAPI();
     if (!genAI) {
       return mockRecipe;
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const prompt = `Given this dish: "${imageDescription}", provide a recipe in the following JSON format only:
+    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    
+    // Convert base64 to parts array for the API
+    const imagePart = {
+      inlineData: {
+        data: imageData.split(',')[1], // Remove the data:image/jpeg;base64, part
+        mimeType: "image/jpeg"
+      }
+    };
+
+    const prompt = `Analyze this image and provide a recipe in the following JSON format:
     {
       "name": "dish name",
       "ingredients": [{"item": "ingredient", "amount": "measurement"}],
@@ -49,22 +58,17 @@ export const generateRecipeFromImage = async (imageDescription: string) => {
       "servings": number
     }`;
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 1000,
-      }
-    });
-
+    const result = await model.generateContent([prompt, imagePart]);
     const response = await result.response;
     const text = response.text().trim();
-    const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
     
     try {
+      // Extract JSON from the response
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : text;
       return JSON.parse(jsonStr);
     } catch (parseError) {
-      console.error('Failed to parse recipe response:', jsonStr);
+      console.error('Failed to parse recipe response:', text);
       return mockRecipe;
     }
   } catch (error) {
