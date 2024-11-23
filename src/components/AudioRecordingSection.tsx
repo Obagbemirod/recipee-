@@ -87,7 +87,10 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
       const result = await model.generateContent(prompt);
       const response_text = await result.response.text();
-      const ingredients = JSON.parse(response_text);
+      
+      // Clean up the response text by removing markdown formatting
+      const cleanedResponse = response_text.replace(/```json\n|\n```/g, '').trim();
+      const ingredients = JSON.parse(cleanedResponse);
 
       if (ingredients.length === 0) {
         toast.error("No ingredients were detected in the audio");
