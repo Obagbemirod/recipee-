@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Camera, Video, Mic, FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { identifyIngredients } from "@/utils/gemini";
+import { generateMealPlan } from "@/utils/gemini";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
+import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
 
 interface Ingredient {
   name: string;
@@ -13,8 +14,9 @@ interface Ingredient {
 
 const UploadIngredients = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingMealPlan, setIsGeneratingMealPlan] = useState(false);
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
-  const navigate = useNavigate();
+  const [mealPlan, setMealPlan] = useState<any>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = event.target.files?.[0];
@@ -85,14 +87,25 @@ const UploadIngredients = () => {
     setRecognizedIngredients(prev => prev.filter((_, i) => i !== index));
   };
 
-  const confirmIngredients = () => {
+  const generateMealPlanFromIngredients = async () => {
     if (recognizedIngredients.length === 0) {
       toast.error("Please add some ingredients first");
       return;
     }
-    // Here you would typically save the ingredients to your user context
-    // For now, we'll just navigate to the meal plan page
-    navigate("/generate-meal-plan");
+
+    setIsGeneratingMealPlan(true);
+    try {
+      const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
+      const preferences = [`Generate meals using these ingredients where possible: ${ingredientsList}`];
+      const plan = await generateMealPlan(preferences);
+      setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
+      toast.success("Meal plan generated successfully!");
+    } catch (error) {
+      console.error("Error generating meal plan:", error);
+      toast.error("Failed to generate meal plan. Please try again.");
+    } finally {
+      setIsGeneratingMealPlan(false);
+    }
   };
 
   return (
@@ -194,8 +207,10 @@ const UploadIngredients = () => {
         <RecognizedIngredients
           ingredients={recognizedIngredients}
           onRemove={removeIngredient}
-          onConfirm={confirmIngredients}
+          onConfirm={generateMealPlanFromIngredients}
         />
+
+        <IngredientBasedMealPlan mealPlan={mealPlan} />
       </div>
     </div>
   );
