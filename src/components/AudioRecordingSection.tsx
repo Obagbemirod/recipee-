@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Mic } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface AudioRecordingSectionProps {
   isUploading: boolean;
@@ -76,7 +77,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       }
 
       // Use Gemini to identify ingredients from transcript
-      const genAI = (window as any).GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
       const prompt = `Given this spoken text about ingredients: "${transcript}", 
