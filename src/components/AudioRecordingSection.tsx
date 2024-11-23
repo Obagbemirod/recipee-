@@ -39,29 +39,32 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       });
 
       // Send to Google Cloud Speech-to-Text API
-      const response = await fetch('https://speech.googleapis.com/v1/speech:recognize', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_GOOGLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          config: {
-            encoding: 'WEBM_OPUS',
-            sampleRateHertz: 48000,
-            languageCode: 'en-US',
-            model: 'default',
+      const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+      const response = await fetch(
+        `https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          audio: {
-            content: base64Audio,
-          },
-        }),
-      });
+          body: JSON.stringify({
+            config: {
+              encoding: 'WEBM_OPUS',
+              sampleRateHertz: 48000,
+              languageCode: 'en-US',
+              model: 'default',
+            },
+            audio: {
+              content: base64Audio,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Speech-to-Text API error:', errorData);
-        throw new Error('Failed to transcribe audio');
+        throw new Error(errorData.error?.message || 'Failed to transcribe audio');
       }
 
       const data = await response.json();
@@ -73,7 +76,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       }
 
       // Use Gemini to identify ingredients from transcript
-      const genAI = new window.GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const genAI = (window as any).GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
       const prompt = `Given this spoken text about ingredients: "${transcript}", 
