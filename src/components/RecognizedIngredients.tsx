@@ -121,7 +121,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
           </>
         ) : (
         <>
-          <ChefHat />
+          <ChefHat />{" "}
            Continue to Meal Planning
         </>         
         )}
