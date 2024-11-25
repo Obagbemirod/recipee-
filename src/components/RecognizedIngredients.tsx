@@ -123,8 +123,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
         <>
           <ChefHat className="animate-spin" />
            'Continue to Meal Planning'
-        </>
-          'Continue to Meal Planning'
+        </>         
         )}
       </Button>
     </div>
