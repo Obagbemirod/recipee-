@@ -1,14 +1,14 @@
 {
-  "name": "Smart Chef Assistant",
+  "name": "Recipee",
   "short_name": "Chef Assistant",
-  "description": "Your personal cooking assistant",
+  "description": "Cooking Made Simple",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "https://res.cloudinary.com/pro-solve/image/upload/v1732562988/recipee-high-resolution-logo-transparent_twqbv9.png",
       "sizes": "64x64",
       "type": "image/x-icon"
     }
