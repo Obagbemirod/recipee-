@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Loader2, Pencil, Save, X } from "lucide-react";
 import { useState } from "react";
+import { ChefHat, Save } from "lucide-react";
 
 interface Ingredient {
   name: string;
@@ -114,10 +115,15 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
       >
         {isGenerating ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+{/*             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> */}
+              <ChefHat className="animate-spin" />
             Generating Meal Plan...
           </>
         ) : (
+        <>
+          <ChefHat className="animate-spin" />
+           'Continue to Meal Planning'
+        </>
           'Continue to Meal Planning'
         )}
       </Button>
