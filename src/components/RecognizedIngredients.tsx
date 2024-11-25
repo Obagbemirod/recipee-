@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Loader2, Pencil, Save, X } from "lucide-react";
 import { useState } from "react";
-import { ChefHat, Save } from "lucide-react";
+import { ChefHat } from "lucide-react";
 
 interface Ingredient {
   name: string;
