@@ -122,7 +122,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
         ) : (
         <>
           <ChefHat />
-           'Continue to Meal Planning'
+           Continue to Meal Planning
         </>         
         )}
       </Button>
