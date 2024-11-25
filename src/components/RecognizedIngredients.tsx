@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Pencil, Save, X } from "lucide-react";
+import { Loader2, Pencil, Save, X } from "lucide-react";
 import { useState } from "react";
 
 interface Ingredient {
@@ -13,9 +13,10 @@ interface RecognizedIngredientsProps {
   ingredients: Ingredient[];
   onRemove: (index: number) => void;
   onConfirm: () => void;
+  isGenerating?: boolean;
 }
 
-const RecognizedIngredients = ({ ingredients, onRemove, onConfirm }: RecognizedIngredientsProps) => {
+const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating = false }: RecognizedIngredientsProps) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
 
@@ -109,8 +110,16 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm }: RecognizedI
       <Button
         onClick={onConfirm}
         className="w-full bg-primary hover:bg-primary/90 text-white"
+        disabled={isGenerating}
       >
-        Continue to Meal Planning
+        {isGenerating ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Generating Meal Plan...
+          </>
+        ) : (
+          'Continue to Meal Planning'
+        )}
       </Button>
     </div>
   );

@@ -50,6 +50,7 @@ const UploadIngredients = () => {
           onRemove={(index) => {
             setRecognizedIngredients(prev => prev.filter((_, i) => i !== index));
           }}
+          isGenerating={isGeneratingMealPlan}
           onConfirm={async () => {
             if (recognizedIngredients.length === 0) {
               toast.error("Please add some ingredients first");
@@ -72,7 +73,7 @@ const UploadIngredients = () => {
           }}
         />
 
-        <IngredientBasedMealPlan mealPlan={mealPlan} />
+        {mealPlan && <IngredientBasedMealPlan mealPlan={mealPlan} />}
       </div>
     </div>
   );
