@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Pencil, Save, X } from "lucide-react";
+import { useState } from "react";
 
 interface Ingredient {
   name: string;
@@ -14,7 +16,28 @@ interface RecognizedIngredientsProps {
 }
 
 const RecognizedIngredients = ({ ingredients, onRemove, onConfirm }: RecognizedIngredientsProps) => {
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState("");
+
   if (!ingredients.length) return null;
+
+  const handleEdit = (index: number) => {
+    setEditingIndex(index);
+    setEditValue(ingredients[index].name);
+  };
+
+  const handleSave = (index: number) => {
+    if (editValue.trim()) {
+      ingredients[index].name = editValue.trim();
+      setEditingIndex(null);
+      setEditValue("");
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingIndex(null);
+    setEditValue("");
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mt-6 border border-primary">
@@ -26,20 +49,59 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm }: RecognizedI
               key={index}
               className="flex items-center justify-between p-2 bg-accent/10 rounded-md"
             >
-              <span className="text-secondary">
-                {ingredient.name}
-                <span className="text-xs text-secondary/60 ml-2">
-                  {Math.round(ingredient.confidence * 100)}% confidence
-                </span>
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemove(index)}
-                className="text-destructive hover:text-destructive/90"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {editingIndex === index ? (
+                <div className="flex items-center gap-2 flex-1 mr-2">
+                  <Input
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="flex-1"
+                    autoFocus
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSave(index)}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancel}
+                    className="text-secondary hover:text-secondary/90"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <span className="text-secondary">
+                    {ingredient.name}
+                    <span className="text-xs text-secondary/60 ml-2">
+                      {Math.round(ingredient.confidence * 100)}% confidence
+                    </span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(index)}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onRemove(index)}
+                      className="text-destructive hover:text-destructive/90"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>
