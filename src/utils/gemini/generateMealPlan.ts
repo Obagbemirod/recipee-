@@ -77,7 +77,7 @@ export const generateMealPlan = async (preferences: string[]) => {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. Format as follows:
+    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. YOU MUST GENERATE THE MEAL PLAN BASED ON THE PREFERENCE ALONE: ${preferences.join(", ")}. Format as follows:
 
 **Monday:**
 - Breakfast: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
@@ -86,7 +86,7 @@ export const generateMealPlan = async (preferences: string[]) => {
 
 [Continue for all days]
 
-Consider these preferences: ${preferences.join(", ")}`;
+Consider these preferences YOU MUST GENERATE MEAL PLAN BASED ON THESE PREFERENCES ALONE: ${preferences.join(", ")}`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
