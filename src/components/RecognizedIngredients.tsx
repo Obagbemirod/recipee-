@@ -121,7 +121,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
           </>
         ) : (
         <>
-          <ChefHat className="animate-spin" />
+          <ChefHat />
            'Continue to Meal Planning'
         </>         
         )}
