@@ -19,8 +19,20 @@ const UploadIngredients = () => {
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
   const [mealPlan, setMealPlan] = useState<any>(null);
 
-  const handleIngredientsIdentified = (ingredients: Ingredient[]) => {
-    setRecognizedIngredients(ingredients);
+  const handleIngredientsIdentified = (newIngredients: Ingredient[]) => {
+    // Filter out duplicates based on ingredient names
+    const existingNames = new Set(recognizedIngredients.map(ing => ing.name.toLowerCase()));
+    const uniqueNewIngredients = newIngredients.filter(
+      ing => !existingNames.has(ing.name.toLowerCase())
+    );
+
+    if (uniqueNewIngredients.length === 0) {
+      toast.info("No new ingredients were added to the list");
+      return;
+    }
+
+    setRecognizedIngredients(prev => [...prev, ...uniqueNewIngredients]);
+    toast.success(`Added ${uniqueNewIngredients.length} new ingredient(s) to the list`);
   };
 
   return (
