@@ -117,7 +117,7 @@ const UploadIngredients = () => {
             setIsGeneratingMealPlan(true);
             try {
               const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
-              const preferences = [`Generate meals using these ingredients where possible: ${ingredientsList}`];
+              const preferences = [`Generate meals using these ingredients ONLY: ${ingredientsList}. THE MEAL MUST BE A MEAL FROM THE SELECTED COUNTRY ONLY: ${selectedCountry}`];
               const plan = await generateMealPlan(preferences);
               setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
               toast.success("Meal plan generated successfully!");
