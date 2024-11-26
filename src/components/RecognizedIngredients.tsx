@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Loader2, Pencil, Save, X } from "lucide-react";
+import { Pencil, Save, X, ChefHat } from "lucide-react";
 import { useState } from "react";
-import { ChefHat } from "lucide-react";
 
 interface Ingredient {
   name: string;
@@ -44,7 +43,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mt-6 border border-primary">
       <h3 className="text-xl font-semibold mb-4 text-secondary">Recognized Ingredients</h3>
-      <ScrollArea className="h-[200px] mb-4 pr-4 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+      <div className="h-[200px] mb-4 overflow-y-auto pr-4" style={{ scrollbarWidth: 'thin' }}>
         <ul className="space-y-2">
           {ingredients.map((ingredient, index) => (
             <li
@@ -107,7 +106,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
             </li>
           ))}
         </ul>
-      </ScrollArea>
+      </div>
       <Button
         onClick={onConfirm}
         className="w-full bg-primary hover:bg-primary/90 text-white"
