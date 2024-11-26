@@ -36,8 +36,8 @@ export const generateRecipeFromImage = async (input: string) => {
     
     // Check if input is a base64 image
     if (input.startsWith('data:image')) {
-      // Handle image input using gemini-pro-vision
-      const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+      // Handle image input using gemini-1.5-flash
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const base64Data = input.split('base64,')[1];
       result = await model.generateContent({
         contents: [
@@ -56,8 +56,8 @@ export const generateRecipeFromImage = async (input: string) => {
         ]
       });
     } else {
-      // Handle text input using gemini-pro
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      // Handle text input using gemini-1.5-flash
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       result = await model.generateContent({
         contents: [
           {
