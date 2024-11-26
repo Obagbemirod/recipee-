@@ -2,10 +2,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Image, Loader2 } from "lucide-react";
-import { generateRecipeFromImage, generateMealPlan } from "@/utils/gemini";
+import { generateRecipeFromImage } from "@/utils/gemini/generateRecipe";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
-import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
 import { CookingGuide } from "@/components/CookingGuide";
 
 interface Recipe {
@@ -23,17 +22,11 @@ interface Ingredient {
   confidence: number;
 }
 
-interface MealPlan {
-  name: string;
-  meals: any[];
-}
-
 const GenerateRecipes = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingMealPlan, setIsGeneratingMealPlan] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
-  const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [showCookingGuide, setShowCookingGuide] = useState(false);
 
   const handleIngredientsIdentified = (ingredients: Ingredient[]) => {
@@ -44,12 +37,14 @@ const GenerateRecipes = () => {
   const handleContinueToMealPlanning = async () => {
     setIsGeneratingMealPlan(true);
     try {
-      const mockDescription = recognizedIngredients.map(ing => ing.name).join(", ");
-      const generatedRecipe = await generateRecipeFromImage(mockDescription);
+      // Convert recognized ingredients to a string
+      const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
+      const generatedRecipe = await generateRecipeFromImage(ingredientsList);
       setRecipe(generatedRecipe as Recipe);
       setShowCookingGuide(true);
       toast.success("Cooking guide generated successfully!");
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error generating recipe:", error);
       toast.error("Failed to generate cooking guide. Please try again.");
     } finally {
       setIsGeneratingMealPlan(false);

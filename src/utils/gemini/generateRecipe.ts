@@ -12,47 +12,60 @@ const getGeminiAPI = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
-export const generateRecipeFromImage = async (imageData: string) => {
+export const generateRecipeFromImage = async (input: string) => {
   try {
     const genAI = getGeminiAPI();
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    // Remove the data URL prefix if present
-    const base64Data = imageData.includes('base64,') 
-      ? imageData.split('base64,')[1] 
-      : imageData;
-
-    const prompt = `Analyze this image and identify all food ingredients visible in it. 
+    const prompt = `Generate a detailed recipe based on these ingredients or analyze this image. 
     Return the response in this exact JSON format:
     {
+      "name": "Recipe Name",
       "ingredients": [
         {"item": "ingredient name", "amount": "approximate amount"}
-      ]
-    }
-    Only include ingredients you are highly confident about seeing in the image.`;
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                mimeType: "image/jpeg",
-                data: base64Data
-              }
-            }
-          ]
-        }
       ],
-      generationConfig: {
-        temperature: 0.4,
-        topK: 32,
-        topP: 1,
-        maxOutputTokens: 1024,
-      },
-    });
+      "instructions": [
+        {"step": 1, "description": "detailed instruction", "time": "estimated time"}
+      ],
+      "equipment": ["required items"],
+      "totalTime": "total cooking time",
+      "difficulty": "easy/medium/hard",
+      "servings": number
+    }`;
+
+    let result;
+    
+    // Check if input is a base64 image
+    if (input.startsWith('data:image')) {
+      // Handle image input
+      const base64Data = input.split('base64,')[1];
+      result = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: "image/jpeg",
+                  data: base64Data
+                }
+              }
+            ]
+          }
+        ]
+      });
+    } else {
+      // Handle text input
+      result = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt + "\n\nIngredients: " + input }]
+          }
+        ]
+      });
+    }
 
     const response = await result.response;
     const text = response.text().trim();
@@ -61,24 +74,24 @@ export const generateRecipeFromImage = async (imageData: string) => {
       // Extract JSON from the response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       const jsonStr = jsonMatch ? jsonMatch[0] : text;
-      const parsed = JSON.parse(jsonStr);
+      const recipe = JSON.parse(jsonStr);
       
-      // Convert to the expected format
+      // Ensure all required fields are present
       return {
-        ingredients: parsed.ingredients.map((ing: any) => ({
-          item: ing.item,
-          amount: ing.amount || "amount not specified"
-        }))
+        name: recipe.name || "Custom Recipe",
+        ingredients: recipe.ingredients || [],
+        instructions: recipe.instructions || [],
+        equipment: recipe.equipment || [],
+        totalTime: recipe.totalTime || "30 minutes",
+        difficulty: recipe.difficulty || "medium",
+        servings: recipe.servings || 4
       };
     } catch (parseError) {
-      console.error('Failed to parse ingredients response:', text);
-      throw new Error("Failed to parse the ingredients from the image");
+      console.error('Failed to parse recipe response:', text);
+      throw new Error("Failed to parse the recipe");
     }
   } catch (error: any) {
     console.error('Error generating recipe:', error);
-    if (error.message?.includes('API key')) {
-      throw new Error("Invalid API key configuration");
-    }
     throw error;
   }
 };
