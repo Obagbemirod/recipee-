@@ -76,26 +76,16 @@ const GenerateRecipes = () => {
               toast.error("Please add some ingredients first");
               return;
             }
-
-            // setIsGeneratingMealPlan(true);
             setIsUploading(true);
             try {
-              const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
-              const preferences = [`Generate a DETAILED step-by-step cooking guild of how I can cook the same meal using the ingredients: ${ingredientsList}`];
-              // const preferences = [`Generate meals using these ingredients where possible: ${ingredientsList}`];
-              // const plan = await generateRecipeFromImage(preferences);
-               const generatedRecipe = await generateRecipeFromImage(preferences);
-              console.log("the generated recipee is", generatedRecipe)
-               setRecipe(generatedRecipe as Recipe);
-              // setMealPlan({...generatedRecipe as Recipe, name: "Ingredient-Based Meal Plan" });
-              // setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
-              toast.success("Meal plan generated successfully!");
+              const mockDescription = "A homemade burger with lettuce, tomato, and cheese";
+              const generatedRecipe = await generateRecipeFromImage(mockDescription);
+              setRecipe(generatedRecipe as Recipe);
+              toast.success("Recipe generated successfully!");
             } catch (error) {
-              console.error("Error generating meal plan:", error);
-              toast.error("Failed to generate meal plan. Please try again.");
+              toast.error("Failed to generate recipe. Please try again.");
             } finally {
               setIsUploading(false);
-              // setIsGeneratingMealPlan(false);
             }
           }}
         />
