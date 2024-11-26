@@ -36,7 +36,6 @@ const countries = [
   "Mexico",
   "Nigeria",
   "South Africa",
-  // Add more countries as needed
 ];
 
 const UploadIngredients = () => {
@@ -47,7 +46,6 @@ const UploadIngredients = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
 
   const handleIngredientsIdentified = (newIngredients: Ingredient[]) => {
-    // Filter out duplicates based on ingredient names
     const existingNames = new Set(recognizedIngredients.map(ing => ing.name.toLowerCase()));
     const uniqueNewIngredients = newIngredients.filter(
       ing => !existingNames.has(ing.name.toLowerCase())
@@ -72,9 +70,13 @@ const UploadIngredients = () => {
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select your country" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-black text-white">
               {countries.map((country) => (
-                <SelectItem key={country} value={country}>
+                <SelectItem 
+                  key={country} 
+                  value={country}
+                  className="hover:bg-gray-800 focus:bg-gray-800"
+                >
                   {country}
                 </SelectItem>
               ))}
