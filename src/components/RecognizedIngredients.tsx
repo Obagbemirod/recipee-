@@ -44,7 +44,7 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mt-6 border border-primary">
       <h3 className="text-xl font-semibold mb-4 text-secondary">Recognized Ingredients</h3>
-      <ScrollArea className="h-[200px] mb-4">
+      <ScrollArea className="h-[200px] mb-4 pr-4 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
         <ul className="space-y-2">
           {ingredients.map((ingredient, index) => (
             <li
@@ -115,15 +115,14 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
       >
         {isGenerating ? (
           <>
-{/*             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> */}
-              <ChefHat className="animate-spin" />
+            <ChefHat className="animate-spin" />
             Generating Meal Plan...
           </>
         ) : (
-        <>
-          <ChefHat />{" "}
-           Continue to Meal Planning
-        </>         
+          <>
+            <ChefHat />{" "}
+            Continue to Meal Planning
+          </>
         )}
       </Button>
     </div>
