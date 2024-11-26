@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Image, Loader2 } from "lucide-react";
 import { generateRecipeFromImage, generateMealPlan, generateRecipe } from "@/utils/gemini";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
+
 
 interface Recipe {
   name: string;
@@ -79,9 +82,11 @@ const GenerateRecipes = () => {
               const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
               const preferences = [`Generate a DETAILED step-by-step cooking guild of how I can cook the same meal using the ingredients: ${ingredientsList}`];
               // const preferences = [`Generate meals using these ingredients where possible: ${ingredientsList}`];
-              const plan = await generateRecipeFromImage(preferences);
-              // const plan = await generateMealPlan(preferences);
-              setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
+              // const plan = await generateRecipeFromImage(preferences);
+               const generatedRecipe = await generateRecipeFromImage(preferences);
+               setRecipe(generatedRecipe as Recipe);
+              // setMealPlan({...generatedRecipe as Recipe, name: "Ingredient-Based Meal Plan" });
+              // setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
               toast.success("Meal plan generated successfully!");
             } catch (error) {
               console.error("Error generating meal plan:", error);
