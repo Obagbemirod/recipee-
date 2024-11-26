@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Image, Loader2 } from "lucide-react";
-import { generateRecipeFromImage, generateMealPlan, generateRecipe } from "@/utils/gemini";
+import { generateRecipeFromImage, generateMealPlan } from "@/utils/gemini";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
