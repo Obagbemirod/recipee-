@@ -77,13 +77,15 @@ const GenerateRecipes = () => {
               return;
             }
 
-            setIsGeneratingMealPlan(true);
+            // setIsGeneratingMealPlan(true);
+            setIsUploading(true);
             try {
               const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
               const preferences = [`Generate a DETAILED step-by-step cooking guild of how I can cook the same meal using the ingredients: ${ingredientsList}`];
               // const preferences = [`Generate meals using these ingredients where possible: ${ingredientsList}`];
               // const plan = await generateRecipeFromImage(preferences);
                const generatedRecipe = await generateRecipeFromImage(preferences);
+              console.log("the generated recipee is", generatedRecipe)
                setRecipe(generatedRecipe as Recipe);
               // setMealPlan({...generatedRecipe as Recipe, name: "Ingredient-Based Meal Plan" });
               // setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
@@ -92,7 +94,8 @@ const GenerateRecipes = () => {
               console.error("Error generating meal plan:", error);
               toast.error("Failed to generate meal plan. Please try again.");
             } finally {
-              setIsGeneratingMealPlan(false);
+              setIsUploading(false);
+              // setIsGeneratingMealPlan(false);
             }
           }}
         />
