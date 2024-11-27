@@ -71,10 +71,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
   #root {
     @apply overflow-x-hidden;
+    max-width: 100vw;
   }
 }
 
@@ -83,7 +86,7 @@
   @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-md mx-auto rounded-lg;
 }
 
-/* Prevent mobile component dragging */
+/* Prevent mobile component expansion */
 .fixed-mobile {
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
@@ -94,7 +97,7 @@
 
 /* Container width control */
 .container {
-  @apply px-4 mx-auto max-w-screen-xl;
+  @apply px-4 mx-auto;
   width: min(100%, 1280px);
 }
 

@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Camera, Video, Mic, Type, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Save, Plus } from "lucide-react";
+import { generateMealPlan } from "@/utils/gemini";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { VideoUploadSection } from "@/components/VideoUploadSection";
 import { AudioRecordingSection } from "@/components/AudioRecordingSection";
@@ -9,8 +12,6 @@ import { TextInputSection } from "@/components/TextInputSection";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
 import { BrandLogo } from "@/components/BrandLogo";
-import { toast } from "sonner";
-import { generateMealPlan } from "@/utils/gemini";
 import { normalizeIngredient } from "@/utils/ingredientMapping";
 
 interface Ingredient {
@@ -24,8 +25,9 @@ const UploadIngredients = () => {
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [activeInput, setActiveInput] = useState<string | null>(null);
+  const [mealPlanName, setMealPlanName] = useState("");
 
-  const handleIngredientsIdentified = (newIngredients: Ingredient[]) => {
+  const handleIngredientsIdentified = async (newIngredients: Ingredient[]) => {
     const userCountry = localStorage.getItem('userCountry') || 'nigeria';
     const existingNames = new Set(recognizedIngredients.map(ing => ing.name.toLowerCase()));
     
@@ -57,7 +59,7 @@ const UploadIngredients = () => {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed overflow-x-hidden"
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed overflow-x-hidden fixed-mobile"
       style={{ 
         backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/c05c3efb-64a7-4baf-a077-fc614979596d.png')` 
       }}
@@ -72,6 +74,16 @@ const UploadIngredients = () => {
         <h1 className="text-2xl font-bold mb-4 text-center text-secondary">
           Upload Your Ingredients
         </h1>
+
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <Input
+            type="text"
+            placeholder="Enter your meal plan name"
+            value={mealPlanName}
+            onChange={(e) => setMealPlanName(e.target.value)}
+            className="mb-4"
+          />
+        </div>
         
         <div className="grid grid-cols-2 gap-4 mb-6">
           {inputOptions.map(({ id, icon: Icon, label }) => (
@@ -84,7 +96,7 @@ const UploadIngredients = () => {
                 <Icon className="h-8 w-8 text-primary" />
                 <span>{label}</span>
               </Button>
-              <DialogContent className="sm:max-w-md w-[95vw] mx-auto rounded-lg">
+              <DialogContent className="dialog-content">
                 {activeInput === id && (
                   <div className="p-4">
                     {(() => {
@@ -110,6 +122,11 @@ const UploadIngredients = () => {
           }}
           isGenerating={isGeneratingMealPlan}
           onConfirm={async () => {
+            if (!mealPlanName.trim()) {
+              toast.error("Please enter a meal plan name");
+              return;
+            }
+
             if (recognizedIngredients.length === 0) {
               toast.error("Please add some ingredients first");
               return;
@@ -129,7 +146,7 @@ const UploadIngredients = () => {
               ];
               
               const plan = await generateMealPlan(preferences);
-              setMealPlan({ ...plan, name: "Local Cuisine Meal Plan" });
+              setMealPlan({ ...plan, name: mealPlanName });
               toast.success("Meal plan generated successfully!");
             } catch (error) {
               console.error("Error generating meal plan:", error);
