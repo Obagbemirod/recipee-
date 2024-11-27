@@ -35,7 +35,9 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
     }
 
     try {
-      // Convert image to base64 and set preview
+      setLocalIsUploading(true);
+      
+      // Convert image to base64
       const base64String = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
@@ -45,32 +47,20 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
       setSelectedImage(base64String);
       
-      // Mock ingredients identification (replace with actual API call)
-      const mockIngredients: Ingredient[] = [
-        { name: "Tomatoes", confidence: 0.95 },
-        { name: "Onions", confidence: 0.88 }
-      ];
-      onIngredientsIdentified(mockIngredients);
-    } catch (error) {
-      console.error("Error processing image:", error);
-      toast.error("Failed to process photo. Please try again.");
-    }
-  };
+      // Generate recipe directly from the image
+      const recipe = await generateRecipeFromImage(base64String);
+      
+      // Convert recipe ingredients to the expected format
+      const ingredients = recipe.ingredients.map(ing => ({
+        name: ing.item,
+        confidence: 1.0 // Since Gemini provides accurate identification
+      }));
 
-  const handleGenerateRecipe = async () => {
-    if (!selectedImage) {
-      toast.error("Please upload an image first");
-      return;
-    }
-
-    setLocalIsUploading(true);
-
-    try {
-      const recipe = await generateRecipeFromImage(selectedImage);
-      toast.success("Recipe generated successfully!");
+      onIngredientsIdentified(ingredients);
+      toast.success("Recipe ingredients identified successfully!");
     } catch (error: any) {
-      console.error("Error generating recipe:", error);
-      toast.error(error.message || "Failed to generate recipe. Please try again.");
+      console.error("Error processing image:", error);
+      toast.error(error.message || "Failed to process photo. Please try again.");
     } finally {
       setLocalIsUploading(false);
     }
@@ -78,18 +68,18 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow-md p-8 border border-primary hover:border-2 transition-all duration-300">
-        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer hover:bg-accent/5 transition-colors">
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-8 border border-primary hover:border-2 transition-all duration-300">
+        <label className="flex flex-col items-center justify-center w-full h-48 md:h-64 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer hover:bg-accent/5 transition-colors">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             {(isUploading || localIsUploading) ? (
-              <Loader2 className="h-12 w-12 text-primary mb-4 animate-spin" />
+              <Loader2 className="h-8 w-8 md:h-12 md:w-12 text-primary mb-4 animate-spin" />
             ) : (
-              <Camera className="h-12 w-12 text-primary mb-4" />
+              <Camera className="h-8 w-8 md:h-12 md:w-12 text-primary mb-4" />
             )}
-            <p className="mb-2 text-sm text-secondary">
+            <p className="mb-2 text-sm md:text-base text-secondary">
               <span className="font-semibold">Upload a photo</span>
             </p>
-            <p className="text-xs text-secondary/70">PNG, JPG or HEIC (MAX. 10MB)</p>
+            <p className="text-xs md:text-sm text-secondary/70">PNG, JPG or HEIC (MAX. 10MB)</p>
           </div>
           <input
             type="file"
@@ -103,20 +93,11 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
       {selectedImage && (
         <div className="flex justify-center">
-          <Button
-            onClick={handleGenerateRecipe}
-            disabled={localIsUploading}
-            className="w-full md:w-auto"
-          >
-            {localIsUploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Recipe...
-              </>
-            ) : (
-              'Generate Recipe'
-            )}
-          </Button>
+          <img
+            src={selectedImage}
+            alt="Selected food"
+            className="max-h-48 rounded-lg shadow-md"
+          />
         </div>
       )}
     </div>
