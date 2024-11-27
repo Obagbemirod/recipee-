@@ -6,7 +6,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { MealNutritionInfo } from "./MealNutritionInfo";
 import { MealCookingGuide } from "./MealCookingGuide";
 import { MealDetails } from "@/types/meal";
-import { toast } from "sonner";
 
 interface MealCardProps {
   meal: MealDetails;
@@ -20,24 +19,14 @@ export const MealCard = ({ meal, title, onUpdate }: MealCardProps) => {
   const [editedName, setEditedName] = useState(meal.name);
 
   const handleSave = () => {
-    if (!editedName.trim()) {
-      toast.error("Meal name cannot be empty!");
-      return;
-    }
-    onUpdate({ ...meal, name: editedName.trim() });
-    setIsEditing(false);
-    toast.success("Meal name updated successfully!");
-  };
-
-  const handleCancel = () => {
-    setEditedName(meal.name);
+    onUpdate({ ...meal, name: editedName });
     setIsEditing(false);
   };
 
   return (
-    <div className="border rounded-lg p-4 space-y-4 animate-fade-in">
+    <div className="border rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-lg capitalize">{title}</h4>
+        <h4 className="font-medium text-lg">{title}</h4>
         <div className="flex items-center gap-2">
           <MealNutritionInfo nutrition={meal.nutrition} />
           <MealCookingGuide ingredients={meal.ingredients} steps={meal.steps} />
@@ -58,31 +47,15 @@ export const MealCard = ({ meal, title, onUpdate }: MealCardProps) => {
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
               className="flex-1"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSave();
-                }
-              }}
-              autoFocus
             />
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSave}
-                className="text-green-600 hover:text-green-700"
-              >
-                <Save className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCancel}
-                className="text-destructive hover:text-destructive/90"
-              >
-                <ChevronUp className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSave}
+              className="shrink-0"
+            >
+              <Save className="h-4 w-4" />
+            </Button>
           </>
         ) : (
           <>
