@@ -3,7 +3,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, Plus } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Camera, Video, Mic, Type, Save, Plus } from "lucide-react";
 import { generateMealPlan } from "@/utils/gemini";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { VideoUploadSection } from "@/components/VideoUploadSection";
@@ -27,6 +28,13 @@ const UploadIngredients = () => {
   const [activeInput, setActiveInput] = useState<string | null>(null);
   const [mealPlanName, setMealPlanName] = useState("");
 
+  const inputOptions = [
+    { id: 'photo', icon: Camera, label: 'Photo', component: PhotoUploadSection },
+    { id: 'video', icon: Video, label: 'Video', component: VideoUploadSection },
+    { id: 'audio', icon: Mic, label: 'Audio', component: AudioRecordingSection },
+    { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
+  ];
+
   const handleIngredientsIdentified = async (newIngredients: Ingredient[]) => {
     const userCountry = localStorage.getItem('userCountry') || 'nigeria';
     const existingNames = new Set(recognizedIngredients.map(ing => ing.name.toLowerCase()));
@@ -49,13 +57,6 @@ const UploadIngredients = () => {
     toast.success(`Added ${uniqueNewIngredients.length} new ingredient(s) to the list`);
     setActiveInput(null);
   };
-
-  const inputOptions = [
-    { id: 'photo', icon: Camera, label: 'Photo', component: PhotoUploadSection },
-    { id: 'video', icon: Video, label: 'Video', component: VideoUploadSection },
-    { id: 'audio', icon: Mic, label: 'Audio', component: AudioRecordingSection },
-    { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
-  ];
 
   return (
     <div 
