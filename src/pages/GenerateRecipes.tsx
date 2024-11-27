@@ -19,12 +19,22 @@ interface Recipe {
   servings: number;
 }
 
+interface Ingredient {
+  name: string;
+  confidence: number;
+}
+
 export default function GenerateRecipes() {
   const [isUploading, setIsUploading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [showIngredients, setShowIngredients] = useState(false);
   const [showCookingGuide, setShowCookingGuide] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleIngredientsIdentified = (ingredients: Ingredient[]) => {
+    // Handle identified ingredients
+    console.log('Identified ingredients:', ingredients);
+  };
 
   const handleSaveRecipe = () => {
     if (!recipe) return;
@@ -64,11 +74,7 @@ export default function GenerateRecipes() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6">
             <PhotoUploadSection 
               isUploading={isUploading}
-              onPhotoSelected={(preview) => setImagePreview(preview)}
-              onRecipeGenerated={(generatedRecipe) => {
-                setRecipe(generatedRecipe);
-                setShowIngredients(true);
-              }}
+              onIngredientsIdentified={handleIngredientsIdentified}
             />
 
             {recipe && (
