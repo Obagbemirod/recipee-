@@ -7,8 +7,8 @@ export const Hero = () => {
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1556911220-bff31c812dba"
-          alt="Smiling woman cooking in a modern kitchen"
+          src="/lovable-uploads/34ec9b76-4cf2-4ee1-82d9-92bc081b933d.png"
+          alt="A person joyfully cooking in a modern kitchen with red cabinets"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/60 to-secondary/60 mix-blend-multiply" />
@@ -22,11 +22,11 @@ export const Hero = () => {
           className="text-center max-w-2xl mx-auto"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 tracking-tight text-balance text-white">
-            Your Personal Kitchen Assistant
+            Cooking Made Simple
           </h1>
           
           <p className="text-lg md:text-xl text-white/90 mb-8 text-balance px-4">
-            Let AI help you cook delicious meals
+            Unlock the Joy of Cooking. Say Goodbye to Mealtime Stress with Recipee
           </p>
           
           <motion.div
