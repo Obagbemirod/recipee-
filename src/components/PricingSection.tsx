@@ -7,9 +7,16 @@ const plans = [
   {
     name: "Free",
     price: "0",
-    description: "Try Everything for free for 24hours",
+    description: "Perfect for getting started with Recipee",
     features: [
-      "Enjoy free access to the Recipee Marketplace Community"
+      "Limited access to meal planning templates",
+      "5 ingredient recognitions per week",
+      "Basic community access",
+      "1 AI-Generated Meal Plan per week",
+      "Text and audio input options",
+      "Basic Grocery List Management",
+      "Standard notifications",
+      "View-only Marketplace access"
     ],
     buttonText: "Get Started",
     buttonVariant: "outline" as const
@@ -17,16 +24,15 @@ const plans = [
   {
     name: "Basic",
     price: "5",
-    description: "Perfect for home cooks",
+    description: "Great for cooking enthusiasts",
     features: [
+      "Full access to meal planning templates",
+      "20 ingredient recognitions per week",
+      "Full community access",
+      "3 AI-Generated Meal Plans per week",
       "Image, video, text, and audio inputs",
-      "Update Your Ingredient List once per week",
-      "Generate 1 Meal Plan per Day for 30 days",
-      "Get Nutritional Content of Meals",
-      "Get Step-by-Step Cooking Guide",
-      "Limited Marketplace community access",
-      "Basic Grocery List Management",
-      "Get Notified once per day",
+      "Expanded Grocery List Management",
+      "Customizable notifications",
       "Recipe Cloning in Marketplace"
     ],
     buttonText: "Start Basic Plan",
@@ -37,18 +43,12 @@ const plans = [
     price: "10",
     description: "For serious home chefs and creators",
     features: [
-      "Image, video, text, and audio inputs",
-      "Unlimited ingredient recognitions",
-      "Unlimited Update To Your Ingredient List",
-      "Unlimited Weekly Meal Planning",
-      "Generate Recipes From Dish Photos",
-      "Get Nutritional Content of Meals",
-      "Get Step-by-Step Cooking Guide",
-      "Get Notified for Breakfast, Lunch & Dinner",
-      "Generate Different Meal Plans for Different Family Members",
-      "Expanded Grocery List Management",
-      "Full Marketplace Community Access",
-      "Unlimited Access to Recipee Masterchef",
+      "Unlimited meal planning",
+      "Unlimited ingredient recognition",
+      "Full community features",
+      "Unlimited AI-Generated Meal Plans",
+      "All input options + Interactive Assistant",
+      "Advanced Grocery Management with store integration",
       "Recipe monetization",
       "Early access to new features"
     ],
