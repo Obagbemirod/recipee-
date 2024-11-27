@@ -17,15 +17,23 @@ export const MealPlanDay = ({ day, meals, onUpdate }: MealPlanDayProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const shuffleMeals = () => {
-    const mealArray = Object.entries(meals);
-    for (let i = mealArray.length - 1; i > 0; i--) {
+    const mealTypes = Object.keys(meals);
+    const mealValues = Object.values(meals);
+    
+    // Fisher-Yates shuffle algorithm
+    for (let i = mealValues.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [mealArray[i], mealArray[j]] = [mealArray[j], mealArray[i]];
+      [mealValues[i], mealValues[j]] = [mealValues[j], mealValues[i]];
     }
     
-    const shuffledMeals = Object.fromEntries(mealArray) as Meal;
+    // Create new meals object with shuffled values
+    const shuffledMeals = mealTypes.reduce((acc, type, index) => {
+      acc[type] = mealValues[index];
+      return acc;
+    }, {} as Meal);
+    
     onUpdate(day, shuffledMeals);
-    toast.success("Meals shuffled successfully!");
+    toast.success(`Meals shuffled for ${day}!`);
   };
 
   return (
