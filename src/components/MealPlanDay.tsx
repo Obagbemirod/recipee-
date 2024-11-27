@@ -30,7 +30,7 @@ interface CookingStep {
 
 interface MealDetails {
   name: string;
-  image: string;
+  image?: string;
   nutrition: Nutrition;
   ingredients: Ingredient[];
   steps: CookingStep[];
@@ -48,8 +48,23 @@ interface MealPlanDayProps {
   onUpdate: (day: string, meals: Meal) => void;
 }
 
-const MealCard = ({ meal, title }: { meal: MealDetails; title: string }) => {
+const defaultNutrition: Nutrition = {
+  calories: "N/A",
+  protein: "N/A",
+  carbs: "N/A",
+  fat: "N/A",
+};
+
+const defaultMealDetails: MealDetails = {
+  name: "Meal not available",
+  nutrition: defaultNutrition,
+  ingredients: [],
+  steps: [],
+};
+
+const MealCard = ({ meal = defaultMealDetails, title }: { meal: MealDetails; title: string }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const nutrition = meal?.nutrition || defaultNutrition;
 
   return (
     <div className="border rounded-lg p-4 space-y-4">
@@ -65,40 +80,40 @@ const MealCard = ({ meal, title }: { meal: MealDetails; title: string }) => {
         </Button>
       </div>
 
-      <h5 className="font-medium">{meal.name}</h5>
+      <h5 className="font-medium">{meal?.name || "Meal not available"}</h5>
 
       <Collapsible open={showDetails}>
         <CollapsibleContent className="space-y-4">
           <div className="bg-accent/50 p-4 rounded-lg">
             <h6 className="font-medium mb-2">Nutritional Information</h6>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>Calories: {meal.nutrition.calories}</div>
-              <div>Protein: {meal.nutrition.protein}</div>
-              <div>Carbs: {meal.nutrition.carbs}</div>
-              <div>Fat: {meal.nutrition.fat}</div>
+              <div>Calories: {nutrition.calories}</div>
+              <div>Protein: {nutrition.protein}</div>
+              <div>Carbs: {nutrition.carbs}</div>
+              <div>Fat: {nutrition.fat}</div>
             </div>
           </div>
 
           <div>
             <h6 className="font-medium mb-2">Ingredients</h6>
             <ul className="list-disc list-inside text-sm space-y-1">
-              {meal.ingredients.map((ingredient, index) => (
+              {meal?.ingredients?.map((ingredient, index) => (
                 <li key={index}>
                   {ingredient.amount} {ingredient.item}
                 </li>
-              ))}
+              )) || <li>No ingredients available</li>}
             </ul>
           </div>
 
           <div>
             <h6 className="font-medium mb-2">Cooking Instructions</h6>
             <ol className="list-decimal list-inside text-sm space-y-2">
-              {meal.steps.map((step) => (
+              {meal?.steps?.map((step) => (
                 <li key={step.step} className="pl-2">
                   {step.instruction}
                   {step.time && <span className="text-xs text-gray-500 ml-2">({step.time})</span>}
                 </li>
-              ))}
+              )) || <li>No cooking instructions available</li>}
             </ol>
           </div>
         </CollapsibleContent>
@@ -160,9 +175,9 @@ export const MealPlanDay = ({ day, meals, onUpdate }: MealPlanDayProps) => {
       {isExpanded && (
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <MealCard meal={meals.breakfast} title="Breakfast" />
-            <MealCard meal={meals.lunch} title="Lunch" />
-            <MealCard meal={meals.dinner} title="Dinner" />
+            <MealCard meal={meals?.breakfast || defaultMealDetails} title="Breakfast" />
+            <MealCard meal={meals?.lunch || defaultMealDetails} title="Lunch" />
+            <MealCard meal={meals?.dinner || defaultMealDetails} title="Dinner" />
           </div>
 
           <div className="flex gap-2 justify-end">
