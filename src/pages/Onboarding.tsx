@@ -54,11 +54,23 @@ const Onboarding = () => {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
       style={{ 
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/fb8ead65-8a5a-42ae-894d-8f6e65304ad8.png')` 
       }}
     >
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <img
+          src="/lovable-uploads/d973401f-a38b-4efd-b8e6-800f56f50f88.png"
+          alt="Recipee Logo"
+          className="h-24 w-auto"
+        />
+      </motion.div>
+
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
