@@ -40,7 +40,19 @@ const GenerateMealPlan = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
     try {
-      const plan = await generateMealPlan([values.preferences]);
+      const userCountry = localStorage.getItem('userCountry') || '';
+      const userCuisine = localStorage.getItem('userCuisine') || '';
+      const cuisineStyle = localStorage.getItem('cuisineStyle') || '';
+      const dietaryPreference = localStorage.getItem('dietaryPreference') || '';
+
+      const preferences = [
+        values.preferences,
+        `Generate ${userCuisine} dishes.`,
+        `Follow ${cuisineStyle} cooking style.`,
+        `Consider dietary preference: ${dietaryPreference}.`,
+      ];
+
+      const plan = await generateMealPlan(preferences);
       if (plan) {
         setMealPlan({ ...plan, name: values.planName });
         toast.success("Meal plan generated successfully!");
@@ -62,6 +74,14 @@ const GenerateMealPlan = () => {
     >
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/lovable-uploads/d322a3a3-d51a-4bbc-a4ec-aef6e705df9c.png" 
+              alt="Recipee Logo" 
+              className="h-16"
+            />
+          </div>
+
           <h1 className="text-2xl md:text-3xl font-bold mb-6 text-white text-center">
             Generate Your Weekly Meal Plan
           </h1>

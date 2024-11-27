@@ -35,8 +35,9 @@ const Onboarding = () => {
 
   const onSubmit = async (values: z.infer<typeof onboardingSchema>) => {
     try {
-      // Here you would typically make an API call to save the preferences
-      console.log("Onboarding values:", values);
+      localStorage.setItem("userPreferences", JSON.stringify(values));
+      localStorage.setItem("dietaryPreference", values.dietaryPreference);
+      
       toast({
         title: "Preferences saved!",
         description: "Your profile has been set up successfully.",
@@ -52,14 +53,19 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/fb8ead65-8a5a-42ae-894d-8f6e65304ad8.png')` 
+      }}
+    >
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl space-y-8 p-8"
+        className="w-full max-w-2xl space-y-8 p-8 bg-white/90 backdrop-blur-sm rounded-lg shadow-xl"
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Let's personalize your experience</h2>
+          <h2 className="text-2xl font-bold text-primary">Let's personalize your experience</h2>
           <p className="text-muted-foreground mt-2">
             Tell us about your preferences to get better recipe recommendations
           </p>
