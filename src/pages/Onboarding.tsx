@@ -35,8 +35,12 @@ const Onboarding = () => {
 
   const onSubmit = async (values: z.infer<typeof onboardingSchema>) => {
     try {
+      // Store all preferences in localStorage for consistent meal generation
       localStorage.setItem("userPreferences", JSON.stringify(values));
       localStorage.setItem("dietaryPreference", values.dietaryPreference);
+      localStorage.setItem("userCountry", values.country);
+      localStorage.setItem("cuisineStyle", values.cuisineStyle);
+      localStorage.setItem("allergies", JSON.stringify(values.allergies));
       
       toast({
         title: "Preferences saved!",
@@ -54,47 +58,47 @@ const Onboarding = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative"
       style={{ 
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/fb8ead65-8a5a-42ae-894d-8f6e65304ad8.png')` 
       }}
     >
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
+      <div className="absolute top-4 left-4 z-10">
         <img
           src="/lovable-uploads/d973401f-a38b-4efd-b8e6-800f56f50f88.png"
           alt="Recipee Logo"
-          className="h-24 w-auto"
+          className="h-16 w-auto md:h-20"
         />
-      </motion.div>
+      </div>
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl space-y-8 p-8 bg-white/90 backdrop-blur-sm rounded-lg shadow-xl"
-      >
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-primary">Let's personalize your experience</h2>
-          <p className="text-muted-foreground mt-2">
-            Tell us about your preferences to get better recipe recommendations
-          </p>
-        </div>
+      <div className="container mx-auto px-4 py-20 md:py-24">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-2xl mx-auto space-y-8"
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Let's personalize your experience</h2>
+            <p className="text-white/80">
+              Tell us about your preferences to get better recipe recommendations
+            </p>
+          </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <CulturalPreferences form={form} />
-            <DietaryPreferences form={form} />
-            <AllergiesSection form={form} />
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl p-4 md:p-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+                <CulturalPreferences form={form} />
+                <DietaryPreferences form={form} />
+                <AllergiesSection form={form} />
 
-            <Button type="submit" className="w-full">
-              Complete Setup
-            </Button>
-          </form>
-        </Form>
-      </motion.div>
+                <Button type="submit" className="w-full">
+                  Complete Setup
+                </Button>
+              </form>
+            </Form>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };
