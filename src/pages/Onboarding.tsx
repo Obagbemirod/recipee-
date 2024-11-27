@@ -7,12 +7,15 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { DietaryPreferences } from "@/components/onboarding/DietaryPreferences";
 import { AllergiesSection } from "@/components/onboarding/AllergiesSection";
+import { CulturalPreferences } from "@/components/onboarding/CulturalPreferences";
 import { motion } from "framer-motion";
 
 const onboardingSchema = z.object({
   dietaryPreference: z.string(),
   cookingLevel: z.string(),
   allergies: z.array(z.string()),
+  country: z.string().min(1, "Please select your country"),
+  cuisineStyle: z.string().min(1, "Please select your preferred cuisine style"),
 });
 
 const Onboarding = () => {
@@ -25,6 +28,8 @@ const Onboarding = () => {
       dietaryPreference: "omnivore",
       cookingLevel: "beginner",
       allergies: [],
+      country: "",
+      cuisineStyle: "",
     },
   });
 
@@ -62,6 +67,7 @@ const Onboarding = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <CulturalPreferences form={form} />
             <DietaryPreferences form={form} />
             <AllergiesSection form={form} />
 
