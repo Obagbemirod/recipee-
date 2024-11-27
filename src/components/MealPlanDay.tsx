@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowUpDown, RefreshCw } from "lucide-react";
+import { ArrowUpDown, RefreshCw, Edit2, Save, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { generateMealPlan } from "@/utils/gemini";
 import { MealCard } from "./meal/MealCard";
 import { Meal, MealDetails } from "@/types/meal";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const defaultNutrition = {
   calories: "N/A",
@@ -29,7 +30,6 @@ interface MealPlanDayProps {
 
 export const MealPlanDay = ({ day, meals, onUpdate }: MealPlanDayProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const shuffleMeals = () => {
     const mealArray = [meals.breakfast, meals.lunch, meals.dinner];
@@ -48,60 +48,55 @@ export const MealPlanDay = ({ day, meals, onUpdate }: MealPlanDayProps) => {
     toast.success("Meals shuffled successfully!");
   };
 
-  const handleMealUpdate = (mealType: keyof Meal, updatedMeal: MealDetails) => {
-    onUpdate(day, {
-      ...meals,
-      [mealType]: updatedMeal
-    });
-    toast.success(`${mealType} updated successfully!`);
-  };
-
   return (
     <Card className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold capitalize">{day}</h3>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded ? "Collapse" : "Expand"}
-        </Button>
-      </div>
+      <Collapsible open={isExpanded}>
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full flex items-center justify-between"
+          >
+            <span className="text-lg font-semibold capitalize">{day}</span>
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+        </CollapsibleTrigger>
 
-      {isExpanded && (
-        <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <MealCard
-              meal={meals?.breakfast || defaultMealDetails}
-              title="Breakfast"
-              onUpdate={(meal) => handleMealUpdate("breakfast", meal)}
-            />
-            <MealCard
-              meal={meals?.lunch || defaultMealDetails}
-              title="Lunch"
-              onUpdate={(meal) => handleMealUpdate("lunch", meal)}
-            />
-            <MealCard
-              meal={meals?.dinner || defaultMealDetails}
-              title="Dinner"
-              onUpdate={(meal) => handleMealUpdate("dinner", meal)}
-            />
-          </div>
+        <CollapsibleContent className="mt-4">
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <MealCard
+                meal={meals?.breakfast || defaultMealDetails}
+                title="Breakfast"
+                onUpdate={(meal) => onUpdate(day, { ...meals, breakfast: meal })}
+              />
+              <MealCard
+                meal={meals?.lunch || defaultMealDetails}
+                title="Lunch"
+                onUpdate={(meal) => onUpdate(day, { ...meals, lunch: meal })}
+              />
+              <MealCard
+                meal={meals?.dinner || defaultMealDetails}
+                title="Dinner"
+                onUpdate={(meal) => onUpdate(day, { ...meals, dinner: meal })}
+              />
+            </div>
 
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={shuffleMeals}
-              className="flex items-center gap-2"
-            >
-              <ArrowUpDown className="h-4 w-4" />
-              Shuffle Meals
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={shuffleMeals}
+                className="flex items-center gap-2"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+                <span className="hidden sm:inline">Shuffle Meals</span>
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };
