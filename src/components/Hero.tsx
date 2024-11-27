@@ -7,8 +7,8 @@ export const Hero = () => {
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="/lovable-uploads/34ec9b76-4cf2-4ee1-82d9-92bc081b933d.png"
-          alt="A person joyfully cooking in a modern kitchen with red cabinets"
+          src="/lovable-uploads/f6300221-3c7d-439b-8c5d-bdf66066a883.png"
+          alt="A person joyfully cooking in a modern kitchen"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/60 to-secondary/60 mix-blend-multiply" />
@@ -36,8 +36,12 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link to="/auth">
-              <Button size="lg" variant="default" className="text-base md:text-lg px-6 md:px-8 bg-primary hover:bg-primary/90 w-full sm:w-auto">
-                Get Started
+              <Button 
+                size="lg" 
+                variant="default" 
+                className="text-base px-6 py-2 sm:px-8 sm:py-3 bg-primary hover:bg-primary/90 w-full sm:w-auto"
+              >
+                Start Cooking Smartly
               </Button>
             </Link>
           </motion.div>
