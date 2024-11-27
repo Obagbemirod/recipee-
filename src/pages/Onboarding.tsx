@@ -35,8 +35,14 @@ const Onboarding = () => {
 
   const onSubmit = async (values: z.infer<typeof onboardingSchema>) => {
     try {
-      // Store all preferences in localStorage for consistent meal generation
-      localStorage.setItem("userPreferences", JSON.stringify(values));
+      // Save preferences with timestamp
+      const preferences = {
+        ...values,
+        lastUpdated: new Date().toISOString(),
+        source: 'onboarding'
+      };
+      
+      localStorage.setItem("userPreferences", JSON.stringify(preferences));
       localStorage.setItem("dietaryPreference", values.dietaryPreference);
       localStorage.setItem("userCountry", values.country);
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
@@ -84,7 +90,7 @@ const Onboarding = () => {
             </p>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl p-4 md:p-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl p-4 md:p-8 fixed-mobile">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
                 <CulturalPreferences form={form} />

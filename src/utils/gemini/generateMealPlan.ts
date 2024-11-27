@@ -72,21 +72,52 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   return days;
 };
 
-export const generateMealPlan = async (preferences: string[]) => {
+const getUserPreferences = () => {
+  try {
+    const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+    const country = preferences.country || '';
+    const cuisineStyle = preferences.cuisineStyle || '';
+    const dietaryPreference = preferences.dietaryPreference || '';
+    const allergies = JSON.parse(localStorage.getItem('allergies') || '[]');
+    
+    return {
+      country,
+      cuisineStyle,
+      dietaryPreference,
+      allergies,
+      lastUpdated: preferences.lastUpdated
+    };
+  } catch (error) {
+    console.error('Error loading user preferences:', error);
+    return {};
+  }
+};
+
+export const generateMealPlan = async (additionalPreferences: string[] = []) => {
   try {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. YOU MUST GENERATE THE MEAL PLAN BASED ON THE PREFERENCE ALONE: ${preferences.join(", ")}. Format as follows:
+    // Get user preferences
+    const userPrefs = getUserPreferences();
+    
+    // Combine all preferences
+    const allPreferences = [
+      `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
+      `Consider dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
+      `Generate meals typical to ${userPrefs.country || 'international'} cuisine`,
+      `Strictly avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}`,
+      ...additionalPreferences
+    ].filter(Boolean);
+
+    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. YOU MUST STRICTLY FOLLOW THESE PREFERENCES: ${allPreferences.join(". ")}. Format as follows:
 
 **Monday:**
 - Breakfast: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 - Lunch: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 - Dinner: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 
-[Continue for all days]
-
-Consider these preferences YOU MUST GENERATE MEAL PLAN BASED ON THESE PREFERENCES ALONE: ${preferences.join(", ")}`;
+[Continue for all days]`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],

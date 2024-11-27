@@ -10,14 +10,18 @@ import { AllergiesSection } from "@/components/onboarding/AllergiesSection";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { ArrowLeft, ShoppingBag, BookMarked } from "lucide-react";
+import { CulturalPreferences } from "@/components/onboarding/CulturalPreferences";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   dietaryPreference: z.string(),
   allergies: z.array(z.string()),
+  country: z.string(),
+  cuisineStyle: z.string(),
   photo: z.string().optional(),
 });
 
@@ -25,6 +29,20 @@ const Profile = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+  });
+
+  useEffect(() => {
+    // Load saved preferences
+    const savedPrefs = JSON.parse(localStorage.getItem("userPreferences") || "{}");
+    form.reset({
+      ...savedPrefs,
+      name: localStorage.getItem("userName") || "",
+      email: localStorage.getItem("userEmail") || "",
+    });
+  }, [form]);
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -40,20 +58,21 @@ const Profile = () => {
     fileInputRef.current?.click();
   };
 
-  const form = useForm<z.infer<typeof profileSchema>>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      dietaryPreference: "omnivore",
-      allergies: [],
-      photo: "",
-    },
-  });
-
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     try {
-      console.log("Profile values:", values);
+      // Save updated preferences with timestamp
+      const updatedPreferences = {
+        ...values,
+        lastUpdated: new Date().toISOString(),
+        source: 'profile'
+      };
+      
+      localStorage.setItem("userPreferences", JSON.stringify(updatedPreferences));
+      localStorage.setItem("dietaryPreference", values.dietaryPreference);
+      localStorage.setItem("userCountry", values.country);
+      localStorage.setItem("cuisineStyle", values.cuisineStyle);
+      localStorage.setItem("allergies", JSON.stringify(values.allergies));
+      
       toast({
         title: "Profile updated!",
         description: "Your changes have been saved successfully.",
@@ -73,13 +92,13 @@ const Profile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto space-y-8"
+          className="max-w-2xl mx-auto space-y-8 fixed-mobile"
         >
           <div className="flex items-center justify-between mb-6">
             <Button
               variant="ghost"
-              className="border border-primary text-primary hover:bg-primary hover:text-white rounded-lg"
               onClick={() => navigate(-1)}
+              className="border border-primary text-primary hover:bg-primary hover:text-white"
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
@@ -88,70 +107,85 @@ const Profile = () => {
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
             <Link to="/marketplace">
-              <Button variant="outline" className="w-full md:w-auto border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+              <Button variant="outline" className="w-full md:w-auto border-primary text-primary hover:bg-primary hover:text-white">
                 <ShoppingBag className="mr-2 h-4 w-4" /> Marketplace
               </Button>
             </Link>
             <Link to="/saved-items">
-              <Button variant="outline" className="w-full md:w-auto border-primary text-primary hover:bg-primary hover:text-white rounded-lg">
+              <Button variant="outline" className="w-full md:w-auto border-primary text-primary hover:bg-primary hover:text-white">
                 <BookMarked className="mr-2 h-4 w-4" /> Saved Recipes & Meal Plans
               </Button>
             </Link>
           </div>
 
-          <div className="flex items-center space-x-4 mb-8">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback>UN</AvatarFallback>
-            </Avatar>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handlePhotoChange}
-            />
-            <Button variant="outline" onClick={handlePhotoClick} className="rounded-lg">
-              Change Photo
-            </Button>
-          </div>
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Profile Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-4 mb-8">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback>UN</AvatarFallback>
+                </Avatar>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                />
+                <Button variant="outline" onClick={handlePhotoClick}>
+                  Change Photo
+                </Button>
+              </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your name" {...field} className="rounded-lg" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your name" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your email" {...field} className="rounded-lg" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your email" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
-              <DietaryPreferences form={form} />
-              <AllergiesSection form={form} />
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Your Preferences</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <CulturalPreferences form={form} />
+                      <DietaryPreferences form={form} />
+                      <AllergiesSection form={form} />
+                    </CardContent>
+                  </Card>
 
-              <Button type="submit" className="w-full rounded-lg">
-                Save Changes
-              </Button>
-            </form>
-          </Form>
+                  <Button type="submit" className="w-full">
+                    Save Changes
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     </div>
