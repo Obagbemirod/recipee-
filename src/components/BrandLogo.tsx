@@ -5,13 +5,12 @@ export const BrandLogo = () => {
   const isHomePage = location.pathname === "/";
 
   return (
-    <Link to="/" className="flex items-center gap-2">
+    <Link to="/">
       <img
-        src="/lovable-uploads/1e6de312-8d82-4508-b25e-14d569bc4c82.png"
+        src="/lovable-uploads/516b173a-8ee4-43c0-8f35-8dc3b393d085.png"
         alt="Recipee Logo"
-        className={`w-auto ${isHomePage ? 'h-12' : 'h-8'}`}
+        className={`w-auto ${isHomePage ? 'h-16' : 'h-12'}`}
       />
-      {isHomePage && <span className="font-bold text-xl text-secondary">Recipee</span>}
     </Link>
   );
 };

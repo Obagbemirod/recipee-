@@ -2,12 +2,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Camera, ChevronDown, ChevronUp, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { generateRecipeFromImage } from "@/utils/gemini/generateRecipe";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { CookingGuide } from "@/components/CookingGuide";
 import { BrandLogo } from "@/components/BrandLogo";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Recipe {
   name: string;
@@ -27,8 +26,6 @@ interface Ingredient {
 export default function GenerateRecipes() {
   const [isUploading, setIsUploading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [showIngredients, setShowIngredients] = useState(false);
-  const [showCookingGuide, setShowCookingGuide] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleIngredientsIdentified = async (ingredients: Ingredient[]) => {
@@ -36,7 +33,6 @@ export default function GenerateRecipes() {
       setIsUploading(true);
       const generatedRecipe = await generateRecipeFromImage(ingredients.map(i => i.name).join(", "));
       setRecipe(generatedRecipe);
-      setShowIngredients(true);
       toast.success("Recipe generated successfully!");
     } catch (error) {
       toast.error("Failed to generate recipe. Please try again.");
@@ -64,7 +60,12 @@ export default function GenerateRecipes() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/cd78387e-c9c1-45e1-9599-f505c716215c.png')` 
+      }}
+    >
       <div className="container mx-auto px-4 py-8">
         <header className="flex justify-between items-center mb-8">
           <div className="w-32">
@@ -77,7 +78,7 @@ export default function GenerateRecipes() {
             AI Recipe Generator
           </h1>
           <p className="text-center text-muted-foreground mb-8">
-            Upload a photo of your ingredients or prepared dish, and let our AI create a detailed recipe for you
+            Upload photos of your favourite dishes, and let our AI create a detailed recipe and step-by-step cooking guide for you
           </p>
 
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6">
@@ -92,46 +93,7 @@ export default function GenerateRecipes() {
                   {recipe.name}
                 </h2>
 
-                <Collapsible open={showIngredients} className="space-y-2">
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      className="w-full flex justify-between items-center"
-                      onClick={() => setShowIngredients(!showIngredients)}
-                    >
-                      View Ingredients
-                      {showIngredients ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-2">
-                    <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-                      <ul className="space-y-2">
-                        {recipe.ingredients.map((ingredient, index) => (
-                          <li key={index} className="flex justify-between text-sm">
-                            <span>{ingredient.item}</span>
-                            <span className="text-muted-foreground">{ingredient.amount}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </ScrollArea>
-                  </CollapsibleContent>
-                </Collapsible>
-
-                <Collapsible open={showCookingGuide} className="space-y-2">
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      className="w-full flex justify-between items-center"
-                      onClick={() => setShowCookingGuide(!showCookingGuide)}
-                    >
-                      View Cooking Guide
-                      {showCookingGuide ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <CookingGuide recipe={recipe} />
-                  </CollapsibleContent>
-                </Collapsible>
+                <CookingGuide recipe={recipe} />
 
                 <Button
                   onClick={handleSaveRecipe}
