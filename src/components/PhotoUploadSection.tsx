@@ -4,13 +4,17 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { generateRecipeFromImage } from "@/utils/gemini";
 
-interface PhotoUploadSectionProps {
-  isUploading: boolean;
-  onPhotoSelected: (preview: string) => void;
-  onRecipeGenerated: (recipe: any) => void;
+interface Ingredient {
+  name: string;
+  confidence: number;
 }
 
-export const PhotoUploadSection = ({ isUploading, onPhotoSelected, onRecipeGenerated }: PhotoUploadSectionProps) => {
+interface PhotoUploadSectionProps {
+  isUploading: boolean;
+  onIngredientsIdentified: (ingredients: Ingredient[]) => void;
+}
+
+export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: PhotoUploadSectionProps) => {
   const [localIsUploading, setLocalIsUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -40,7 +44,13 @@ export const PhotoUploadSection = ({ isUploading, onPhotoSelected, onRecipeGener
       });
 
       setSelectedImage(base64String);
-      onPhotoSelected(base64String);
+      
+      // Mock ingredients identification (replace with actual API call)
+      const mockIngredients: Ingredient[] = [
+        { name: "Tomatoes", confidence: 0.95 },
+        { name: "Onions", confidence: 0.88 }
+      ];
+      onIngredientsIdentified(mockIngredients);
     } catch (error) {
       console.error("Error processing image:", error);
       toast.error("Failed to process photo. Please try again.");
@@ -57,7 +67,6 @@ export const PhotoUploadSection = ({ isUploading, onPhotoSelected, onRecipeGener
 
     try {
       const recipe = await generateRecipeFromImage(selectedImage);
-      onRecipeGenerated(recipe);
       toast.success("Recipe generated successfully!");
     } catch (error: any) {
       console.error("Error generating recipe:", error);

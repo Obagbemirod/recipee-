@@ -25,10 +25,9 @@ const UploadIngredients = () => {
   const [activeInput, setActiveInput] = useState<string | null>(null);
 
   const handleIngredientsIdentified = (newIngredients: Ingredient[]) => {
-    const userCountry = localStorage.getItem('userCountry') || 'nigeria'; // Default to Nigeria if not set
+    const userCountry = localStorage.getItem('userCountry') || 'nigeria';
     const existingNames = new Set(recognizedIngredients.map(ing => ing.name.toLowerCase()));
     
-    // Normalize ingredients based on user's location
     const normalizedIngredients = newIngredients.map(ing => ({
       ...ing,
       name: normalizeIngredient(ing.name, userCountry)
@@ -45,7 +44,7 @@ const UploadIngredients = () => {
 
     setRecognizedIngredients(prev => [...prev, ...uniqueNewIngredients]);
     toast.success(`Added ${uniqueNewIngredients.length} new ingredient(s) to the list`);
-    setActiveInput(null); // Close the input dialog
+    setActiveInput(null);
   };
 
   const inputOptions = [
@@ -63,7 +62,7 @@ const UploadIngredients = () => {
         </h1>
         
         <div className="grid grid-cols-2 gap-4 mb-6">
-          {inputOptions.map(({ id, icon: Icon, label }) => (
+          {inputOptions.map(({ id, icon: Icon, label, component: Component }) => (
             <Dialog key={id} open={activeInput === id} onOpenChange={(open) => setActiveInput(open ? id : null)}>
               <DialogTrigger asChild>
                 <Button
@@ -77,15 +76,10 @@ const UploadIngredients = () => {
               <DialogContent className="sm:max-w-md">
                 {activeInput === id && (
                   <div className="p-4">
-                    {(() => {
-                      const Component = inputOptions.find(opt => opt.id === id)?.component;
-                      return Component ? (
-                        <Component
-                          isUploading={isUploading}
-                          onIngredientsIdentified={handleIngredientsIdentified}
-                        />
-                      ) : null;
-                    })()}
+                    <Component
+                      isUploading={isUploading}
+                      onIngredientsIdentified={handleIngredientsIdentified}
+                    />
                   </div>
                 )}
               </DialogContent>
