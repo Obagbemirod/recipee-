@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Camera, Video, Mic, Type, Plus, ChefHat } from "lucide-react";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { VideoUploadSection } from "@/components/VideoUploadSection";
 import { AudioRecordingSection } from "@/components/AudioRecordingSection";
@@ -7,47 +10,31 @@ import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
 import { toast } from "sonner";
 import { generateMealPlan } from "@/utils/gemini";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { normalizeIngredient } from "@/utils/ingredientMapping";
 
 interface Ingredient {
   name: string;
   confidence: number;
 }
 
-const countries = [
-  "United States",
-  "United Kingdom",
-  "Canada",
-  "Australia",
-  "France",
-  "Germany",
-  "Italy",
-  "Spain",
-  "Japan",
-  "China",
-  "India",
-  "Brazil",
-  "Mexico",
-  "Nigeria",
-  "South Africa",
-];
-
 const UploadIngredients = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingMealPlan, setIsGeneratingMealPlan] = useState(false);
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
   const [mealPlan, setMealPlan] = useState<any>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [activeInput, setActiveInput] = useState<string | null>(null);
 
   const handleIngredientsIdentified = (newIngredients: Ingredient[]) => {
+    const userCountry = localStorage.getItem('userCountry') || 'nigeria'; // Default to Nigeria if not set
     const existingNames = new Set(recognizedIngredients.map(ing => ing.name.toLowerCase()));
-    const uniqueNewIngredients = newIngredients.filter(
+    
+    // Normalize ingredients based on user's location
+    const normalizedIngredients = newIngredients.map(ing => ({
+      ...ing,
+      name: normalizeIngredient(ing.name, userCountry)
+    }));
+
+    const uniqueNewIngredients = normalizedIngredients.filter(
       ing => !existingNames.has(ing.name.toLowerCase())
     );
 
@@ -58,48 +45,52 @@ const UploadIngredients = () => {
 
     setRecognizedIngredients(prev => [...prev, ...uniqueNewIngredients]);
     toast.success(`Added ${uniqueNewIngredients.length} new ingredient(s) to the list`);
+    setActiveInput(null); // Close the input dialog
   };
 
-  return (
-    <div className="container mx-auto px-4 py-20">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4 text-secondary">Upload Your Ingredients</h1>
-        
-        <div className="mb-8 w-full max-w-xs">
-          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select your country" />
-            </SelectTrigger>
-            <SelectContent className="bg-black text-white">
-              {countries.map((country) => (
-                <SelectItem 
-                  key={country} 
-                  value={country}
-                  className="hover:bg-gray-800 focus:bg-gray-800"
-                >
-                  {country}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+  const inputOptions = [
+    { id: 'photo', icon: Camera, label: 'Photo', component: PhotoUploadSection },
+    { id: 'video', icon: Video, label: 'Video', component: VideoUploadSection },
+    { id: 'audio', icon: Mic, label: 'Audio', component: AudioRecordingSection },
+    { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
+  ];
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PhotoUploadSection 
-            isUploading={isUploading} 
-            onIngredientsIdentified={handleIngredientsIdentified} 
-          />
-          <VideoUploadSection 
-            isUploading={isUploading} 
-            onIngredientsIdentified={handleIngredientsIdentified} 
-          />
-          <AudioRecordingSection 
-            isUploading={isUploading} 
-            onIngredientsIdentified={handleIngredientsIdentified} 
-          />
-          <TextInputSection 
-            onIngredientsIdentified={handleIngredientsIdentified} 
-          />
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-md">
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h1 className="text-2xl font-bold mb-4 text-center text-secondary">
+          Upload Your Ingredients
+        </h1>
+        
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {inputOptions.map(({ id, icon: Icon, label }) => (
+            <Dialog key={id} open={activeInput === id} onOpenChange={(open) => setActiveInput(open ? id : null)}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-24 flex flex-col items-center justify-center gap-2 border-2 border-primary/20 hover:border-primary transition-colors"
+                >
+                  <Icon className="h-8 w-8 text-primary" />
+                  <span>{label}</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                {activeInput === id && (
+                  <div className="p-4">
+                    {(() => {
+                      const Component = inputOptions.find(opt => opt.id === id)?.component;
+                      return Component ? (
+                        <Component
+                          isUploading={isUploading}
+                          onIngredientsIdentified={handleIngredientsIdentified}
+                        />
+                      ) : null;
+                    })()}
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
+          ))}
         </div>
 
         <RecognizedIngredients
@@ -116,10 +107,19 @@ const UploadIngredients = () => {
 
             setIsGeneratingMealPlan(true);
             try {
+              const userCountry = localStorage.getItem('userCountry') || 'nigeria';
+              const userDiet = localStorage.getItem('dietaryPreference') || 'none';
+              
               const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
-              const preferences = [`Generate meals using these ingredients ONLY: ${ingredientsList}. THE MEAL MUST BE A MEAL FROM THE SELECTED COUNTRY ONLY: ${selectedCountry}`];
+              const preferences = [
+                `Generate meals using these ingredients: ${ingredientsList}.`,
+                `ONLY generate traditional ${userCountry} dishes and local delicacies.`,
+                `Consider dietary preference: ${userDiet}.`,
+                'Include only dishes that are commonly prepared in this region.'
+              ];
+              
               const plan = await generateMealPlan(preferences);
-              setMealPlan({ ...plan, name: "Ingredient-Based Meal Plan" });
+              setMealPlan({ ...plan, name: "Local Cuisine Meal Plan" });
               toast.success("Meal plan generated successfully!");
             } catch (error) {
               console.error("Error generating meal plan:", error);

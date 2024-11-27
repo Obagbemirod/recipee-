@@ -17,7 +17,7 @@ export const ingredientMappings: IngredientMapping = {
     }
   },
   "yam": {
-    alternateNames: ["ñame", "igname"],
+    alternateNames: ["ñame", "igname", "dioscorea"],
     regionalNames: {
       "ghana": "yam",
       "nigeria": "yam",
@@ -25,17 +25,40 @@ export const ingredientMappings: IngredientMapping = {
     }
   },
   "scotch_bonnet": {
-    alternateNames: ["hot pepper", "ghost pepper", "habanero"],
+    alternateNames: ["hot pepper", "ghost pepper", "habanero", "ata rodo"],
     regionalNames: {
       "ghana": "kpakpo shito",
       "nigeria": "ata rodo",
       "jamaica": "scotch bonnet"
     }
+  },
+  "cassava": {
+    alternateNames: ["manioc", "yuca", "mandioca"],
+    regionalNames: {
+      "nigeria": "eba",
+      "ghana": "bankye",
+      "brazil": "mandioca"
+    }
+  },
+  "palm_oil": {
+    alternateNames: ["red oil", "dendê oil"],
+    regionalNames: {
+      "nigeria": "epo pupa",
+      "ghana": "kube",
+      "brazil": "dendê"
+    }
+  },
+  "spinach": {
+    alternateNames: ["amaranth", "callaloo"],
+    regionalNames: {
+      "nigeria": "efo tete",
+      "ghana": "aleefu",
+      "caribbean": "callaloo"
+    }
   }
 };
 
-export const normalizeIngredient = (ingredient: string, country: string = "ghana"): string => {
-  // Convert to lowercase for case-insensitive matching
+export const normalizeIngredient = (ingredient: string, country: string = "nigeria"): string => {
   const normalizedInput = ingredient.toLowerCase();
 
   // Find the ingredient entry where either the key matches or it's in alternate names
