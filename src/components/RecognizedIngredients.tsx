@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Pencil, Save, X, ChefHat } from "lucide-react";
+import { Pencil, Save, X, ChefHat, Shuffle } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface Ingredient {
   name: string;
@@ -19,6 +19,7 @@ interface RecognizedIngredientsProps {
 const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating = false }: RecognizedIngredientsProps) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [localIngredients, setLocalIngredients] = useState<Ingredient[]>(ingredients);
 
   if (!ingredients.length) return null;
 
@@ -29,9 +30,17 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
 
   const handleSave = (index: number) => {
     if (editValue.trim()) {
-      ingredients[index].name = editValue.trim();
+      const updatedIngredients = [...ingredients];
+      updatedIngredients[index] = {
+        ...updatedIngredients[index],
+        name: editValue.trim()
+      };
+      setLocalIngredients(updatedIngredients);
       setEditingIndex(null);
       setEditValue("");
+      toast.success("Ingredient updated successfully!");
+    } else {
+      toast.error("Ingredient name cannot be empty!");
     }
   };
 
@@ -40,15 +49,32 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
     setEditValue("");
   };
 
+  const handleShuffle = () => {
+    const shuffledIngredients = [...ingredients].sort(() => Math.random() - 0.5);
+    setLocalIngredients(shuffledIngredients);
+    toast.success("Ingredients shuffled!");
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mt-6 border border-primary">
-      <h3 className="text-xl font-semibold mb-4 text-secondary">Recognized Ingredients</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold text-secondary">Recognized Ingredients</h3>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleShuffle}
+          className="text-primary hover:text-primary/90"
+        >
+          <Shuffle className="h-4 w-4 mr-2" />
+          Shuffle
+        </Button>
+      </div>
       <div className="h-[200px] mb-4 overflow-y-auto pr-4" style={{ scrollbarWidth: 'thin' }}>
         <ul className="space-y-2">
-          {ingredients.map((ingredient, index) => (
+          {localIngredients.map((ingredient, index) => (
             <li
               key={index}
-              className="flex items-center justify-between p-2 bg-accent/10 rounded-md"
+              className="flex items-center justify-between p-2 bg-accent/10 rounded-md animate-fade-in"
             >
               {editingIndex === index ? (
                 <div className="flex items-center gap-2 flex-1 mr-2">
@@ -57,6 +83,11 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
                     onChange={(e) => setEditValue(e.target.value)}
                     className="flex-1"
                     autoFocus
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSave(index);
+                      }
+                    }}
                   />
                   <Button
                     variant="ghost"
@@ -95,7 +126,10 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onRemove(index)}
+                      onClick={() => {
+                        onRemove(index);
+                        toast.success("Ingredient removed!");
+                      }}
                       className="text-destructive hover:text-destructive/90"
                     >
                       <X className="h-4 w-4" />
@@ -114,12 +148,12 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
       >
         {isGenerating ? (
           <>
-            <ChefHat className="animate-spin" />
+            <ChefHat className="animate-spin mr-2" />
             Generating Meal Plan...
           </>
         ) : (
           <>
-            <ChefHat />{" "}
+            <ChefHat className="mr-2" />
             Continue to Meal Planning
           </>
         )}
