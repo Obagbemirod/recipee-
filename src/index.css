@@ -71,23 +71,42 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
   }
+  #root {
+    @apply overflow-x-hidden;
+  }
+}
+
+/* Mobile optimization */
+.dialog-content {
+  @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-md mx-auto rounded-lg;
 }
 
 /* Prevent mobile component dragging */
 .fixed-mobile {
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  position: relative;
-  width: 100%;
+  overscroll-behavior-x: none;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Container width control */
+.container {
+  @apply px-4 mx-auto max-w-screen-xl;
+  width: min(100%, 1280px);
 }
 
 /* Ensure content is always visible on mobile */
 @media (max-width: 768px) {
   .fixed-mobile {
     min-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+  
+  .dialog-content {
+    max-height: 90vh;
     overflow-y: auto;
   }
 }

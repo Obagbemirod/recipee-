@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Camera, Video, Mic, Type, Plus } from "lucide-react";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
@@ -57,12 +57,12 @@ const UploadIngredients = () => {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed overflow-x-hidden"
       style={{ 
         backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/c05c3efb-64a7-4baf-a077-fc614979596d.png')` 
       }}
     >
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-screen-lg">
         <header className="flex justify-between items-center mb-8">
           <div className="w-32">
             <BrandLogo />
@@ -74,24 +74,28 @@ const UploadIngredients = () => {
         </h1>
         
         <div className="grid grid-cols-2 gap-4 mb-6">
-          {inputOptions.map(({ id, icon: Icon, label, component: Component }) => (
+          {inputOptions.map(({ id, icon: Icon, label }) => (
             <Dialog key={id} open={activeInput === id} onOpenChange={(open) => setActiveInput(open ? id : null)}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex flex-col items-center justify-center gap-2 border-2 border-primary/20 hover:border-primary transition-colors"
-                >
-                  <Icon className="h-8 w-8 text-primary" />
-                  <span>{label}</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <Button
+                variant="outline"
+                className="w-full h-24 flex flex-col items-center justify-center gap-2 border-2 border-primary/20 hover:border-primary transition-colors"
+                onClick={() => setActiveInput(id)}
+              >
+                <Icon className="h-8 w-8 text-primary" />
+                <span>{label}</span>
+              </Button>
+              <DialogContent className="sm:max-w-md w-[95vw] mx-auto rounded-lg">
                 {activeInput === id && (
                   <div className="p-4">
-                    <Component
-                      isUploading={isUploading}
-                      onIngredientsIdentified={handleIngredientsIdentified}
-                    />
+                    {(() => {
+                      const Component = inputOptions.find(opt => opt.id === id)?.component;
+                      return Component ? (
+                        <Component
+                          isUploading={isUploading}
+                          onIngredientsIdentified={handleIngredientsIdentified}
+                        />
+                      ) : null;
+                    })()}
                   </div>
                 )}
               </DialogContent>
