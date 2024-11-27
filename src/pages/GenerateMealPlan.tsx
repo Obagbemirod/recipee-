@@ -53,123 +53,125 @@ const GenerateMealPlan = () => {
     }
   };
 
-  const updateDayMeals = (day: string, meals: any) => {
-    setMealPlan((prev: any) => ({
-      ...prev,
-      [day]: meals,
-    }));
-  };
-
-  const saveMealPlan = () => {
-    try {
-      const savedPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
-      savedPlans.push({
-        ...mealPlan,
-        id: Date.now(),
-        date: new Date().toISOString(),
-      });
-      localStorage.setItem('savedMealPlans', JSON.stringify(savedPlans));
-      toast.success("Meal plan saved successfully!");
-      navigate("/saved-items");
-    } catch (error) {
-      toast.error("Failed to save meal plan");
-    }
-  };
-
   return (
-    <div className="container mx-auto px-4 py-20">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-secondary">Generate Your Weekly Meal Plan</h1>
-        
-        <div className="bg-white rounded-lg shadow-md p-8 mb-6 border border-primary hover:border-2 transition-all duration-300">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="planName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-secondary">Meal Plan Name</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="e.g., My Weekly Healthy Plan" 
-                        {...field}
-                        className="border-primary/20 focus:border-primary hover:border-primary transition-colors"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <div 
+      className="min-h-screen pt-20 bg-cover bg-center bg-no-repeat"
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/15a2303a-2274-4f49-996e-d4d0640bdc12.png')` 
+      }}
+    >
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 text-white text-center">
+            Generate Your Weekly Meal Plan
+          </h1>
+          
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="planName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meal Plan Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., My Weekly Healthy Plan" 
+                          {...field}
+                          className="bg-white"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="preferences"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-secondary">Your Preferences</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Tell us about your dietary preferences and requirements..."
-                        className="min-h-[200px] border-primary/20 focus:border-primary hover:border-primary transition-colors"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="preferences"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Preferences</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Tell us about your dietary preferences and requirements..."
+                          className="min-h-[150px] bg-white"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <div className="flex items-center gap-2">
-                    <ChefHat className="animate-spin" />
-                    Generating your meal plan...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <ChefHat />
-                    Generate Meal Plan
-                  </div>
-                )}
-              </Button>
-            </form>
-          </Form>
-        </div>
-
-        {mealPlan && (
-          <div className="bg-white rounded-lg shadow-md p-8 border border-primary hover:border-2 transition-all duration-300 animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-secondary">
-                {mealPlan.name || "Your Weekly Meal Plan"}
-              </h2>
-              <Button
-                onClick={saveMealPlan}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Save Plan
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              {Object.entries(mealPlan)
-                .filter(([key]) => key !== 'name')
-                .map(([day, meals]: [string, any]) => (
-                  <MealPlanDay
-                    key={day}
-                    day={day}
-                    meals={meals}
-                    onUpdate={updateDayMeals}
-                  />
-                ))}
-            </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90"
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <div className="flex items-center gap-2">
+                      <ChefHat className="animate-spin" />
+                      Generating...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <ChefHat />
+                      Generate Plan
+                    </div>
+                  )}
+                </Button>
+              </form>
+            </Form>
           </div>
-        )}
+
+          {mealPlan && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold">
+                  {mealPlan.name || "Your Weekly Meal Plan"}
+                </h2>
+                <Button
+                  onClick={() => {
+                    const savedPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
+                    savedPlans.push({
+                      ...mealPlan,
+                      id: Date.now(),
+                      date: new Date().toISOString(),
+                    });
+                    localStorage.setItem('savedMealPlans', JSON.stringify(savedPlans));
+                    toast.success("Meal plan saved successfully!");
+                    navigate("/saved-items");
+                  }}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  Save
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {Object.entries(mealPlan)
+                  .filter(([key]) => key !== 'name')
+                  .map(([day, meals]: [string, any]) => (
+                    <MealPlanDay
+                      key={day}
+                      day={day}
+                      meals={meals}
+                      onUpdate={(day, meals) => {
+                        setMealPlan(prev => ({
+                          ...prev,
+                          [day]: meals
+                        }));
+                      }}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
