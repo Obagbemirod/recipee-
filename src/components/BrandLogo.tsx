@@ -1,14 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export const BrandLogo = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
+
   return (
     <Link to="/" className="flex items-center gap-2">
       <img
-        src="/lovable-uploads/a54490e1-2a8d-45c0-b781-16f4d61fd8ce.png"
+        src="/lovable-uploads/1e6de312-8d82-4508-b25e-14d569bc4c82.png"
         alt="Recipee Logo"
-        className="h-8 w-auto"
+        className={`w-auto ${isHomePage ? 'h-12' : 'h-8'}`}
       />
-      <span className="font-bold text-xl text-secondary">Recipee</span>
+      {isHomePage && <span className="font-bold text-xl text-secondary">Recipee</span>}
     </Link>
   );
 };

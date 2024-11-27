@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Camera, ChevronDown, ChevronUp, Save, Loader2 } from "lucide-react";
+import { Camera, ChevronDown, ChevronUp, Save } from "lucide-react";
 import { generateRecipeFromImage } from "@/utils/gemini/generateRecipe";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { CookingGuide } from "@/components/CookingGuide";
@@ -31,9 +31,18 @@ export default function GenerateRecipes() {
   const [showCookingGuide, setShowCookingGuide] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleIngredientsIdentified = (ingredients: Ingredient[]) => {
-    // Handle identified ingredients
-    console.log('Identified ingredients:', ingredients);
+  const handleIngredientsIdentified = async (ingredients: Ingredient[]) => {
+    try {
+      setIsUploading(true);
+      const generatedRecipe = await generateRecipeFromImage(ingredients.map(i => i.name).join(", "));
+      setRecipe(generatedRecipe);
+      setShowIngredients(true);
+      toast.success("Recipe generated successfully!");
+    } catch (error) {
+      toast.error("Failed to generate recipe. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSaveRecipe = () => {
@@ -55,21 +64,21 @@ export default function GenerateRecipes() {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat"
-      style={{ 
-        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/c2c87161-1be4-43d1-a042-e568997de914.png')` 
-      }}
-    >
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <header className="flex justify-between items-center mb-8">
-          <BrandLogo />
+          <div className="w-32">
+            <BrandLogo />
+          </div>
         </header>
 
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 text-secondary text-center">
-            Generate Recipes from Photos
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 text-secondary text-center">
+            AI Recipe Generator
           </h1>
+          <p className="text-center text-muted-foreground mb-8">
+            Upload a photo of your ingredients or prepared dish, and let our AI create a detailed recipe for you
+          </p>
 
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6">
             <PhotoUploadSection 

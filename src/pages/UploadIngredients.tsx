@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Camera, Video, Mic, Type, Plus, ChefHat } from "lucide-react";
+import { Camera, Video, Mic, Type, Plus } from "lucide-react";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { VideoUploadSection } from "@/components/VideoUploadSection";
 import { AudioRecordingSection } from "@/components/AudioRecordingSection";
 import { TextInputSection } from "@/components/TextInputSection";
 import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
+import { BrandLogo } from "@/components/BrandLogo";
 import { toast } from "sonner";
 import { generateMealPlan } from "@/utils/gemini";
 import { normalizeIngredient } from "@/utils/ingredientMapping";
@@ -55,8 +56,19 @@ const UploadIngredients = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/c05c3efb-64a7-4baf-a077-fc614979596d.png')` 
+      }}
+    >
+      <div className="container mx-auto px-4 py-8">
+        <header className="flex justify-between items-center mb-8">
+          <div className="w-32">
+            <BrandLogo />
+          </div>
+        </header>
+
         <h1 className="text-2xl font-bold mb-4 text-center text-secondary">
           Upload Your Ingredients
         </h1>
