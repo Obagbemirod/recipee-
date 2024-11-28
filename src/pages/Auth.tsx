@@ -21,7 +21,12 @@ const Auth = () => {
           password: values.password,
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("Invalid email or password. Please try again.");
+          }
+          throw error;
+        }
 
         toast({
           title: "Welcome back!",
@@ -39,19 +44,24 @@ const Auth = () => {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            throw new Error("An account with this email already exists. Please sign in instead.");
+          }
+          throw error;
+        }
 
         toast({
           title: "Account created successfully!",
-          description: "Please complete the onboarding process.",
+          description: "Please check your email to confirm your account.",
         });
         navigate("/onboarding");
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || (isLogin ? "Invalid email or password." : "Something went wrong. Please try again."),
+        title: "Authentication Error",
+        description: error.message || "An unexpected error occurred. Please try again.",
       });
     }
   };
