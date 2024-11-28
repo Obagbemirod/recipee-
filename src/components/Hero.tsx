@@ -7,7 +7,7 @@ export const Hero = () => {
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="/lovable-uploads/3eb61598-0d35-4605-a012-ad4d07d98ae4.png"
+          src="/lovable-uploads/f6300221-3c7d-439b-8c5d-bdf66066a883.png"
           alt="A person joyfully cooking in a modern kitchen"
           className="w-full h-full object-cover"
         />
