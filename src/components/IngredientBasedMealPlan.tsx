@@ -3,7 +3,7 @@ import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { MealPlanDay } from "@/components/MealPlanDay";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface MealPlanProps {
   mealPlan: any;
@@ -12,6 +12,12 @@ interface MealPlanProps {
 const IngredientBasedMealPlan = ({ mealPlan }: MealPlanProps) => {
   const navigate = useNavigate();
   const [localMealPlan, setLocalMealPlan] = useState(mealPlan);
+
+  useEffect(() => {
+    if (mealPlan && Object.keys(mealPlan).length > 0) {
+      setLocalMealPlan(mealPlan);
+    }
+  }, [mealPlan]);
 
   const saveMealPlan = () => {
     try {
@@ -33,6 +39,14 @@ const IngredientBasedMealPlan = ({ mealPlan }: MealPlanProps) => {
     return null;
   }
 
+  const filteredEntries = Object.entries(localMealPlan).filter(
+    ([key]) => key !== 'name' && key !== 'id' && key !== 'date'
+  );
+
+  if (filteredEntries.length === 0) {
+    return null;
+  }
+
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-4 md:p-6 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -50,21 +64,19 @@ const IngredientBasedMealPlan = ({ mealPlan }: MealPlanProps) => {
       </div>
 
       <div className="space-y-4">
-        {Object.entries(localMealPlan)
-          .filter(([key]) => key !== 'name' && key !== 'id' && key !== 'date')
-          .map(([day, meals]: [string, any]) => (
-            <MealPlanDay
-              key={day}
-              day={day}
-              meals={meals}
-              onUpdate={(day, updatedMeals) => {
-                setLocalMealPlan(prev => ({
-                  ...prev,
-                  [day]: updatedMeals
-                }));
-              }}
-            />
-          ))}
+        {filteredEntries.map(([day, meals]: [string, any]) => (
+          <MealPlanDay
+            key={day}
+            day={day}
+            meals={meals}
+            onUpdate={(day, updatedMeals) => {
+              setLocalMealPlan(prev => ({
+                ...prev,
+                [day]: updatedMeals
+              }));
+            }}
+          />
+        ))}
       </div>
     </div>
   );
