@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MealPlanForm } from "@/components/meal-plan/MealPlanForm";
 import { MealPlanDisplay } from "@/components/meal-plan/MealPlanDisplay";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { COUNTRIES_AND_CUISINES } from "@/components/onboarding/CulturalPreferences";
+import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
 
 const formSchema = z.object({
   planName: z.string().min(1, "Plan name is required"),
