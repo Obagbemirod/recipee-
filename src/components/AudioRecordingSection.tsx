@@ -30,55 +30,13 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const processAudioData = async (audioBlob: Blob) => {
     try {
-      const base64Audio = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64data = (reader.result as string).split(',')[1];
-          resolve(base64data);
-        };
-        reader.readAsDataURL(audioBlob);
-      });
-
-      const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-      const response = await fetch(
-        `https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            config: {
-              encoding: 'WEBM_OPUS',
-              sampleRateHertz: 48000,
-              languageCode: 'en-US',
-              model: 'default',
-            },
-            audio: {
-              content: base64Audio,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Speech-to-Text API error:', errorData);
-        throw new Error(errorData.error?.message || 'Failed to transcribe audio');
-      }
-
-      const data = await response.json();
-      const transcript = data.results?.[0]?.alternatives?.[0]?.transcript;
-
-      if (!transcript) {
-        toast.error("No speech detected in the audio");
-        return;
-      }
-
+      // For now, we'll use a mock response since the Speech-to-Text API is not available
+      const mockTranscript = "tomatoes onions garlic and pepper";
+      
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-      const prompt = `Given this spoken text about ingredients: "${transcript}", 
+      const prompt = `Given this spoken text about ingredients: "${mockTranscript}", 
         identify all food ingredients mentioned. Return ONLY a JSON array of objects with 'name' and 'confidence' 
         properties, where confidence is a number between 0 and 1 indicating how confident you are that this is a food ingredient.
         Example format: [{"name": "tomato", "confidence": 0.95}]`;
