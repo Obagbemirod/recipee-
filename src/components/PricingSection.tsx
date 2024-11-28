@@ -25,7 +25,7 @@ const plans = [
     features: [
       "Image, video, text, and audio inputs",
       "Update Your Ingredient List once per week",
-      "Generate 1 Meal Plan per Day for 30 days",
+      "Generate one complete meal plan (Breakfast, Lunch & Dinner) per day for 30 days",
       "Get Nutritional Content of Meals",
       "Get Step-by-Step Cooking Guide",
       "Limited Marketplace community access",

@@ -6,21 +6,21 @@ const testimonials = [
     name: "Sarah Johnson",
     role: "Home Chef",
     quote: "This app has transformed my meal planning. The AI suggestions are spot-on, and I love how it helps me reduce food waste!",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+    avatar: "/lovable-uploads/44e33f0b-18a3-429d-8d5d-cd381c48bfef.png",
     initials: "SJ"
   },
   {
-    name: "Michael Chen",
+    name: "Mary Lookman",
     role: "Busy Professional",
     quote: "The recipe suggestions based on my available ingredients are incredible. It's like having a personal chef in my pocket!",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-    initials: "MC"
+    avatar: "/lovable-uploads/9cb9f950-1fa7-4b66-bb3f-da6ae9ba27b1.png",
+    initials: "ML"
   },
   {
     name: "Emma Davis",
     role: "Food Enthusiast",
     quote: "I've discovered so many new recipes and cooking techniques. The community features make it fun and engaging!",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
+    avatar: "/lovable-uploads/a3efc767-b3fd-4d55-80ed-f98b8f70722c.png",
     initials: "ED"
   }
 ];

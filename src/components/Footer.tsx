@@ -54,9 +54,9 @@ const FooterContact = () => (
   <div>
     <h3 className="font-semibold mb-4">Contact Us</h3>
     <div className="space-y-2 text-sm text-secondary-foreground/80">
-      <p>Email: hello@recipee.com</p>
-      <p>Phone: (555) 123-4567</p>
-      <p>Address: 123 Kitchen Street</p>
+      <p>Email: hello@recipee-app.com</p>
+      <p>Phone: +2349130060924</p>
+      <p>Address: Lagos, Nigeria</p>
     </div>
   </div>
 );
