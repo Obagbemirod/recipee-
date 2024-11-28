@@ -114,7 +114,7 @@ const GenerateMealPlan = () => {
                             <SelectValue placeholder="Choose your preferred cuisine" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="max-h-[300px]">
+                        <SelectContent className="max-h-[300px] bg-white">
                           {COUNTRIES_AND_CUISINES.map((country) => (
                             <SelectItem key={country.value} value={country.value}>
                               {country.label} - {country.cuisine}

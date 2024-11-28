@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mic } from "lucide-react";
+import { Mic, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -124,6 +124,11 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
     }
   };
 
+  const handleDeleteAudio = () => {
+    setAudioPreview(null);
+    toast.success("Audio recording deleted");
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-8 border border-primary hover:border-2 transition-all duration-300">
       <div className="flex flex-col items-center justify-center h-64">
@@ -138,7 +143,18 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
           {isRecording ? 'Recording... Click to stop' : 'Click to start recording'}
         </p>
         {audioPreview && (
-          <audio src={audioPreview} controls className="mt-4 w-full" />
+          <div className="w-full mt-4 space-y-2">
+            <audio src={audioPreview} controls className="w-full" />
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteAudio}
+              className="w-full"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Recording
+            </Button>
+          </div>
         )}
       </div>
     </div>
