@@ -28,6 +28,8 @@ export const MealPlanDisplay = ({ mealPlan, setMealPlan }: MealPlanDisplayProps)
     }
   };
 
+  if (!mealPlan) return null;
+
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-4 md:p-6 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
