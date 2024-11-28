@@ -22,6 +22,9 @@ const Auth = () => {
         });
 
         if (error) {
+          if (error.message.includes("Email not confirmed")) {
+            throw new Error("Please check your email and confirm your account before signing in.");
+          }
           if (error.message.includes("Invalid login credentials")) {
             throw new Error("Invalid email or password. Please try again.");
           }
