@@ -20,7 +20,7 @@ const plans = [
   },
   {
     name: "Basic",
-    price: "5",
+    price: "9",
     description: "Perfect for home cooks",
     features: [
       "Image, video, text, and audio inputs",
@@ -39,7 +39,7 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "10",
+    price: "19",
     description: "For serious home chefs and creators",
     features: [
       "Image, video, text, and audio inputs",

@@ -88,9 +88,14 @@ const Home = () => {
 
               <Link to="/generate-meal-plan" className="w-full">
                 <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300">
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex flex-col items-center gap-3">
                     <ChefHat className="h-6 w-6 text-primary" />
-                    <span className="text-lg font-semibold">Generate Meal Plan with AI</span>
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold mb-2">Random Recipe Generator by Recipee MasterChef</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Discover culinary surprises with our Random Meal Plan Generator, where each click unveils weekly unique and exciting dishes to try.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Link>
