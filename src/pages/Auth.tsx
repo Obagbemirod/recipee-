@@ -6,6 +6,7 @@ import { SocialAuth } from "@/components/auth/SocialAuth";
 import { motion } from "framer-motion";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
+import { supabase } from "@/lib/supabase";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,23 +16,42 @@ const Auth = () => {
   const onSubmit = async (values: any) => {
     try {
       if (isLogin) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+
+        if (error) throw error;
+
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
         navigate("/home");
       } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+          options: {
+            data: {
+              full_name: values.name,
+            },
+          },
+        });
+
+        if (error) throw error;
+
         toast({
           title: "Account created successfully!",
           description: "Please complete the onboarding process.",
         });
         navigate("/onboarding");
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: isLogin ? "Invalid email or password." : "Something went wrong. Please try again.",
+        description: error.message || (isLogin ? "Invalid email or password." : "Something went wrong. Please try again."),
       });
     }
   };
