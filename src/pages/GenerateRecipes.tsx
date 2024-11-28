@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save } from "lucide-react";
@@ -28,7 +27,6 @@ export default function GenerateRecipes() {
   const [isUploading, setIsUploading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const handleIngredientsIdentified = async (ingredients: Ingredient[]) => {
     try {
