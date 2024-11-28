@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ChefHat, Save } from "lucide-react";
-import { useState } from "react";
+import { ChefHat } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { generateMealPlan } from "@/utils/gemini";
 import { Input } from "@/components/ui/input";
@@ -11,34 +11,48 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MealPlanForm } from "@/components/meal-plan/MealPlanForm";
 import { MealPlanDisplay } from "@/components/meal-plan/MealPlanDisplay";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   planName: z.string().min(1, "Plan name is required"),
   preferences: z.string().min(10, "Please provide more details about your preferences"),
+  cuisine: z.string().min(1, "Cuisine selection is required"),
 });
 
 const GenerateMealPlan = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
+  const [userCountry, setUserCountry] = useState<string>("");
+  const [availableCuisines, setAvailableCuisines] = useState<Array<{ value: string; label: string }>>([]);
+
+  useEffect(() => {
+    const country = localStorage.getItem('userCountry') || '';
+    setUserCountry(country);
+    
+    // Get cuisines from the cultural preferences component
+    const storedCuisines = JSON.parse(localStorage.getItem('availableCuisines') || '[]');
+    setAvailableCuisines(storedCuisines);
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       planName: "",
       preferences: "",
+      cuisine: userCountry ? `${userCountry}_cuisine` : "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
     try {
-      // Get all user preferences from localStorage
       const userPreferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
       const preferences = [
         values.preferences,
-        `Generate ${userPreferences.cuisineStyle || ''} style meals`,
+        `Generate meals specific to ${values.cuisine} cuisine`,
         `Consider dietary preference: ${userPreferences.dietaryPreference || ''}`,
         `Avoid allergens: ${JSON.parse(localStorage.getItem('allergies') || '[]').join(', ')}`,
+        `Strictly adhere to ${values.cuisine} cooking methods and ingredients`,
       ].filter(Boolean);
 
       const plan = await generateMealPlan(preferences);
@@ -75,11 +89,86 @@ const GenerateMealPlan = () => {
             Generate Your Weekly Meal Plan
           </h1>
           
-          <MealPlanForm 
-            form={form} 
-            onSubmit={onSubmit} 
-            isGenerating={isGenerating} 
-          />
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-4 md:p-6 mb-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="planName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Plan Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter meal plan name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="cuisine"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Your Cuisine</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose your preferred cuisine" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {availableCuisines.map((cuisine) => (
+                            <SelectItem key={cuisine.value} value={cuisine.value}>
+                              {cuisine.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="preferences"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Preferences</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter any additional preferences..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <ChefHat className="mr-2 animate-spin" />
+                      Generating Plan...
+                    </>
+                  ) : (
+                    <>
+                      <ChefHat className="mr-2" />
+                      Generate Plan
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </div>
 
           {mealPlan && (
             <MealPlanDisplay 

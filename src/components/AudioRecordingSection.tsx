@@ -3,6 +3,7 @@ import { Mic } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { normalizeIngredient } from "@/utils/ingredientMapping";
 
 interface AudioRecordingSectionProps {
   isUploading: boolean;
@@ -29,7 +30,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const processAudioData = async (audioBlob: Blob) => {
     try {
-      // Convert audio blob to base64
       const base64Audio = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -39,7 +39,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         reader.readAsDataURL(audioBlob);
       });
 
-      // Send to Google Cloud Speech-to-Text API
       const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
       const response = await fetch(
         `https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`,
@@ -76,7 +75,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         return;
       }
 
-      // Use Gemini to identify ingredients from transcript
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
@@ -88,7 +86,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       const result = await model.generateContent(prompt);
       const response_text = await result.response.text();
       
-      // Clean up the response text by removing markdown formatting
       const cleanedResponse = response_text.replace(/```json\n|\n```/g, '').trim();
       const ingredients = JSON.parse(cleanedResponse);
 
@@ -97,7 +94,14 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         return;
       }
 
-      onIngredientsIdentified(ingredients);
+      // Normalize ingredient names based on user's country
+      const userCountry = localStorage.getItem('userCountry') || 'nigeria';
+      const normalizedIngredients = ingredients.map((ing: { name: string; confidence: number }) => ({
+        name: normalizeIngredient(ing.name, userCountry),
+        confidence: ing.confidence
+      }));
+
+      onIngredientsIdentified(normalizedIngredients);
       toast.success("Ingredients identified successfully!");
     } catch (error) {
       console.error('Error processing audio:', error);
@@ -128,7 +132,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       setIsRecording(true);
       toast.success("Recording started");
 
-      // Set 15-second timeout
       timeoutRef.current = setTimeout(() => {
         if (mediaRecorderRef.current?.state === 'recording') {
           toast.error("No audio detected after 15 seconds");

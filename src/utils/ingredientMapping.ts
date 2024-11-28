@@ -8,6 +8,38 @@ interface IngredientMapping {
 }
 
 export const ingredientMappings: IngredientMapping = {
+  "palm_fruit": {
+    alternateNames: ["palm fruit", "banga", "mkpuru nkwu"],
+    regionalNames: {
+      "nigeria": "banga",
+      "ghana": "abɛ",
+      "cameroon": "mbanga"
+    }
+  },
+  "pumpkin_leaf": {
+    alternateNames: ["pumpkin leaf", "ugwu", "fluted pumpkin"],
+    regionalNames: {
+      "nigeria": "ugwu leaf",
+      "ghana": "ademe",
+      "cameroon": "njamanjama"
+    }
+  },
+  "bitter_leaf": {
+    alternateNames: ["bitter leaf", "vernonia", "onugbu"],
+    regionalNames: {
+      "nigeria": "onugbu",
+      "ghana": "awonwono",
+      "cameroon": "ndole"
+    }
+  },
+  "african_spinach": {
+    alternateNames: ["african spinach", "green amaranth", "tete"],
+    regionalNames: {
+      "nigeria": "tete",
+      "ghana": "aleefu",
+      "kenya": "terere"
+    }
+  },
   "eggplant": {
     alternateNames: ["aubergine", "garden egg", "brinjal"],
     regionalNames: {
@@ -60,7 +92,7 @@ export const ingredientMappings: IngredientMapping = {
 
 export const normalizeIngredient = (ingredient: string, country: string = "nigeria"): string => {
   const normalizedInput = ingredient.toLowerCase();
-
+  
   // Find the ingredient entry where either the key matches or it's in alternate names
   const entry = Object.entries(ingredientMappings).find(([key, value]) => {
     return key.toLowerCase() === normalizedInput ||

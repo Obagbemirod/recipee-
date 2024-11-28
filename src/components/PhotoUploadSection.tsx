@@ -3,6 +3,7 @@ import { Camera, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { generateRecipeFromImage } from "@/utils/gemini";
+import { normalizeIngredient } from "@/utils/ingredientMapping";
 
 interface Ingredient {
   name: string;
@@ -22,13 +23,11 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File size must be less than 10MB");
       return;
     }
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error("Please upload an image file");
       return;
@@ -37,7 +36,6 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
     try {
       setLocalIsUploading(true);
       
-      // Convert image to base64
       const base64String = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
@@ -47,13 +45,13 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
       setSelectedImage(base64String);
       
-      // Generate recipe directly from the image
       const recipe = await generateRecipeFromImage(base64String);
+      const userCountry = localStorage.getItem('userCountry') || 'nigeria';
       
-      // Convert recipe ingredients to the expected format
+      // Normalize ingredient names based on user's country
       const ingredients = recipe.ingredients.map(ing => ({
-        name: ing.item,
-        confidence: 1.0 // Since Gemini provides accurate identification
+        name: normalizeIngredient(ing.item, userCountry),
+        confidence: 1.0
       }));
 
       onIngredientsIdentified(ingredients);
