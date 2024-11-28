@@ -22,7 +22,7 @@ export function FinalCTA() {
   return (
     <section className="bg-gradient-to-b from-secondary to-secondary/90 text-secondary-foreground py-20">
       <div className="container">
-        <div className="max-w-4xl mx-auto text-center space-y-12">
+        <div className="max-w-4xl mx-auto text-center space-y-16">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -36,7 +36,7 @@ export function FinalCTA() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
           >
             {benefits.map((benefit, index) => (
               <div 
@@ -53,7 +53,7 @@ export function FinalCTA() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="space-y-8"
+            className="space-y-12"
           >
             <p className="text-lg md:text-xl text-secondary-foreground/90">
               Join thousands of home chefs who have revolutionized their cooking experience with Recipee
