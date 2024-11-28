@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MealPlanForm } from "@/components/meal-plan/MealPlanForm";
 import { MealPlanDisplay } from "@/components/meal-plan/MealPlanDisplay";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { COUNTRIES_AND_CUISINES } from "@/components/onboarding/CulturalPreferences";
 
 const formSchema = z.object({
   planName: z.string().min(1, "Plan name is required"),
@@ -23,15 +24,10 @@ const GenerateMealPlan = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [userCountry, setUserCountry] = useState<string>("");
-  const [availableCuisines, setAvailableCuisines] = useState<Array<{ value: string; label: string }>>([]);
 
   useEffect(() => {
     const country = localStorage.getItem('userCountry') || '';
     setUserCountry(country);
-    
-    // Get cuisines from the cultural preferences component
-    const storedCuisines = JSON.parse(localStorage.getItem('availableCuisines') || '[]');
-    setAvailableCuisines(storedCuisines);
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -72,7 +68,7 @@ const GenerateMealPlan = () => {
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat relative"
       style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/15a2303a-2274-4f49-996e-d4d0640bdc12.png')` 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/c7fbef5a-f4ab-42f2-b76e-837675074d73.png')` 
       }}
     >
       <div className="absolute top-4 left-4 z-10">
@@ -118,10 +114,10 @@ const GenerateMealPlan = () => {
                             <SelectValue placeholder="Choose your preferred cuisine" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          {availableCuisines.map((cuisine) => (
-                            <SelectItem key={cuisine.value} value={cuisine.value}>
-                              {cuisine.label}
+                        <SelectContent className="max-h-[300px]">
+                          {COUNTRIES_AND_CUISINES.map((country) => (
+                            <SelectItem key={country.value} value={country.value}>
+                              {country.label} - {country.cuisine}
                             </SelectItem>
                           ))}
                         </SelectContent>
