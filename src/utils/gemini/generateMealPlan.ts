@@ -50,17 +50,14 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   let currentDay = "";
   let matches;
 
-  // Split the markdown into day sections
   const sections = markdown.split(dayRegex);
-  sections.shift(); // Remove the first empty element
+  sections.shift();
 
-  // Process each day
   for (let i = 0; i < sections.length; i += 2) {
     const day = sections[i];
     const content = sections[i + 1];
     const meals: Record<string, any> = {};
 
-    // Find all meals in the current day's content
     while ((matches = mealRegex.exec(content)) !== null) {
       const [, mealType, mealText] = matches;
       meals[mealType.toLowerCase()] = parseMealDetails(mealText);
@@ -98,10 +95,8 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    // Get user preferences
     const userPrefs = getUserPreferences();
     
-    // Combine all preferences
     const allPreferences = [
       `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
       `Consider dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
@@ -110,14 +105,35 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
       ...additionalPreferences
     ].filter(Boolean);
 
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. YOU MUST STRICTLY FOLLOW THESE PREFERENCES: ${allPreferences.join(". ")}. Format as follows:
+    const prompt = `Generate a detailed 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal:
 
-**Monday:**
+1. NUTRITIONAL INFORMATION (be precise and realistic):
+   - Calculate calories based on standard portion sizes
+   - Provide protein in grams (typical range: 15-40g per meal)
+   - List carbs in grams (typical range: 30-90g per meal)
+   - Include fat content in grams (typical range: 10-35g per meal)
+
+2. RECIPE DETAILS:
+   - List all ingredients with specific quantities
+   - Include cooking time and temperature where applicable
+   - Provide step-by-step preparation instructions
+   - Note any special equipment needed
+
+3. DIETARY CONSIDERATIONS:
+   - Follow these preferences: ${allPreferences.join(". ")}
+   - Ensure balanced macronutrient distribution
+   - Consider portion sizes appropriate for one adult
+
+Format each meal as follows:
+
+**[Day]:**
 - Breakfast: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 - Lunch: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 - Dinner: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 
-[Continue for all days]`;
+[Continue for all days]
+
+Ensure all nutritional values are realistic and accurately calculated based on ingredients used.`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
