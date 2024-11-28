@@ -54,6 +54,7 @@ export default function GenerateRecipes() {
       });
       localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
       toast.success("Recipe saved successfully!");
+      navigate("/saved-items?source=recipe");
     } catch (error) {
       toast.error("Failed to save recipe");
     }

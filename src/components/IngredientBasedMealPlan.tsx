@@ -13,21 +13,21 @@ const IngredientBasedMealPlan = ({ mealPlan }: MealPlanProps) => {
   const navigate = useNavigate();
   const [localMealPlan, setLocalMealPlan] = useState(mealPlan);
 
-  const saveMealPlan = () => {
-    try {
-      const savedPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
-      savedPlans.push({
-        ...localMealPlan,
-        id: Date.now(),
-        date: new Date().toISOString(),
-      });
-      localStorage.setItem('savedMealPlans', JSON.stringify(savedPlans));
-      toast.success("Meal plan saved successfully!");
-      navigate("/saved-items");
-    } catch (error) {
-      toast.error("Failed to save meal plan");
-    }
-  };
+const saveMealPlan = () => {
+  try {
+    const savedPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
+    savedPlans.push({
+      ...localMealPlan,
+      id: Date.now(),
+      date: new Date().toISOString(),
+    });
+    localStorage.setItem('savedMealPlans', JSON.stringify(savedPlans));
+    toast.success("Meal plan saved successfully!");
+    navigate("/saved-items?source=mealPlan");
+  } catch (error) {
+    toast.error("Failed to save meal plan");
+  }
+};
 
   if (!mealPlan) return null;
 

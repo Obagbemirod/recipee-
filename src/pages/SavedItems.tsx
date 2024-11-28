@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecipeCard } from "@/components/RecipeCard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { MealPlanDay } from "@/components/MealPlanDay";
 import { Card } from "@/components/ui/card";
@@ -12,17 +12,22 @@ const SavedItems = () => {
   const [activeTab, setActiveTab] = useState<"recipes" | "mealPlans">("recipes");
   const [expandedPlanId, setExpandedPlanId] = useState<number | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const savedRecipes = [
-    {
-      title: "Creamy Mushroom Pasta",
-      image: "/lovable-uploads/a2632717-e343-4ca8-bb0f-024fa3c6f5e1.png",
-      time: "30 min",
-      difficulty: "Easy",
-    },
-  ];
-
+  // Get saved recipes from localStorage
+  const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
   const savedMealPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
+
+  useEffect(() => {
+    // Set active tab based on the source of navigation
+    const params = new URLSearchParams(location.search);
+    const source = params.get('source');
+    if (source === 'mealPlan') {
+      setActiveTab('mealPlans');
+    } else if (source === 'recipe') {
+      setActiveTab('recipes');
+    }
+  }, [location]);
 
   const updateMealPlan = (planId: number, day: string, meals: any) => {
     const updatedPlans = savedMealPlans.map((plan: any) => {
@@ -75,48 +80,66 @@ const SavedItems = () => {
           >
             {activeTab === "recipes" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedRecipes.map((recipe, index) => (
-                  <RecipeCard key={index} {...recipe} />
-                ))}
+                {savedRecipes.length === 0 ? (
+                  <div className="col-span-full text-center text-muted-foreground py-8">
+                    No saved recipes yet
+                  </div>
+                ) : (
+                  savedRecipes.map((recipe: any, index: number) => (
+                    <RecipeCard 
+                      key={index} 
+                      title={recipe.name}
+                      image={recipe.image || "/placeholder.svg"}
+                      time={recipe.totalTime}
+                      difficulty={recipe.difficulty}
+                    />
+                  ))
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedMealPlans.map((plan: any) => (
-                  <Card 
-                    key={plan.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                  >
-                    <div 
-                      className="p-6 cursor-pointer"
-                      onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
+                {savedMealPlans.length === 0 ? (
+                  <div className="col-span-full text-center text-muted-foreground py-8">
+                    No saved meal plans yet
+                  </div>
+                ) : (
+                  savedMealPlans.map((plan: any) => (
+                    <Card 
+                      key={plan.id}
+                      className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
                     >
-                      <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                      <p className="text-sm text-gray-500 mb-4">
-                        Generated on {format(new Date(plan.date), "PPpp")}
-                      </p>
-                      <Button variant="outline" className="w-full">
-                        {expandedPlanId === plan.id ? "Hide Details" : "View Details"}
-                      </Button>
-                    </div>
-
-                    {expandedPlanId === plan.id && (
-                      <div className="border-t p-6">
-                        <div className="space-y-4">
-                          {Object.entries(plan)
-                            .filter(([key]) => !['id', 'name', 'date'].includes(key))
-                            .map(([day, meals]: [string, any]) => (
-                              <MealPlanDay
-                                key={day}
-                                day={day}
-                                meals={meals}
-                                onUpdate={(day, meals) => updateMealPlan(plan.id, day, meals)}
-                              />
-                            ))}
-                        </div>
+                      <div 
+                        className="p-6 cursor-pointer"
+                        onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
+                      >
+                        <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Generated on {format(new Date(plan.date), "PPpp")}
+                        </p>
+                        <Button variant="outline" className="w-full">
+                          {expandedPlanId === plan.id ? "Hide Details" : "View Details"}
+                        </Button>
                       </div>
-                    )}
-                  </Card>
-                ))}
+
+                      {expandedPlanId === plan.id && (
+                        <div className="border-t p-6">
+                          <div className="space-y-4">
+                            {Object.entries(plan)
+                              .filter(([key]) => !['id', 'name', 'date'].includes(key))
+                              .map(([day, meals]: [string, any]) => (
+                                <MealPlanDay
+                                  key={day}
+                                  day={day}
+                                  meals={meals}
+                                  onUpdate={(day, meals) => updateMealPlan(plan.id, day, meals)}
+                                />
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  ))
+                )}
               </div>
             )}
           </motion.div>
