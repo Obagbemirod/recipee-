@@ -5,13 +5,17 @@ import { Link } from "react-router-dom";
 
 const plans = [
   {
-    name: "Free",
+    name: "24-Hour Pro Trial",
     price: "0",
-    description: "Try Everything for free for 24hours",
+    description: "Experience all Premium features free for 24 hours",
     features: [
-      "Enjoy free access to the Recipee Marketplace Community"
+      "Full access to Premium features for 24 hours",
+      "Generate unlimited meal plans",
+      "Access to all Premium recipes",
+      "Full AI recipe generation features",
+      "Try all Premium features risk-free"
     ],
-    buttonText: "Get Started",
+    buttonText: "Start Free Trial",
     buttonVariant: "outline" as const
   },
   {
@@ -27,7 +31,8 @@ const plans = [
       "Limited Marketplace community access",
       "Basic Grocery List Management",
       "Get Notified once per day",
-      "Recipe Cloning in Marketplace"
+      "Recipe Cloning in Marketplace",
+      "Limited offline access to recent plans"
     ],
     buttonText: "Start Basic Plan",
     buttonVariant: "secondary" as const
@@ -50,10 +55,11 @@ const plans = [
       "Full Marketplace Community Access",
       "Unlimited Access to Recipee Masterchef",
       "Recipe monetization",
+      "Extended offline access to meal plans",
       "Early access to new features"
     ],
-    buttonText: "Go Premium",
     buttonVariant: "default" as const,
+    buttonText: "Go Premium",
     featured: true
   }
 ];
@@ -67,7 +73,7 @@ export function PricingSection() {
             Choose Your Plan
           </h2>
           <p className="mx-auto max-w-[700px] text-muted-foreground mt-4">
-            Select the perfect plan for your cooking journey. Upgrade or downgrade at any time.
+            Start with our 24-hour Pro trial to experience all Premium features before choosing your plan.
           </p>
         </div>
         
