@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,6 +25,7 @@ interface Ingredient {
 }
 
 export default function GenerateRecipes() {
+  const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
