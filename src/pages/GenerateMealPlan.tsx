@@ -3,15 +3,11 @@ import { ChefHat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { generateMealPlan } from "@/utils/gemini";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MealPlanForm } from "@/components/meal-plan/MealPlanForm";
 import { MealPlanDisplay } from "@/components/meal-plan/MealPlanDisplay";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
 
 const formSchema = z.object({
@@ -51,14 +47,19 @@ const GenerateMealPlan = () => {
         `Strictly adhere to ${values.cuisine} cooking methods and ingredients`,
       ].filter(Boolean);
 
-      const plan = await generateMealPlan(preferences);
-      if (plan) {
-        setMealPlan({ ...plan, name: values.planName });
+      const generatedPlan = await generateMealPlan(preferences);
+      if (generatedPlan && Object.keys(generatedPlan).length > 0) {
+        setMealPlan({ 
+          ...generatedPlan, 
+          name: values.planName 
+        });
         toast.success("Meal plan generated successfully!");
+      } else {
+        toast.error("Failed to generate meal plan. Please try again.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating meal plan:", error);
-      toast.error("Error generating meal plan. Please try again.");
+      toast.error(error.message || "Error generating meal plan. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -85,86 +86,11 @@ const GenerateMealPlan = () => {
             Generate Your Weekly Meal Plan
           </h1>
           
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-4 md:p-6 mb-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="planName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Plan Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter meal plan name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="cuisine"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Select Your Cuisine</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose your preferred cuisine" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="max-h-[300px] bg-white">
-                          {COUNTRIES_AND_CUISINES.map((country) => (
-                            <SelectItem key={country.value} value={country.value}>
-                              {country.label} - {country.cuisine}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="preferences"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Additional Preferences</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Enter any additional preferences..."
-                          className="min-h-[100px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? (
-                    <>
-                      <ChefHat className="mr-2 animate-spin" />
-                      Generating Plan...
-                    </>
-                  ) : (
-                    <>
-                      <ChefHat className="mr-2" />
-                      Generate Plan
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </div>
+          <MealPlanForm 
+            form={form} 
+            onSubmit={onSubmit} 
+            isGenerating={isGenerating} 
+          />
 
           {mealPlan && (
             <MealPlanDisplay 
