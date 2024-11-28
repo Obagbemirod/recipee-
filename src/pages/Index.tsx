@@ -11,14 +11,34 @@ import { useEffect } from "react";
 
 const Index = () => {
   useEffect(() => {
-    // Clear cache when component mounts
-    if ('caches' in window) {
-      caches.keys().then((names) => {
-        names.forEach((name) => {
-          caches.delete(name);
-        });
-      });
-    }
+    const clearCache = async () => {
+      try {
+        // Clear application cache
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map(cacheName => caches.delete(cacheName))
+          );
+          console.log('Cache cleared successfully');
+        }
+
+        // Unregister service workers
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(
+            registrations.map(registration => registration.unregister())
+          );
+          console.log('Service workers unregistered');
+        }
+
+        // Reload the page without cache
+        window.location.reload(true);
+      } catch (error) {
+        console.error('Error clearing cache:', error);
+      }
+    };
+
+    clearCache();
   }, []);
 
   return (
