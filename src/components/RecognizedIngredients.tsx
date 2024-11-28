@@ -44,24 +44,8 @@ const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating 
         <h3 className="text-xl font-semibold text-secondary">Recognized Ingredients</h3>
       </div>
       <div 
-        className="h-[200px] mb-4 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100" 
-        style={{ 
-          scrollbarWidth: 'thin',
-          msOverflowStyle: 'none',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#f1f1f1',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: '#888',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb:hover': {
-            background: '#555',
-          }
-        }}
+        className="h-[200px] mb-4 overflow-y-auto pr-4 custom-scrollbar"
+        style={{ scrollbarWidth: 'thin' }}
       >
         <ul className="space-y-2">
           {ingredients.map((ingredient, index) => (
