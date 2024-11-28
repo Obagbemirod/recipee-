@@ -7,8 +7,20 @@ import { Footer } from "@/components/Footer";
 import { Testimonials } from "@/components/Testimonials";
 import { FAQ } from "@/components/FAQ";
 import { FinalCTA } from "@/components/FinalCTA";
+import { useEffect } from "react";
 
 const Index = () => {
+  useEffect(() => {
+    // Clear cache when component mounts
+    if ('caches' in window) {
+      caches.keys().then((names) => {
+        names.forEach((name) => {
+          caches.delete(name);
+        });
+      });
+    }
+  }, []);
+
   return (
     <main className="min-h-screen">
       <Header />
