@@ -48,7 +48,7 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    window.FlutterwaveCheckout({
+    const flutterwaveConfig = {
       public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
       tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
@@ -103,7 +103,10 @@ export const handlePaymentFlow = async (
       onclose: function() {
         // Handle modal close
       },
-    });
+    };
+
+    // @ts-ignore
+    window.FlutterwaveCheckout(flutterwaveConfig);
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast({
