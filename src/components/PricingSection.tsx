@@ -163,7 +163,9 @@ export function PricingSection() {
                 title: "Payment Successful!",
                 description: `Your ${plan.name} subscription has been activated.`,
               });
-              navigate("/home");
+              
+              // Redirect to success page with transaction details
+              navigate(`/success?transaction_id=${response.transaction_id}&order_value=${plan.price}`);
             } catch (error) {
               toast({
                 variant: "destructive",
