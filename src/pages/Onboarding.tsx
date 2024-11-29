@@ -35,7 +35,6 @@ const Onboarding = () => {
 
   const onSubmit = async (values: z.infer<typeof onboardingSchema>) => {
     try {
-      // Save preferences with timestamp
       const preferences = {
         ...values,
         lastUpdated: new Date().toISOString(),
@@ -66,7 +65,7 @@ const Onboarding = () => {
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative"
       style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/fb8ead65-8a5a-42ae-894d-8f6e65304ad8.png')` 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/37baf138-5ca8-425f-b899-2c04d062dd01.png')` 
       }}
     >
       <div className="absolute top-4 left-4 z-10">

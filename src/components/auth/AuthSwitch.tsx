@@ -14,9 +14,9 @@ export const AuthSwitch = ({ isLogin, onToggle }: AuthSwitchProps) => {
     >
       <div className="flex items-center justify-center space-x-2 bg-accent p-1 rounded-full">
         <button
-          onClick={() => onToggle(false)}
+          onClick={() => onToggle(true)}
           className={`px-6 py-2 rounded-full transition-all duration-200 ${
-            !isLogin
+            isLogin
               ? "bg-primary text-white shadow-md"
               : "text-secondary hover:bg-accent-foreground/10"
           }`}
@@ -24,9 +24,9 @@ export const AuthSwitch = ({ isLogin, onToggle }: AuthSwitchProps) => {
           Login
         </button>
         <button
-          onClick={() => onToggle(true)}
+          onClick={() => onToggle(false)}
           className={`px-6 py-2 rounded-full transition-all duration-200 ${
-            isLogin
+            !isLogin
               ? "bg-primary text-white shadow-md"
               : "text-secondary hover:bg-accent-foreground/10"
           }`}
