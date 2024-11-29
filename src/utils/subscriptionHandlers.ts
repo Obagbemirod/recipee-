@@ -1,6 +1,18 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/components/ui/use-toast";
 
+const handleDatabaseError = (error: any) => {
+  if (error.code === '42P01') {
+    toast({
+      title: "System Setup Required",
+      description: "The subscription system is being configured. Please try again in a few minutes.",
+      variant: "destructive",
+    });
+    return true;
+  }
+  return false;
+};
+
 export const handleTrialActivation = async (userId: string) => {
   try {
     const { error } = await supabase
@@ -14,15 +26,7 @@ export const handleTrialActivation = async (userId: string) => {
       });
 
     if (error) {
-      if (error.code === '42P01') {
-        // Table doesn't exist yet
-        toast({
-          title: "System Update Required",
-          description: "The subscription system is currently being set up. Please try again in a few minutes.",
-          variant: "destructive",
-        });
-        return false;
-      }
+      if (handleDatabaseError(error)) return false;
       throw error;
     }
     return true;
@@ -70,14 +74,8 @@ export const handlePaymentFlow = async (
               });
 
             if (error) {
-              if (error.code === '42P01') {
-                toast({
-                  title: "System Update Required",
-                  description: "The subscription system is currently being set up. Your payment was successful, and your subscription will be activated shortly.",
-                });
-              } else {
-                throw error;
-              }
+              if (handleDatabaseError(error)) return;
+              throw error;
             }
             
             onSuccess(response.transaction_id);
