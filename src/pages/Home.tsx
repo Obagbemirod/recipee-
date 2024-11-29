@@ -5,13 +5,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { MobileHeader } from "@/components/home/MobileHeader";
+import { useFeatureAccess } from '@/components/home/FeatureAccess';
 
 const Home = () => {
+  const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
   const navigate = useNavigate();
   
   const handleLogout = () => {
     toast.success("Logged out successfully");
     navigate("/");
+  };
+
+  const handleFeatureClick = (path: string) => {
+    if (checkAccess()) {
+      navigate(path);
+    }
   };
 
   return (
@@ -52,66 +60,71 @@ const Home = () => {
           {/* Quick Links */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
-            <QuickLinks />
+            <QuickLinks onFeatureClick={handleFeatureClick} />
           </div>
 
           {/* Quick Actions */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 gap-4">
-              <Link to="/upload-ingredients" className="w-full">
-                <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300">
-                  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-secondary">
-                    <Camera className="h-5 w-5 text-primary" />
-                    Upload Your Ingredients
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
-                      <Camera className="h-4 w-4 text-primary" />
-                      Photo
-                    </div>
-                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
-                      <Video className="h-4 w-4 text-primary" />
-                      Video
-                    </div>
-                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
-                      <Mic className="h-4 w-4 text-primary" />
-                      Audio
-                    </div>
-                    <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
-                      <FileText className="h-4 w-4 text-primary" />
-                      Text
-                    </div>
+              <div 
+                onClick={() => handleFeatureClick("/upload-ingredients")}
+                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+              >
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-secondary">
+                  <Camera className="h-5 w-5 text-primary" />
+                  Upload Your Ingredients
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
+                    <Camera className="h-4 w-4 text-primary" />
+                    Photo
+                  </div>
+                  <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
+                    <Video className="h-4 w-4 text-primary" />
+                    Video
+                  </div>
+                  <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
+                    <Mic className="h-4 w-4 text-primary" />
+                    Audio
+                  </div>
+                  <div className="flex items-center gap-2 text-sm border border-primary rounded-lg p-2">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Text
                   </div>
                 </div>
-              </Link>
+              </div>
 
-              <Link to="/generate-meal-plan" className="w-full">
-                <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300">
-                  <div className="flex flex-col items-center gap-3">
-                    <ChefHat className="h-6 w-6 text-primary" />
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold mb-2">Random Recipe Generator by Recipee MasterChef</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Discover culinary surprises with our Random Meal Plan Generator, where each click unveils weekly unique and exciting dishes to try.
-                      </p>
-                    </div>
+              <div 
+                onClick={() => handleFeatureClick("/generate-meal-plan")}
+                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <ChefHat className="h-6 w-6 text-primary" />
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold mb-2">Random Recipe Generator by Recipee MasterChef</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Discover culinary surprises with our Random Meal Plan Generator, where each click unveils weekly unique and exciting dishes to try.
+                    </p>
                   </div>
                 </div>
-              </Link>
+              </div>
 
-              <Link to="/generate-recipes" className="w-full">
-                <div className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300">
-                  <div className="flex items-center justify-center gap-2">
-                    <ImageIcon className="h-6 w-6 text-primary" />
-                    <span className="text-lg font-semibold">Generate Recipes from Photos</span>
-                  </div>
+              <div 
+                onClick={() => handleFeatureClick("/generate-recipes")}
+                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <ImageIcon className="h-6 w-6 text-primary" />
+                  <span className="text-lg font-semibold">Generate Recipes from Photos</span>
                 </div>
-              </Link>
+              </div>
             </div>
           </div>
         </motion.div>
       </div>
+      
+      <SubscriptionPrompt />
     </div>
   );
 };

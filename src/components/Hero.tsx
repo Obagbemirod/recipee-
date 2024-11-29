@@ -3,6 +3,13 @@ import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
 
 export const Hero = () => {
+  const scrollToPricing = () => {
+    const pricingSection = document.querySelector('#pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
@@ -35,15 +42,14 @@ export const Hero = () => {
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/auth">
-              <Button 
-                size="lg" 
-                variant="default" 
-                className="text-base px-6 py-2 sm:px-8 sm:py-3 bg-primary hover:bg-primary/90 w-full sm:w-auto"
-              >
-                Start Cooking Smartly
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              variant="default" 
+              className="text-base px-6 py-2 sm:px-8 sm:py-3 bg-primary hover:bg-primary/90 w-full sm:w-auto"
+              onClick={scrollToPricing}
+            >
+              Start Cooking Smartly
+            </Button>
           </motion.div>
         </motion.div>
       </div>

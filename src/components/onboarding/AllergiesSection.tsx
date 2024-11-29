@@ -13,6 +13,7 @@ export const AllergiesSection = ({ form }: AllergiesSectionProps) => {
   const [otherAllergy, setOtherAllergy] = useState("");
 
   const allergiesList = [
+    { id: "none", label: "None" },
     { id: "nuts", label: "Nuts" },
     { id: "dairy", label: "Dairy" },
     { id: "shellfish", label: "Shellfish" },
@@ -21,6 +22,15 @@ export const AllergiesSection = ({ form }: AllergiesSectionProps) => {
     { id: "eggs", label: "Eggs" },
     { id: "fish", label: "Fish" },
   ];
+
+  const handleNoneSelection = (checked: boolean) => {
+    if (checked) {
+      // If "None" is selected, clear all other selections
+      form.setValue("allergies", ["none"]);
+      setShowOther(false);
+      setOtherAllergy("");
+    }
+  };
 
   const handleOtherAllergyChange = (value: string) => {
     setOtherAllergy(value);
@@ -31,6 +41,24 @@ export const AllergiesSection = ({ form }: AllergiesSectionProps) => {
     } else {
       form.setValue("allergies", filteredAllergies);
     }
+  };
+
+  const handleAllergyChange = (id: string, checked: boolean) => {
+    const currentAllergies = form.getValues("allergies") || [];
+    
+    if (id === "none" && checked) {
+      handleNoneSelection(checked);
+      return;
+    }
+
+    // If selecting any other allergy, remove "none" if it exists
+    const allergiesWithoutNone = currentAllergies.filter((a: string) => a !== "none");
+    
+    const updatedAllergies = checked
+      ? [...allergiesWithoutNone, id]
+      : allergiesWithoutNone.filter((a: string) => a !== id);
+    
+    form.setValue("allergies", updatedAllergies);
   };
 
   return (
@@ -53,13 +81,7 @@ export const AllergiesSection = ({ form }: AllergiesSectionProps) => {
                     <FormControl>
                       <Checkbox
                         checked={field.value?.includes(item.id)}
-                        onCheckedChange={(checked) => {
-                          const current = field.value || [];
-                          const updated = checked
-                            ? [...current, item.id]
-                            : current.filter((value: string) => value !== item.id);
-                          field.onChange(updated);
-                        }}
+                        onCheckedChange={(checked) => handleAllergyChange(item.id, checked as boolean)}
                       />
                     </FormControl>
                     <FormLabel className="font-normal">
