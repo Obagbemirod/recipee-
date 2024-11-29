@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
 
 const socialLinks = [
   { icon: Facebook, href: "https://facebook.com/recipee" },
@@ -14,9 +15,9 @@ const navLinks = [
   { text: "Contact", href: "/contact" },
   { text: "Privacy Policy", href: "/privacy" },
   { text: "Terms of Service", href: "/terms" },
+  { text: "Become an Affiliate", href: "/affiliate-program" },
 ];
 
-// Separate components to reduce file size
 const FooterLogo = () => (
   <div className="space-y-4">
     <div className="inline-flex p-2 rounded-full bg-white">
@@ -38,12 +39,12 @@ const FooterLinks = () => (
     <ul className="space-y-2">
       {navLinks.map((link) => (
         <li key={link.href}>
-          <a
-            href={link.href}
+          <Link
+            to={link.href}
             className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
           >
             {link.text}
-          </a>
+          </Link>
         </li>
       ))}
     </ul>

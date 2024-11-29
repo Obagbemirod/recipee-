@@ -13,6 +13,7 @@ import GenerateRecipes from "./pages/GenerateRecipes";
 import Marketplace from "./pages/Marketplace";
 import Profile from "./pages/Profile";
 import SavedItems from "./pages/SavedItems";
+import AffiliateProgram from "./pages/AffiliateProgram";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,6 @@ const App = () => {
         <TooltipProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-          
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/home" element={<Home />} />
@@ -33,6 +33,7 @@ const App = () => {
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/saved-items" element={<SavedItems />} />
+            <Route path="/affiliate-program" element={<AffiliateProgram />} />
           </Routes>
           <Toaster />
           <Sonner />
