@@ -1,77 +1,12 @@
-import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "./ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
-
-declare global {
-  interface Window {
-    FlutterwaveCheckout: any;
-  }
-}
-
-const plans = [
-  {
-    name: "24-Hour Pro Trial",
-    price: "0",
-    description: "Experience all Premium features free for 24 hours",
-    features: [
-      "Full access to Premium features for 24 hours",
-      "Generate unlimited meal plans",
-      "Access to all Premium recipes",
-      "Full AI recipe generation features",
-      "Try all Premium features risk-free"
-    ],
-    buttonText: "Start Free Trial",
-    buttonVariant: "outline" as const,
-    planId: "24_hour_trial"
-  },
-  {
-    name: "Basic",
-    price: "9",
-    description: "Perfect for home cooks",
-    features: [
-      "Image, video, and text inputs",
-      "Update Your Ingredient List once per week",
-      "Generate one complete meal plan per day",
-      "Get Nutritional Content of Meals",
-      "Get Step-by-Step Cooking Guide",
-      "Limited Marketplace community access",
-      "Basic Grocery List Management",
-      "Get Notified once per day",
-      "Recipe Cloning in Marketplace",
-      "Limited offline access to recent plans"
-    ],
-    buttonText: "Start Basic Plan",
-    buttonVariant: "secondary" as const,
-    planId: "basic"
-  },
-  {
-    name: "Premium",
-    price: "19",
-    description: "For serious home chefs and creators",
-    features: [
-      "All Basic features plus:",
-      "Audio input support",
-      "Unlimited ingredient updates",
-      "Unlimited Weekly Meal Planning",
-      "Advanced notifications for all meals",
-      "Generate Different Meal Plans for Family Members",
-      "Expanded Grocery List Management",
-      "Full Marketplace Community Access",
-      "Unlimited Access to Recipee Masterchef",
-      "Recipe monetization",
-      "Extended offline access",
-      "Early access to new features"
-    ],
-    buttonVariant: "default" as const,
-    buttonText: "Go Premium",
-    featured: true,
-    planId: "premium"
-  }
-];
+import { Check } from "lucide-react";
+import { plans } from "@/data/plans";
+import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -98,100 +33,29 @@ export function PricingSection() {
     }
 
     if (plan.planId === "24_hour_trial") {
-      try {
-        const { error } = await supabase
-          .from('subscriptions')
-          .upsert({
-            user_id: user.id,
-            plan_id: plan.planId,
-            start_date: new Date().toISOString(),
-            end_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active'
-          });
-
-        if (error) throw error;
-
+      const success = await handleTrialActivation(user.id);
+      if (success) {
         toast({
           title: "Trial Activated!",
           description: "Your 24-hour trial has been activated. Enjoy all premium features!",
         });
         navigate("/home");
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to activate trial. Please try again.",
-        });
       }
       return;
     }
 
-    try {
-      window.FlutterwaveCheckout({
-        public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-        tx_ref: `${user.id}-${Date.now()}`,
-        amount: Number(plan.price),
-        currency: "USD",
-        payment_options: "card,mobilemoney,ussd",
-        customer: {
-          email: user.email,
-          phone_number: user.phone || "",
-          name: user.user_metadata?.full_name || user.email,
-        },
-        customizations: {
-          title: "Recipee Subscription",
-          description: `${plan.name} Plan Subscription`,
-          logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
-        },
-        callback: async function(response: any) {
-          if (response.status === "successful") {
-            try {
-              const { error } = await supabase
-                .from('subscriptions')
-                .upsert({
-                  user_id: user.id,
-                  plan_id: plan.planId,
-                  start_date: new Date().toISOString(),
-                  end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                  status: 'active',
-                  payment_reference: response.transaction_id
-                });
-
-              if (error) throw error;
-
-              toast({
-                title: "Payment Successful!",
-                description: `Your ${plan.name} subscription has been activated.`,
-              });
-              
-              // Redirect to success page with transaction details
-              navigate(`/success?transaction_id=${response.transaction_id}&order_value=${plan.price}`);
-            } catch (error) {
-              toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Failed to activate subscription. Please contact support.",
-              });
-            }
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Payment Failed",
-              description: "Please try again or contact support if the issue persists.",
-            });
-          }
-        },
-        onclose: function() {
-          // Handle modal close
-        },
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Unable to initialize payment. Please try again.",
-      });
-    }
+    handlePaymentFlow(
+      user,
+      plan,
+      (transactionId) => {
+        toast({
+          title: "Payment Successful!",
+          description: `Your ${plan.name} subscription has been activated.`,
+        });
+        navigate(`/success?transaction_id=${transactionId}&order_value=${plan.price}`);
+      },
+      navigate
+    );
   };
 
   return (
