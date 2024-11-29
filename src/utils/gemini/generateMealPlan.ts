@@ -98,26 +98,33 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    // Get user preferences
     const userPrefs = getUserPreferences();
     
-    // Combine all preferences
     const allPreferences = [
-      `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
-      `Consider dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
-      `Generate meals typical to ${userPrefs.country || 'international'} cuisine`,
-      `Strictly avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}`,
+      `You MUST STRICTLY generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
+      `You MUST STRICTLY follow this dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
+      `You MUST ONLY generate meals typical to ${userPrefs.country || 'international'} cuisine`,
+      `You MUST STRICTLY avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}`,
       ...additionalPreferences
     ].filter(Boolean);
 
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. For each meal, include calories, protein, carbs, and fat content in grams. YOU MUST STRICTLY FOLLOW THESE PREFERENCES: ${allPreferences.join(". ")}. Format as follows:
+    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. 
+    For each meal, include calories, protein, carbs, and fat content in grams. 
+    
+    IMPORTANT RULES:
+    1. You MUST STRICTLY follow these preferences: ${allPreferences.join(". ")}
+    2. Use traditional/local names for dishes where applicable
+    3. All meals MUST be culturally appropriate and commonly prepared in the specified region
+    4. Do not substitute traditional ingredients unless specifically requested
+    
+    Format as follows:
 
-**Monday:**
-- Breakfast: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-- Lunch: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-- Dinner: [Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    **Monday:**
+    - Breakfast: [Traditional Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Lunch: [Traditional Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Dinner: [Traditional Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 
-[Continue for all days]`;
+    [Continue for all days]`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -140,11 +147,6 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     }
   } catch (error: any) {
     console.error('Error generating meal plan:', error);
-    if (error.message?.includes('API key')) {
-      toast.error("Invalid API key. Please check your .env file and ensure you've added a valid Gemini API key.");
-    } else {
-      toast.error("Failed to generate meal plan. Please try again.");
-    }
     throw error;
   }
 };

@@ -15,13 +15,20 @@ const getGeminiAPI = () => {
 export const generateRecipeFromImage = async (input: string) => {
   try {
     const genAI = getGeminiAPI();
+    const userCountry = localStorage.getItem('userCountry') || 'nigeria';
     
-    const prompt = `Generate a detailed recipe based on these ingredients or analyze this image. 
+    const prompt = `You are a culinary expert specializing in ${userCountry}n cuisine.
+    Analyze this input and generate a recipe. IMPORTANT GUIDELINES:
+    
+    1. If this is an image of a traditional dish, ALWAYS use its local/traditional name (e.g. "Jollof Rice" not "Spicy Rice")
+    2. Focus on identifying ingredients and dishes specific to ${userCountry}n cuisine
+    3. Use local terminology for ingredients where applicable
+    
     Return the response in this exact JSON format:
     {
-      "name": "Recipe Name",
+      "name": "Traditional Recipe Name",
       "ingredients": [
-        {"item": "ingredient name", "amount": "approximate amount"}
+        {"item": "local ingredient name", "amount": "approximate amount"}
       ],
       "instructions": [
         {"step": 1, "description": "detailed instruction", "time": "estimated time"}
@@ -34,9 +41,7 @@ export const generateRecipeFromImage = async (input: string) => {
 
     let result;
     
-    // Check if input is a base64 image
     if (input.startsWith('data:image')) {
-      // Handle image input using gemini-1.5-flash
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const base64Data = input.split('base64,')[1];
       result = await model.generateContent({
@@ -56,7 +61,6 @@ export const generateRecipeFromImage = async (input: string) => {
         ]
       });
     } else {
-      // Handle text input using gemini-1.5-flash
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       result = await model.generateContent({
         contents: [
@@ -72,12 +76,10 @@ export const generateRecipeFromImage = async (input: string) => {
     const text = response.text().trim();
     
     try {
-      // Extract JSON from the response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       const jsonStr = jsonMatch ? jsonMatch[0] : text;
       const recipe = JSON.parse(jsonStr);
       
-      // Ensure all required fields are present
       return {
         name: recipe.name || "Custom Recipe",
         ingredients: recipe.ingredients || [],
