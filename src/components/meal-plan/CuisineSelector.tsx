@@ -14,6 +14,12 @@ interface CuisineSelectorProps {
 
 export const CuisineSelector = ({ form }: CuisineSelectorProps) => {
   const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  const filteredCountries = COUNTRIES_AND_CUISINES.filter((country) =>
+    country.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+    country.cuisine.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <FormField
@@ -41,17 +47,22 @@ export const CuisineSelector = ({ form }: CuisineSelectorProps) => {
               </FormControl>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
-              <Command>
-                <CommandInput placeholder="Search cuisine..." />
+              <Command shouldFilter={false}>
+                <CommandInput 
+                  placeholder="Search cuisine..." 
+                  value={searchValue}
+                  onValueChange={setSearchValue}
+                />
                 <CommandEmpty>No cuisine found.</CommandEmpty>
                 <CommandGroup className="max-h-[300px] overflow-auto">
-                  {COUNTRIES_AND_CUISINES.map((country) => (
+                  {filteredCountries.map((country) => (
                     <CommandItem
                       key={country.value}
-                      value={country.label}
+                      value={country.value}
                       onSelect={() => {
                         form.setValue("cuisine", country.value);
                         setOpen(false);
+                        setSearchValue("");
                       }}
                     >
                       <Check
