@@ -14,11 +14,8 @@ import RecognizedIngredients from "@/components/RecognizedIngredients";
 import IngredientBasedMealPlan from "@/components/IngredientBasedMealPlan";
 import { BrandLogo } from "@/components/BrandLogo";
 import { normalizeIngredient } from "@/utils/ingredientMapping";
-
-interface Ingredient {
-  name: string;
-  confidence: number;
-}
+import { CuisineSelector } from "@/components/meal-plan/CuisineSelector";
+import { useForm } from "react-hook-form";
 
 const UploadIngredients = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -27,6 +24,12 @@ const UploadIngredients = () => {
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [activeInput, setActiveInput] = useState<string | null>(null);
   const [mealPlanName, setMealPlanName] = useState("");
+  
+  const form = useForm({
+    defaultValues: {
+      cuisine: localStorage.getItem('userCountry') || 'nigeria'
+    }
+  });
 
   const inputOptions = [
     { id: 'photo', icon: Camera, label: 'Photo', component: PhotoUploadSection },
@@ -84,6 +87,9 @@ const UploadIngredients = () => {
             onChange={(e) => setMealPlanName(e.target.value)}
             className="mb-4"
           />
+          <div className="mb-4">
+            <CuisineSelector form={form} />
+          </div>
         </div>
         
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -135,13 +141,13 @@ const UploadIngredients = () => {
 
             setIsGeneratingMealPlan(true);
             try {
-              const userCountry = localStorage.getItem('userCountry') || 'nigeria';
+              const selectedCuisine = form.getValues('cuisine');
               const userDiet = localStorage.getItem('dietaryPreference') || 'none';
               
               const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
               const preferences = [
                 `Generate meals using these ingredients: ${ingredientsList}.`,
-                `ONLY generate traditional ${userCountry} dishes and local delicacies.`,
+                `ONLY generate traditional ${selectedCuisine} dishes and local delicacies.`,
                 `Consider dietary preference: ${userDiet}.`,
                 'Include only dishes that are commonly prepared in this region.'
               ];
