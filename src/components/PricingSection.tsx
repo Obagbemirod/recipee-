@@ -1,7 +1,13 @@
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { Link } from "react-router-dom";
+import { useToast } from "./ui/use-toast";
+
+declare global {
+  interface Window {
+    FlutterwaveCheckout: any;
+  }
+}
 
 const plans = [
   {
@@ -65,6 +71,55 @@ const plans = [
 ];
 
 export function PricingSection() {
+  const { toast } = useToast();
+
+  const handlePayment = (plan: typeof plans[0]) => {
+    try {
+      window.FlutterwaveCheckout({
+        public_key: "FLUTTERWAVE_PUBLIC_KEY", // Replace with your public key
+        tx_ref: Date.now().toString(),
+        amount: Number(plan.price),
+        currency: "USD",
+        payment_options: "card,mobilemoney,ussd",
+        customer: {
+          email: "", // Will be populated after auth
+          phone_number: "", // Will be populated after auth
+          name: "", // Will be populated after auth
+        },
+        customizations: {
+          title: "Recipee Subscription",
+          description: `${plan.name} Plan Subscription`,
+          logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
+        },
+        callback: function(response: any) {
+          if (response.status === "successful") {
+            toast({
+              title: "Payment Successful!",
+              description: `Your ${plan.name} subscription has been activated.`,
+            });
+            // Here you would typically call your backend to verify the transaction
+            // and update the user's subscription status
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Payment Failed",
+              description: "Please try again or contact support if the issue persists.",
+            });
+          }
+        },
+        onclose: function() {
+          // Handle modal close
+        },
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Unable to initialize payment. Please try again.",
+      });
+    }
+  };
+
   return (
     <section className="py-16 bg-accent">
       <div className="container px-4 md:px-6">
@@ -117,14 +172,13 @@ export function PricingSection() {
               </div>
               
               <CardFooter>
-                <Link to="/auth" className="w-full">
-                  <Button 
-                    className="w-full" 
-                    variant={plan.buttonVariant}
-                  >
-                    {plan.buttonText}
-                  </Button>
-                </Link>
+                <Button 
+                  className="w-full" 
+                  variant={plan.buttonVariant}
+                  onClick={() => handlePayment(plan)}
+                >
+                  {plan.buttonText}
+                </Button>
               </CardFooter>
             </Card>
           ))}
