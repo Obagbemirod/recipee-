@@ -2,6 +2,9 @@ import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "./ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -22,16 +25,17 @@ const plans = [
       "Try all Premium features risk-free"
     ],
     buttonText: "Start Free Trial",
-    buttonVariant: "outline" as const
+    buttonVariant: "outline" as const,
+    planId: "24_hour_trial"
   },
   {
     name: "Basic",
     price: "9",
     description: "Perfect for home cooks",
     features: [
-      "Image, video, text, and audio inputs",
+      "Image, video, and text inputs",
       "Update Your Ingredient List once per week",
-      "Generate one complete meal plan (Breakfast, Lunch & Dinner) per day for 30 days",
+      "Generate one complete meal plan per day",
       "Get Nutritional Content of Meals",
       "Get Step-by-Step Cooking Guide",
       "Limited Marketplace community access",
@@ -41,64 +45,132 @@ const plans = [
       "Limited offline access to recent plans"
     ],
     buttonText: "Start Basic Plan",
-    buttonVariant: "secondary" as const
+    buttonVariant: "secondary" as const,
+    planId: "basic"
   },
   {
     name: "Premium",
     price: "19",
     description: "For serious home chefs and creators",
     features: [
-      "Image, video, text, and audio inputs",
-      "Unlimited ingredient recognitions",
-      "Unlimited Update To Your Ingredient List",
+      "All Basic features plus:",
+      "Audio input support",
+      "Unlimited ingredient updates",
       "Unlimited Weekly Meal Planning",
-      "Generate Recipes From Dish Photos",
-      "Get Nutritional Content of Meals",
-      "Get Step-by-Step Cooking Guide",
-      "Get Notified for Breakfast, Lunch & Dinner",
-      "Generate Different Meal Plans for Different Family Members",
+      "Advanced notifications for all meals",
+      "Generate Different Meal Plans for Family Members",
       "Expanded Grocery List Management",
       "Full Marketplace Community Access",
       "Unlimited Access to Recipee Masterchef",
       "Recipe monetization",
-      "Extended offline access to meal plans",
+      "Extended offline access",
       "Early access to new features"
     ],
     buttonVariant: "default" as const,
     buttonText: "Go Premium",
-    featured: true
+    featured: true,
+    planId: "premium"
   }
 ];
 
 export function PricingSection() {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
 
-  const handlePayment = (plan: typeof plans[0]) => {
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+  }, []);
+
+  const handlePayment = async (plan: typeof plans[0]) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to subscribe to a plan",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    if (plan.planId === "24_hour_trial") {
+      try {
+        const { error } = await supabase
+          .from('subscriptions')
+          .upsert({
+            user_id: user.id,
+            plan_id: plan.planId,
+            start_date: new Date().toISOString(),
+            end_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            status: 'active'
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Trial Activated!",
+          description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+        });
+        navigate("/home");
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to activate trial. Please try again.",
+        });
+      }
+      return;
+    }
+
     try {
       window.FlutterwaveCheckout({
         public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-        tx_ref: Date.now().toString(),
+        tx_ref: `${user.id}-${Date.now()}`,
         amount: Number(plan.price),
         currency: "USD",
         payment_options: "card,mobilemoney,ussd",
         customer: {
-          email: "", // Will be populated after auth
-          phone_number: "", // Will be populated after auth
-          name: "", // Will be populated after auth
+          email: user.email,
+          phone_number: user.phone || "",
+          name: user.user_metadata?.full_name || user.email,
         },
         customizations: {
           title: "Recipee Subscription",
           description: `${plan.name} Plan Subscription`,
           logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
         },
-        callback: function(response: any) {
+        callback: async function(response: any) {
           if (response.status === "successful") {
-            toast({
-              title: "Payment Successful!",
-              description: `Your ${plan.name} subscription has been activated.`,
-            });
-            // Here you would typically call your backend to verify the transaction
-            // and update the user's subscription status
+            try {
+              const { error } = await supabase
+                .from('subscriptions')
+                .upsert({
+                  user_id: user.id,
+                  plan_id: plan.planId,
+                  start_date: new Date().toISOString(),
+                  end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                  status: 'active',
+                  payment_reference: response.transaction_id
+                });
+
+              if (error) throw error;
+
+              toast({
+                title: "Payment Successful!",
+                description: `Your ${plan.name} subscription has been activated.`,
+              });
+              navigate("/home");
+            } catch (error) {
+              toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to activate subscription. Please contact support.",
+              });
+            }
           } else {
             toast({
               variant: "destructive",
