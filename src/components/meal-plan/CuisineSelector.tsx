@@ -47,13 +47,14 @@ export const CuisineSelector = ({ form }: CuisineSelectorProps) => {
               </FormControl>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
-              <Command shouldFilter={false}>
+              <Command className="bg-white">
                 <CommandInput 
                   placeholder="Search cuisine..." 
                   value={searchValue}
                   onValueChange={setSearchValue}
+                  className="bg-white"
                 />
-                <CommandList>
+                <CommandList className="bg-white">
                   <CommandEmpty>No cuisine found.</CommandEmpty>
                   <CommandGroup className="max-h-[300px] overflow-auto">
                     {filteredCountries.map((country) => (
@@ -65,6 +66,7 @@ export const CuisineSelector = ({ form }: CuisineSelectorProps) => {
                           setOpen(false);
                           setSearchValue("");
                         }}
+                        className="bg-white hover:bg-gray-100"
                       >
                         <Check
                           className={cn(

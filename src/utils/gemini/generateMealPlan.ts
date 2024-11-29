@@ -85,7 +85,10 @@ const getUserPreferences = () => {
       cuisineStyle,
       dietaryPreference,
       allergies,
-      lastUpdated: preferences.lastUpdated
+      lastUpdated: preferences.lastUpdated,
+      age: preferences.age,
+      healthConditions: preferences.healthConditions,
+      tribe: preferences.tribe
     };
   } catch (error) {
     console.error('Error loading user preferences:', error);
@@ -101,10 +104,13 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const userPrefs = getUserPreferences();
     
     const allPreferences = [
-      `You MUST STRICTLY generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
-      `You MUST STRICTLY follow this dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
-      `You MUST ONLY generate meals typical to ${userPrefs.country || 'international'} cuisine`,
-      `You MUST STRICTLY avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}`,
+      `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
+      `Follow this dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
+      `Generate meals typical to ${userPrefs.country || 'international'} cuisine`,
+      `Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}`,
+      userPrefs.tribe ? `Consider traditional meals from ${userPrefs.tribe} tribe` : '',
+      userPrefs.age ? `Consider age-appropriate meals for ${userPrefs.age} years old` : '',
+      userPrefs.healthConditions ? `Consider dietary restrictions for: ${userPrefs.healthConditions}` : '',
       ...additionalPreferences
     ].filter(Boolean);
 
@@ -112,17 +118,19 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     For each meal, include calories, protein, carbs, and fat content in grams. 
     
     IMPORTANT RULES:
-    1. You MUST STRICTLY follow these preferences: ${allPreferences.join(". ")}
+    1. STRICTLY follow these preferences: ${allPreferences.join(". ")}
     2. Use traditional/local names for dishes where applicable
     3. All meals MUST be culturally appropriate and commonly prepared in the specified region
     4. Do not substitute traditional ingredients unless specifically requested
+    5. DO NOT use asterisks (*) in meal names
+    6. Ensure all nutritional information is accurate and appropriate for the specified age and health conditions
     
     Format as follows:
 
-    **Monday:**
-    - Breakfast: [Traditional Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Lunch: [Traditional Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Dinner: [Traditional Meal Name] (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    Monday:
+    - Breakfast: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Lunch: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Dinner: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 
     [Continue for all days]`;
 
