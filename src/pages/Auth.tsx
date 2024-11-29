@@ -28,7 +28,7 @@ const Auth = () => {
       ;!function(j,u,m,b,l,e){var n="jumbleberry",i="3.2.3",o=function(){o.v==i&&o.e?o.e.apply(o,arguments):o.q.push(arguments)}
       ,a=encodeURIComponent,t=decodeURIComponent,d=j.location;(o.push=o).l=!1,o.q=[],o.v=i,o.duid=function(n){return(
       n=n&&u.cookie.match(RegExp(t("%5Cs*")+n.substr(0,21)+"id=([^;]+)")))?t(n[1].split(".")[0]):""},o.g=function(n,i){return!!(
-      i=RegExp("^[^#]*[?&]"+n+"=([^&#]+)").exec(i||d.href))&&t(i[1].replace(/\+/g," "))},o.s=function(n){for(var i=Math.round((
+      i=RegExp("^[^#]*[?&]"+n+"=([^&#]+)").exec(i||d.href))&&t(i[1].replace(/\\+/g," "))},o.s=function(n){for(var i=Math.round((
       new Date).getTime()/1e3),t=d.hostname.split("."),r=t.length-1;0<r--&&/^(([a-z0-9]{4}-?){8}|[0-9]+)$/i.test(n)&&n!=o.duid(
       o.p);)u.cookie=o.p.substr(0,21)+"id="+a(n)+"."+i+".0."+i+".; path=/; max-age=63072000; domain=."+t.slice(r,t.length
       ).join(".")},o.i=function(n,i,t){if("init"==n)return[o.u=o.duid(o.p=i),o.s(o.h=t||o.u)];t=t||{},(n=u.createElement(
@@ -40,7 +40,7 @@ const Auth = () => {
       "beforeunload",n.onerror=function(){o.e=o.i;for(var n=0;n<o.q.length;++n)o.apply(o,o.q[n]);o.q=[]}),
       i.parentNode.insertBefore(n,i))},j[n]=j[n]||o,j[n].d=b}(window,document,"script","https://www.unique-skipping-kittens.com/");
       
-      window.jumbleberry("init", "ZQBdTfGERq4qFE_Q-FKTmZ19IkvLrOhgpWEBSQfufdfs0XLHM-6aYaYn5bqORzWTFN7x-jMYVBxq-QV9R_n7qA~~");
+      jumbleberry("init", "ZQBdTfGERq4qFE_Q-FKTmZ19IkvLrOhgpWEBSQfufdfs0XLHM-6aYaYn5bqORzWTFN7x-jMYVBxq-QV9R_n7qA~~");
     `;
     document.head.appendChild(script);
   }, []);
