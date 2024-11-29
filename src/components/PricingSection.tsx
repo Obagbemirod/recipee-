@@ -76,7 +76,7 @@ export function PricingSection() {
   const handlePayment = (plan: typeof plans[0]) => {
     try {
       window.FlutterwaveCheckout({
-        public_key: "FLUTTERWAVE_PUBLIC_KEY", // Replace with your public key
+        public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
         tx_ref: Date.now().toString(),
         amount: Number(plan.price),
         currency: "USD",
