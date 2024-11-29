@@ -14,25 +14,27 @@ export const AuthSwitch = ({ isLogin, onToggle }: AuthSwitchProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center space-y-2 mb-8"
     >
-      <div className="flex items-center justify-center space-x-3">
-        <span 
-          className={`text-sm font-medium cursor-pointer ${!isLogin ? "text-primary" : "text-muted-foreground"}`}
-          onClick={() => onToggle(true)}
-        >
-          Sign Up
-        </span>
-        <Switch
-          id="auth-mode"
-          checked={!isLogin}
-          onCheckedChange={onToggle}
-          className="data-[state=checked]:bg-primary data-[state=unchecked]:border-2 data-[state=unchecked]:border-primary"
-        />
-        <span 
-          className={`text-sm font-medium cursor-pointer ${isLogin ? "text-primary" : "text-muted-foreground"}`}
+      <div className="flex items-center justify-center space-x-4 bg-secondary p-2 rounded-full">
+        <button
           onClick={() => onToggle(false)}
+          className={`px-4 py-2 rounded-full transition-all ${
+            isLogin
+              ? "bg-primary text-white"
+              : "text-muted-foreground hover:text-primary"
+          }`}
         >
           Login
-        </span>
+        </button>
+        <button
+          onClick={() => onToggle(true)}
+          className={`px-4 py-2 rounded-full transition-all ${
+            !isLogin
+              ? "bg-primary text-white"
+              : "text-muted-foreground hover:text-primary"
+          }`}
+        >
+          Sign Up
+        </button>
       </div>
     </motion.div>
   );

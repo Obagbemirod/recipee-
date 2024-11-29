@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -18,36 +19,12 @@ type LoginFormProps = {
 };
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
-  const [isResetting, setIsResetting] = useState(false);
+  const navigate = useNavigate();
   
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
-
-  const handleForgotPassword = async () => {
-    const email = form.getValues("email");
-    
-    if (!email) {
-      toast.error("Please enter your email address first");
-      return;
-    }
-
-    try {
-      setIsResetting(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) throw error;
-
-      toast.success("Password reset link sent to your email!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send reset password email");
-    } finally {
-      setIsResetting(false);
-    }
-  };
 
   return (
     <Form {...form}>
@@ -86,10 +63,9 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
             type="button"
             variant="link"
             className="text-sm text-primary hover:text-primary/80"
-            onClick={handleForgotPassword}
-            disabled={isResetting}
+            onClick={() => navigate("/forgot-password")}
           >
-            {isResetting ? "Sending reset link..." : "Forgot password?"}
+            Forgot password?
           </Button>
         </div>
       </form>

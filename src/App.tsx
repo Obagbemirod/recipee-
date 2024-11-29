@@ -14,6 +14,8 @@ import Marketplace from "./pages/Marketplace";
 import Profile from "./pages/Profile";
 import SavedItems from "./pages/SavedItems";
 import AffiliateProgram from "./pages/AffiliateProgram";
+import ForgotPassword from "./pages/ForgotPassword";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,8 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/saved-items" element={<SavedItems />} />
             <Route path="/affiliate-program" element={<AffiliateProgram />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/about" element={<AboutUs />} />
           </Routes>
           <Toaster />
           <Sonner />
