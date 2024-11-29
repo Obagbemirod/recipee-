@@ -1,14 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText } from "lucide-react";
+import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText, Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { MobileHeader } from "@/components/home/MobileHeader";
 import { useFeatureAccess } from '@/components/home/FeatureAccess';
+import { useSubscription } from "@/hooks/useSubscription";
+import { Badge } from "@/components/ui/badge";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
+  const { plan, isTrialExpired } = useSubscription();
   const navigate = useNavigate();
   
   const handleLogout = () => {
@@ -22,9 +25,31 @@ const Home = () => {
     }
   };
 
+  const getPlanBadge = () => {
+    if (!plan) return null;
+    
+    const badgeVariants = {
+      "24_hour_trial": "bg-blue-500",
+      "basic": "bg-green-500",
+      "premium": "bg-purple-500"
+    };
+
+    const planNames = {
+      "24_hour_trial": "Pro Trial",
+      "basic": "Basic Plan",
+      "premium": "Premium Plan"
+    };
+
+    return (
+      <Badge className={`${badgeVariants[plan]} text-white`}>
+        <Crown className="w-4 h-4 mr-1" />
+        {planNames[plan]}
+      </Badge>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
       <div className="relative">
         <img 
           src="/lovable-uploads/ba7a4cdd-cf16-4080-8dd1-ed11214c2520.png"
@@ -34,7 +59,10 @@ const Home = () => {
         <div className="absolute inset-0 bg-black/40">
           <div className="container mx-auto px-4 h-full">
             <div className="h-full flex flex-col py-4">
-              <MobileHeader onLogout={handleLogout} />
+              <div className="flex justify-between items-center">
+                <MobileHeader onLogout={handleLogout} />
+                {getPlanBadge()}
+              </div>
               
               <div className="flex-1 flex items-center justify-center">
                 <motion.h1 

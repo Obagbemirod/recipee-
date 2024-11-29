@@ -7,11 +7,15 @@ import { supabase } from "@/lib/supabase";
 import { Check } from "lucide-react";
 import { plans } from "@/data/plans";
 import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
+import { Dialog, DialogContent } from "./ui/dialog";
+import { SignUpForm } from "./auth/SignUpForm";
 
 export function PricingSection() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [showSignUpDialog, setShowSignUpDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -21,41 +25,89 @@ export function PricingSection() {
     checkUser();
   }, []);
 
-  const handlePayment = async (plan: typeof plans[0]) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to subscribe to a plan",
-        variant: "destructive",
+  const handleSignUpSubmit = async (values: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            full_name: values.name,
+          },
+        },
       });
-      navigate("/auth");
-      return;
-    }
 
-    if (plan.planId === "24_hour_trial") {
-      const success = await handleTrialActivation(user.id);
-      if (success) {
-        toast({
-          title: "Trial Activated!",
-          description: "Your 24-hour trial has been activated. Enjoy all premium features!",
-        });
-        navigate("/home");
+      if (error) throw error;
+
+      toast({
+        title: "Account created successfully!",
+        description: "Please check your email to confirm your account.",
+      });
+
+      // If it's a trial plan, activate it immediately
+      if (selectedPlan.planId === "24_hour_trial") {
+        const success = await handleTrialActivation(data.user!.id);
+        if (success) {
+          toast({
+            title: "Trial Activated!",
+            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+          });
+          navigate("/home");
+        }
+      } else {
+        // For paid plans, proceed to payment
+        handlePaymentFlow(
+          data.user,
+          selectedPlan,
+          (transactionId) => {
+            toast({
+              title: "Payment Successful!",
+              description: `Your ${selectedPlan.name} subscription has been activated.`,
+            });
+            navigate(`/success?transaction_id=${transactionId}&order_value=${selectedPlan.price}`);
+          },
+          navigate
+        );
       }
-      return;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     }
+  };
 
-    handlePaymentFlow(
-      user,
-      plan,
-      (transactionId) => {
-        toast({
-          title: "Payment Successful!",
-          description: `Your ${plan.name} subscription has been activated.`,
-        });
-        navigate(`/success?transaction_id=${transactionId}&order_value=${plan.price}`);
-      },
-      navigate
-    );
+  const handlePayment = async (plan: typeof plans[0]) => {
+    if (user) {
+      if (plan.planId === "24_hour_trial") {
+        const success = await handleTrialActivation(user.id);
+        if (success) {
+          toast({
+            title: "Trial Activated!",
+            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+          });
+          navigate("/home");
+        }
+        return;
+      }
+
+      handlePaymentFlow(
+        user,
+        plan,
+        (transactionId) => {
+          toast({
+            title: "Payment Successful!",
+            description: `Your ${plan.name} subscription has been activated.`,
+          });
+          navigate(`/success?transaction_id=${transactionId}&order_value=${plan.price}`);
+        },
+        navigate
+      );
+    } else {
+      setSelectedPlan(plan);
+      setShowSignUpDialog(true);
+    }
   };
 
   return (
@@ -122,6 +174,20 @@ export function PricingSection() {
           ))}
         </div>
       </div>
+
+      <Dialog open={showSignUpDialog} onOpenChange={setShowSignUpDialog}>
+        <DialogContent className="sm:max-w-md">
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-semibold">Create your account</h3>
+            <p className="text-sm text-muted-foreground">
+              {selectedPlan?.planId === "24_hour_trial" 
+                ? "Sign up to start your free trial" 
+                : "Sign up to continue with your subscription"}
+            </p>
+          </div>
+          <SignUpForm onSubmit={handleSignUpSubmit} />
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
