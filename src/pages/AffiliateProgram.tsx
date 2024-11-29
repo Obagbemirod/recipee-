@@ -1,10 +1,11 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const AffiliateProgram = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden fixed-mobile">
       <Header />
       <main className="flex-1 py-16">
         <div className="container px-4 md:px-6">
@@ -16,39 +17,51 @@ const AffiliateProgram = () => {
               </p>
             </div>
 
-            <div className="space-y-8">
-              <section className="space-y-4">
-                <h2 className="text-2xl font-semibold">Why Become a Recipee Affiliate?</h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Generous Commission Structure</h3>
-                    <p className="text-muted-foreground">Earn up to 30% commission on every successful referral</p>
+            <div className="grid gap-8">
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-semibold mb-6">Why Become a Recipee Affiliate?</h2>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-primary">Free Registration</h3>
+                      <p className="text-muted-foreground">Start earning without any upfront costs</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-primary">Weekly Payouts</h3>
+                      <p className="text-muted-foreground">Get paid every Friday, no delays</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-primary">No Minimum Withdrawal</h3>
+                      <p className="text-muted-foreground">Withdraw your earnings at any time</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-primary">12-Month Recurring Commission</h3>
+                      <p className="text-muted-foreground">Earn commission for a full year on each referral</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-primary">Customer Discounts</h3>
+                      <p className="text-muted-foreground">Offer special discounts to users who sign up through you</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-primary">Real-Time Analytics</h3>
+                      <p className="text-muted-foreground">Track your performance with detailed reporting</p>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="font-medium">30-Day Cookie Window</h3>
-                    <p className="text-muted-foreground">Get credited for sales within 30 days of the initial referral</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Real-Time Analytics</h3>
-                    <p className="text-muted-foreground">Track your performance with detailed reporting and insights</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Marketing Resources</h3>
-                    <p className="text-muted-foreground">Access promotional materials, banners, and content templates</p>
-                  </div>
-                </div>
-              </section>
+                </CardContent>
+              </Card>
 
-              <section className="space-y-4">
-                <h2 className="text-2xl font-semibold">How It Works</h2>
-                <ol className="space-y-4 list-decimal list-inside">
-                  <li>Sign up for the Recipee Affiliate Program</li>
-                  <li>Get your unique referral link</li>
-                  <li>Share with your audience</li>
-                  <li>Earn commissions on successful referrals</li>
-                  <li>Get paid monthly via your preferred payment method</li>
-                </ol>
-              </section>
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-semibold mb-4">How It Works</h2>
+                  <ol className="space-y-4 list-decimal list-inside text-muted-foreground">
+                    <li>Sign up for the Recipee Affiliate Program (it's completely free!)</li>
+                    <li>Get your unique referral link</li>
+                    <li>Share with your audience</li>
+                    <li>Earn commissions on successful referrals</li>
+                    <li>Get paid weekly every Friday</li>
+                  </ol>
+                </CardContent>
+              </Card>
 
               <div className="text-center">
                 <Button size="lg" className="w-full md:w-auto">
