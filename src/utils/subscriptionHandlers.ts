@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 const handleDatabaseError = (error: any) => {
   if (error.code === '42P01') {
     toast({
-      title: "System Setup Required",
+      title: "Database Setup Required",
       description: "The subscription system is being configured. Please try again in a few minutes.",
       variant: "destructive",
     });
@@ -32,6 +32,11 @@ export const handleTrialActivation = async (userId: string) => {
     return true;
   } catch (error) {
     console.error('Trial activation error:', error);
+    toast({
+      title: "Error",
+      description: "Failed to activate trial. Please try again later.",
+      variant: "destructive",
+    });
     return false;
   }
 };
