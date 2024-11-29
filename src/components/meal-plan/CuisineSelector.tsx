@@ -1,6 +1,6 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
@@ -53,28 +53,30 @@ export const CuisineSelector = ({ form }: CuisineSelectorProps) => {
                   value={searchValue}
                   onValueChange={setSearchValue}
                 />
-                <CommandEmpty>No cuisine found.</CommandEmpty>
-                <CommandGroup className="max-h-[300px] overflow-auto">
-                  {filteredCountries.map((country) => (
-                    <CommandItem
-                      key={country.value}
-                      value={country.value}
-                      onSelect={() => {
-                        form.setValue("cuisine", country.value);
-                        setOpen(false);
-                        setSearchValue("");
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          field.value === country.value ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {country.label} - {country.cuisine}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                <CommandList>
+                  <CommandEmpty>No cuisine found.</CommandEmpty>
+                  <CommandGroup className="max-h-[300px] overflow-auto">
+                    {filteredCountries.map((country) => (
+                      <CommandItem
+                        key={country.value}
+                        value={country.value}
+                        onSelect={() => {
+                          form.setValue("cuisine", country.value);
+                          setOpen(false);
+                          setSearchValue("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            field.value === country.value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {country.label} - {country.cuisine}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
               </Command>
             </PopoverContent>
           </Popover>
