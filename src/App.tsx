@@ -16,6 +16,7 @@ import SavedItems from "./pages/SavedItems";
 import AffiliateProgram from "./pages/AffiliateProgram";
 import ForgotPassword from "./pages/ForgotPassword";
 import AboutUs from "./pages/AboutUs";
+import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => {
             <Route path="/affiliate-program" element={<AffiliateProgram />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/about" element={<AboutUs />} />
+            <Route path="/success" element={<Success />} />
           </Routes>
           <Toaster />
           <Sonner />
