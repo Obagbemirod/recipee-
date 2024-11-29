@@ -1,28 +1,40 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookMarked, ChefHat } from "lucide-react";
+import { Clock, Heart, Upload } from "lucide-react";
 
-export const QuickLinks = () => {
+interface QuickLinksProps {
+  onFeatureClick: (path: string) => void;
+}
+
+export const QuickLinks = ({ onFeatureClick }: QuickLinksProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4 w-full max-w-md mx-auto">
-      <Link to="/saved-items?tab=mealPlans" className="w-full">
-        <Button 
-          variant="outline" 
-          className="w-full h-24 flex flex-col items-center justify-center gap-2 border-2 border-primary/20 hover:border-primary"
-        >
-          <ChefHat className="h-6 w-6 text-primary" />
-          <span className="text-sm font-medium">Saved Meal Plans</span>
-        </Button>
-      </Link>
-      <Link to="/saved-items?tab=recipes" className="w-full">
-        <Button 
-          variant="outline" 
-          className="w-full h-24 flex flex-col items-center justify-center gap-2 border-2 border-primary/20 hover:border-primary"
-        >
-          <BookMarked className="h-6 w-6 text-primary" />
-          <span className="text-sm font-medium">Saved Recipes</span>
-        </Button>
-      </Link>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <Button
+        variant="outline"
+        className="flex items-center gap-2 p-6"
+        onClick={() => onFeatureClick("/saved-items?source=mealPlan")}
+      >
+        <Clock className="h-5 w-5 text-primary" />
+        <span>Saved Meal Plans</span>
+      </Button>
+
+      <Button
+        variant="outline"
+        className="flex items-center gap-2 p-6"
+        onClick={() => onFeatureClick("/saved-items?source=recipe")}
+      >
+        <Heart className="h-5 w-5 text-primary" />
+        <span>Saved Recipes</span>
+      </Button>
+
+      <Button
+        variant="outline"
+        className="flex items-center gap-2 p-6"
+        onClick={() => onFeatureClick("/upload-ingredients")}
+      >
+        <Upload className="h-5 w-5 text-primary" />
+        <span>Upload Ingredients</span>
+      </Button>
     </div>
   );
 };
