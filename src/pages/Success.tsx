@@ -42,10 +42,17 @@ const Success = () => {
   }, [transactionId, orderValue]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Thank You!</h1>
-        <p className="text-xl text-muted-foreground">Your purchase was successful.</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-accent">
+      <div className="w-full max-w-md space-y-8 text-center">
+        <img 
+          src="/lovable-uploads/4aa0753d-5079-4050-99bb-ff490ee12bb4.png" 
+          alt="Recipee Logo" 
+          className="mx-auto w-48 mb-8"
+        />
+        <div className="bg-white p-8 rounded-lg shadow-lg space-y-4">
+          <h1 className="text-4xl font-bold text-secondary">Thank You!</h1>
+          <p className="text-xl text-muted-foreground">Your purchase was successful.</p>
+        </div>
       </div>
     </div>
   );
