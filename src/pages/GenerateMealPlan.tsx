@@ -11,8 +11,11 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MealPlanForm } from "@/components/meal-plan/MealPlanForm";
 import { MealPlanDisplay } from "@/components/meal-plan/MealPlanDisplay";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 const formSchema = z.object({
   planName: z.string().min(1, "Plan name is required"),
@@ -21,6 +24,7 @@ const formSchema = z.object({
 });
 
 const GenerateMealPlan = () => {
+  const [open, setOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [userCountry, setUserCountry] = useState<string>("");
@@ -108,20 +112,51 @@ const GenerateMealPlan = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Select Your Cuisine</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose your preferred cuisine" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="max-h-[300px] bg-white">
-                          {COUNTRIES_AND_CUISINES.map((country) => (
-                            <SelectItem key={country.value} value={country.value}>
-                              {country.label} - {country.cuisine}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={open}
+                              className="w-full justify-between"
+                            >
+                              {field.value
+                                ? COUNTRIES_AND_CUISINES.find(
+                                    (country) => country.value === field.value
+                                  )?.label
+                                : "Select cuisine..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Search cuisine..." />
+                            <CommandEmpty>No cuisine found.</CommandEmpty>
+                            <CommandGroup className="max-h-[300px] overflow-auto">
+                              {COUNTRIES_AND_CUISINES.map((country) => (
+                                <CommandItem
+                                  key={country.value}
+                                  value={country.label}
+                                  onSelect={() => {
+                                    form.setValue("cuisine", country.value);
+                                    setOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      field.value === country.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {country.label} - {country.cuisine}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
