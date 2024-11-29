@@ -45,13 +45,16 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
       setSelectedImage(base64String);
       
-      const recipe = await generateRecipeFromImage(base64String);
+      // Get user's country from localStorage for context-aware identification
       const userCountry = localStorage.getItem('userCountry') || 'nigeria';
+      const userCuisine = localStorage.getItem('userCuisine') || '';
       
-      // Normalize ingredient names based on user's country
+      const recipe = await generateRecipeFromImage(base64String, userCountry, userCuisine);
+      
+      // Normalize ingredient names based on user's country and cuisine
       const ingredients = recipe.ingredients.map(ing => ({
         name: normalizeIngredient(ing.item, userCountry),
-        confidence: 1.0
+        confidence: ing.confidence || 1.0
       }));
 
       onIngredientsIdentified(ingredients);
