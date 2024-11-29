@@ -12,23 +12,24 @@ const getGeminiAPI = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
-export const generateRecipeFromImage = async (input: string) => {
+export const generateRecipeFromImage = async (input: string, userCountry?: string, userCuisine?: string) => {
   try {
     const genAI = getGeminiAPI();
-    const userCountry = localStorage.getItem('userCountry') || 'nigeria';
+    const countryContext = userCountry || 'nigeria';
+    const cuisineContext = userCuisine ? `with focus on ${userCuisine} cuisine` : '';
     
-    const prompt = `You are a culinary expert specializing in ${userCountry}n cuisine.
+    const prompt = `You are a culinary expert specializing in ${countryContext}n cuisine ${cuisineContext}.
     Analyze this input and generate a recipe. IMPORTANT GUIDELINES:
     
     1. If this is an image of a traditional dish, ALWAYS use its local/traditional name (e.g. "Jollof Rice" not "Spicy Rice")
-    2. Focus on identifying ingredients and dishes specific to ${userCountry}n cuisine
+    2. Focus on identifying ingredients and dishes specific to ${countryContext}n cuisine
     3. Use local terminology for ingredients where applicable
     
     Return the response in this exact JSON format:
     {
       "name": "Traditional Recipe Name",
       "ingredients": [
-        {"item": "local ingredient name", "amount": "approximate amount"}
+        {"item": "local ingredient name", "amount": "approximate amount", "confidence": number}
       ],
       "instructions": [
         {"step": 1, "description": "detailed instruction", "time": "estimated time"}
