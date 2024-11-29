@@ -23,6 +23,13 @@ const recipes = [
 ];
 
 export const FeaturedRecipes = () => {
+  const scrollToPricing = () => {
+    const pricingSection = document.querySelector('#pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="py-20 bg-gradient-to-b from-white to-accent/30">
       <div className="container mx-auto px-4">
@@ -49,6 +56,8 @@ export const FeaturedRecipes = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
+              onClick={scrollToPricing}
+              className="cursor-pointer"
             >
               <RecipeCard {...recipe} />
             </motion.div>

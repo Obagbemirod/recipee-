@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Calendar, Camera, ChefHat, Heart, Users, Utensils } from "lucide-react";
 import { Button } from "./ui/button";
-import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -43,6 +42,13 @@ const features = [
 ];
 
 export const FeatureHighlights = () => {
+  const scrollToPricing = () => {
+    const pricingSection = document.querySelector('#pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="py-12 md:py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -85,14 +91,13 @@ export const FeatureHighlights = () => {
                   {feature.description}
                 </p>
                 
-                <Link to="/auth" className="mt-auto">
-                  <Button 
-                    variant="outline"
-                    className="w-full group-hover:bg-primary group-hover:text-white transition-all duration-300"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline"
+                  className="w-full group-hover:bg-primary group-hover:text-white transition-all duration-300"
+                  onClick={scrollToPricing}
+                >
+                  Get Started
+                </Button>
               </div>
             </motion.div>
           ))}

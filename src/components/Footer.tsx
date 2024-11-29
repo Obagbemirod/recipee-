@@ -18,20 +18,29 @@ const navLinks = [
   { text: "Become an Affiliate", href: "/affiliate-program" },
 ];
 
-const FooterLogo = () => (
-  <div className="space-y-4">
-    <div className="inline-flex p-2 rounded-full bg-white">
-      <img 
-        src="/lovable-uploads/1be4cc88-b859-4a91-869b-0925222463a7.png" 
-        alt="Recipee Logo" 
-        className="h-8" 
-      />
+const FooterLogo = () => {
+  const scrollToPricing = () => {
+    const pricingSection = document.querySelector('#pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="inline-flex p-2 rounded-full bg-white cursor-pointer" onClick={scrollToPricing}>
+        <img 
+          src="/lovable-uploads/1be4cc88-b859-4a91-869b-0925222463a7.png" 
+          alt="Recipee Logo" 
+          className="h-8" 
+        />
+      </div>
+      <p className="text-sm text-secondary-foreground/80">
+        Your AI-powered cooking companion that turns ingredients into delicious meals.
+      </p>
     </div>
-    <p className="text-sm text-secondary-foreground/80">
-      Your AI-powered cooking companion that turns ingredients into delicious meals.
-    </p>
-  </div>
-);
+  );
+};
 
 const FooterLinks = () => (
   <div>
@@ -80,6 +89,13 @@ const FooterSocial = () => (
 );
 
 export function Footer() {
+  const scrollToPricing = () => {
+    const pricingSection = document.querySelector('#pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-secondary text-secondary-foreground py-12">
       <div className="container px-4 md:px-6">
@@ -96,8 +112,8 @@ export function Footer() {
               © {new Date().getFullYear()} Recipee. All rights reserved.
             </p>
             <div className="flex space-x-4">
-              <Button variant="ghost" size="sm" className="text-sm">
-                Cookie Policy
+              <Button variant="ghost" size="sm" className="text-sm" onClick={scrollToPricing}>
+                Get Started
               </Button>
               <Button variant="ghost" size="sm" className="text-sm">
                 Sitemap
