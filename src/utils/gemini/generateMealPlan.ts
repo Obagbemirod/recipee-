@@ -102,6 +102,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
     const userPrefs = getUserPreferences();
+    const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
     
     const allPreferences = [
       `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
@@ -111,6 +112,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
       userPrefs.tribe ? `Consider traditional meals from ${userPrefs.tribe} tribe` : '',
       userPrefs.age ? `Consider age-appropriate meals for ${userPrefs.age} years old` : '',
       userPrefs.healthConditions ? `Consider dietary restrictions for: ${userPrefs.healthConditions}` : '',
+      userIngredients.length > 0 ? `STRICTLY use these ingredients where possible: ${userIngredients.map((i: any) => i.name).join(', ')}` : '',
       ...additionalPreferences
     ].filter(Boolean);
 
@@ -124,6 +126,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     4. Do not substitute traditional ingredients unless specifically requested
     5. DO NOT use asterisks (*) in meal names
     6. Ensure all nutritional information is accurate and appropriate for the specified age and health conditions
+    7. STRICTLY incorporate user-provided ingredients where culturally appropriate
     
     Format as follows:
 

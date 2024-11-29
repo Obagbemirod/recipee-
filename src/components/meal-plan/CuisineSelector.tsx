@@ -35,7 +35,7 @@ export const CuisineSelector = ({ form }: CuisineSelectorProps) => {
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className="w-full justify-between"
+                  className="w-full justify-between bg-white"
                 >
                   {field.value
                     ? COUNTRIES_AND_CUISINES.find(
