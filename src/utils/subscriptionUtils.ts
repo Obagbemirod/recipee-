@@ -21,68 +21,73 @@ export interface SubscriptionFeatures {
   offlineAccess: 'limited' | 'extended' | 'none';
 }
 
-export const PLAN_FEATURES: Record<SubscriptionPlan, SubscriptionFeatures | null> = {
-  '24_hour_trial': {
-    imageInputs: true,
-    videoInputs: true,
-    textInputs: true,
-    audioInputs: true,
-    ingredientUpdatesPerWeek: 999,
-    mealPlansPerWeek: 999,
-    recipeGeneration: true,
-    nutritionalContent: true,
-    cookingGuide: true,
-    notifications: {
-      frequency: 'thrice',
-      type: 'advanced'
-    },
-    groceryListManagement: 'expanded',
-    marketplaceAccess: 'full',
-    recipeMasterchef: true,
-    recipeMonetization: true,
-    offlineAccess: 'extended'
+const TRIAL_FEATURES: SubscriptionFeatures = {
+  imageInputs: true,
+  videoInputs: true,
+  textInputs: true,
+  audioInputs: true,
+  ingredientUpdatesPerWeek: 999,
+  mealPlansPerWeek: 999,
+  recipeGeneration: true,
+  nutritionalContent: true,
+  cookingGuide: true,
+  notifications: {
+    frequency: 'thrice',
+    type: 'advanced'
   },
-  'basic': {
-    imageInputs: true,
-    videoInputs: true,
-    textInputs: true,
-    audioInputs: false,
-    ingredientUpdatesPerWeek: 1,
-    mealPlansPerWeek: 7,
-    recipeGeneration: true,
-    nutritionalContent: true,
-    cookingGuide: true,
-    notifications: {
-      frequency: 'once',
-      type: 'basic'
-    },
-    groceryListManagement: 'basic',
-    marketplaceAccess: 'limited',
-    recipeMasterchef: false,
-    recipeMonetization: false,
-    offlineAccess: 'limited'
+  groceryListManagement: 'expanded',
+  marketplaceAccess: 'full',
+  recipeMasterchef: true,
+  recipeMonetization: true,
+  offlineAccess: 'extended'
+};
+
+const BASIC_FEATURES: SubscriptionFeatures = {
+  imageInputs: true,
+  videoInputs: true,
+  textInputs: true,
+  audioInputs: false,
+  ingredientUpdatesPerWeek: 1,
+  mealPlansPerWeek: 7,
+  recipeGeneration: true,
+  nutritionalContent: true,
+  cookingGuide: true,
+  notifications: {
+    frequency: 'once',
+    type: 'basic'
   },
-  'premium': {
-    imageInputs: true,
-    videoInputs: true,
-    textInputs: true,
-    audioInputs: true,
-    ingredientUpdatesPerWeek: 999,
-    mealPlansPerWeek: 999,
-    recipeGeneration: true,
-    nutritionalContent: true,
-    cookingGuide: true,
-    notifications: {
-      frequency: 'thrice',
-      type: 'advanced'
-    },
-    groceryListManagement: 'expanded',
-    marketplaceAccess: 'full',
-    recipeMasterchef: true,
-    recipeMonetization: true,
-    offlineAccess: 'extended'
+  groceryListManagement: 'basic',
+  marketplaceAccess: 'limited',
+  recipeMasterchef: false,
+  recipeMonetization: false,
+  offlineAccess: 'limited'
+};
+
+const PREMIUM_FEATURES: SubscriptionFeatures = {
+  imageInputs: true,
+  videoInputs: true,
+  textInputs: true,
+  audioInputs: true,
+  ingredientUpdatesPerWeek: 999,
+  mealPlansPerWeek: 999,
+  recipeGeneration: true,
+  nutritionalContent: true,
+  cookingGuide: true,
+  notifications: {
+    frequency: 'thrice',
+    type: 'advanced'
   },
-  'null': null
+  groceryListManagement: 'expanded',
+  marketplaceAccess: 'full',
+  recipeMasterchef: true,
+  recipeMonetization: true,
+  offlineAccess: 'extended'
+};
+
+export const PLAN_FEATURES: Record<Exclude<SubscriptionPlan, null>, SubscriptionFeatures> = {
+  '24_hour_trial': TRIAL_FEATURES,
+  'basic': BASIC_FEATURES,
+  'premium': PREMIUM_FEATURES
 };
 
 export const checkFeatureAccess = (userPlan: SubscriptionPlan, feature: keyof SubscriptionFeatures): boolean => {
@@ -91,5 +96,6 @@ export const checkFeatureAccess = (userPlan: SubscriptionPlan, feature: keyof Su
 };
 
 export const getPlanLimits = (userPlan: SubscriptionPlan): Partial<SubscriptionFeatures> | null => {
-  return PLAN_FEATURES[userPlan];
+  if (!userPlan) return null;
+  return PLAN_FEATURES[userPlan] || null;
 };
