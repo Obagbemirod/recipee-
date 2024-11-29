@@ -53,7 +53,7 @@ export function FinalCTA() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="space-y-12"
+            className="space-y-16"
           >
             <p className="text-lg md:text-xl text-secondary-foreground/90">
               Join thousands of home chefs who have revolutionized their cooking experience with Recipee
