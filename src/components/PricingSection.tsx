@@ -43,7 +43,18 @@ export function PricingSection() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check for rate limit error
+        if (error.message.includes('rate_limit')) {
+          toast({
+            title: "Please wait",
+            description: "For security purposes, please wait a minute before trying again.",
+            variant: "destructive"
+          });
+          return;
+        }
+        throw error;
+      }
 
       if (data.user) {
         if (selectedPlan.planId === "24_hour_trial") {
