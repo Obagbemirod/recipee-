@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface SignUpDialogProps {
   isOpen: boolean;
@@ -11,13 +11,6 @@ interface SignUpDialogProps {
 }
 
 export function SignUpDialog({ isOpen, onOpenChange, selectedPlan, onSubmit }: SignUpDialogProps) {
-  const navigate = useNavigate();
-
-  const handleLoginRedirect = () => {
-    onOpenChange(false);
-    navigate("/auth");
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -31,13 +24,15 @@ export function SignUpDialog({ isOpen, onOpenChange, selectedPlan, onSubmit }: S
         </div>
         <SignUpForm onSubmit={onSubmit} />
         <div className="mt-4 text-center">
-          <Button
-            variant="link"
-            className="text-sm text-primary hover:text-primary/80"
-            onClick={handleLoginRedirect}
-          >
-            Already signed up? Login here
-          </Button>
+          <Link to="/auth">
+            <Button
+              variant="link"
+              className="text-sm text-primary hover:text-primary/80"
+              onClick={() => onOpenChange(false)}
+            >
+              Already signed up? Login here
+            </Button>
+          </Link>
         </div>
       </DialogContent>
     </Dialog>

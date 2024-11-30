@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ChefHat, Utensils, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function FinalCTA() {
   const benefits = [
@@ -17,13 +18,6 @@ export function FinalCTA() {
       text: "Step-by-Step Guidance"
     }
   ];
-
-  const scrollToPricing = () => {
-    const pricingSection = document.querySelector('#pricing-section');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <section className="bg-gradient-to-b from-secondary to-secondary/90 text-secondary-foreground py-20">
@@ -65,13 +59,14 @@ export function FinalCTA() {
               Join thousands of home chefs who have revolutionized their cooking experience with Recipee
             </p>
             
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white px-6 py-2 sm:px-8 text-base rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={scrollToPricing}
-            >
-              Start Cooking Smartly
-            </Button>
+            <Link to="/auth">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-white px-6 py-2 sm:px-8 text-base rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Start Cooking Smartly
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </div>

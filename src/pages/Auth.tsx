@@ -1,67 +1,123 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { AuthSwitch } from "@/components/auth/AuthSwitch";
+import { SocialAuth } from "@/components/auth/SocialAuth";
 import { motion } from "framer-motion";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { SignUpForm } from "@/components/auth/SignUpForm";
+import { supabase } from "@/lib/supabase";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 const Auth = () => {
+  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState(true);
+  const { session, isLoading } = useSessionContext();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        navigate("/home");
-      }
-      setIsLoading(false);
-    };
-    checkUser();
-  }, [navigate]);
+    if (session) {
+      navigate('/home');
+    }
+  }, [session, navigate]);
 
   if (isLoading) {
     return null;
   }
 
-  const handleLoginSuccess = async () => {
-    const plan = searchParams.get("plan");
-    if (plan) {
-      navigate(`/onboarding?plan=${plan}`);
-    } else {
-      navigate("/home");
+  const handleLogin = async (values: { email: string; password: string }) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        console.error("Login error:", error);
+        if (error.message.includes("Invalid login credentials")) {
+          toast.error("The email or password you entered is incorrect. Please try again or sign up if you don't have an account.");
+          return;
+        }
+        toast.error("An error occurred during login. Please try again.");
+        return;
+      }
+
+      if (data?.user) {
+        toast.success("Welcome back!");
+        navigate('/home');
+      }
+    } catch (error: any) {
+      console.error("Unexpected auth error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    }
+  };
+
+  const handleSignUp = async (values: { email: string; password: string; name: string }) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            full_name: values.name,
+          },
+        },
+      });
+
+      if (error) {
+        console.error("Signup error:", error);
+        if (error.message.includes("already registered")) {
+          toast.error("An account with this email already exists. Please sign in instead.");
+          setIsLogin(true);
+          return;
+        }
+        toast.error(error.message);
+        return;
+      }
+
+      if (data?.user) {
+        toast.success("Account created successfully! You can now sign in.");
+        setIsLogin(true); // Switch to login view
+      }
+    } catch (error: any) {
+      console.error("Unexpected auth error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-accent/30">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md space-y-8 p-8"
       >
-        <div className="text-center mb-8">
-          <img
-            src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png"
-            alt="Recipee Logo"
-            className="h-12 mx-auto mb-4"
-          />
-          <h2 className="text-2xl font-bold">Welcome back!</h2>
-          <p className="text-muted-foreground">Sign in to your account</p>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create your account"}</h2>
+          <p className="text-muted-foreground mt-2">
+            {isLogin ? "Sign in to your account" : "Start your journey today"}
+          </p>
         </div>
 
-        <LoginForm onSubmit={handleLoginSuccess} />
+        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(checked)} />
 
-        <div className="mt-6 text-center">
-          <Button
-            variant="link"
-            className="text-sm text-primary hover:text-primary/80"
-            onClick={() => navigate("/")}
-          >
-            Need an account? Sign up
-          </Button>
+        {isLogin ? (
+          <LoginForm onSubmit={handleLogin} />
+        ) : (
+          <SignUpForm onSubmit={handleSignUp} />
+        )}
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
         </div>
+
+        <SocialAuth isLogin={isLogin} />
       </motion.div>
     </div>
   );

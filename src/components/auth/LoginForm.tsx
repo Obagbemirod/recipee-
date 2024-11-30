@@ -4,8 +4,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -31,17 +29,6 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
     try {
       setIsLoading(true);
       await onSubmit(values);
-    } catch (error: any) {
-      // Handle authentication errors
-      if (error.message.includes("Invalid login credentials")) {
-        toast("Invalid email or password. Please try again.", {
-          description: "Please check your credentials and try again.",
-        });
-      } else {
-        toast("An error occurred", {
-          description: "An unexpected error occurred. Please try again.",
-        });
-      }
     } finally {
       setIsLoading(false);
     }

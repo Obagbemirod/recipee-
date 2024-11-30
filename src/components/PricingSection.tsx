@@ -3,16 +3,15 @@ import { useToast } from "./ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { plans } from "@/data/plans";
+import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 import { PricingCard } from "./pricing/PricingCard";
 import { SignUpDialog } from "./pricing/SignUpDialog";
-import { Button } from "./ui/button";
-import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 
 export function PricingSection() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [showSignUpDialog, setShowSignUpDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   useEffect(() => {
@@ -31,7 +30,7 @@ export function PricingSection() {
     };
   }, []);
 
-  const handleSignUpSuccess = async (values: any) => {
+  const handleSignUpSubmit = async (values: any) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
@@ -43,40 +42,36 @@ export function PricingSection() {
         },
       });
 
-      if (error) {
-        // Check for rate limit error
-        if (error.message.includes('rate_limit')) {
-          toast({
-            title: "Please wait",
-            description: "For security purposes, please wait a minute before trying again.",
-            variant: "destructive"
-          });
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       if (data.user) {
+        setShowSignUpDialog(false);
+
         if (selectedPlan.planId === "24_hour_trial") {
           const success = await handleTrialActivation(data.user.id);
           if (success) {
             toast({
-              title: "Trial activated successfully!",
-              description: "Welcome to Recipee! Let's set up your preferences."
+              title: "Trial Activated!",
+              description: "Your 24-hour trial has been activated. Enjoy all premium features!",
             });
-            setIsSignUpOpen(false);
             navigate("/onboarding");
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to activate trial. Please try again.",
+            });
           }
         } else {
-          await handlePaymentFlow(
+          // For paid plans, initiate payment flow immediately after signup
+          handlePaymentFlow(
             data.user,
             selectedPlan,
-            (transactionId: string) => {
+            (transactionId) => {
               toast({
-                title: "Payment successful!",
-                description: "Welcome to Recipee! Let's set up your preferences."
+                title: "Payment Successful!",
+                description: `Your ${selectedPlan.name} subscription has been activated.`,
               });
-              setIsSignUpOpen(false);
               navigate("/onboarding");
             },
             navigate
@@ -85,33 +80,39 @@ export function PricingSection() {
       }
     } catch (error: any) {
       toast({
-        title: "Error creating account",
+        variant: "destructive",
+        title: "Error",
         description: error.message,
-        variant: "destructive"
       });
     }
   };
 
   const handlePlanSelection = async (plan: typeof plans[0]) => {
     if (user) {
-      // User is already logged in
       if (plan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(user.id);
         if (success) {
           toast({
-            title: "Trial activated successfully!",
-            description: "Welcome to Recipee! Let's set up your preferences."
+            title: "Trial Activated!",
+            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
           });
           navigate("/onboarding");
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to activate trial. Please try again.",
+          });
         }
       } else {
-        await handlePaymentFlow(
+        // For logged-in users selecting paid plans
+        handlePaymentFlow(
           user,
           plan,
-          (transactionId: string) => {
+          (transactionId) => {
             toast({
-              title: "Payment successful!",
-              description: "Welcome to Recipee! Let's set up your preferences."
+              title: "Payment Successful!",
+              description: `Your ${plan.name} subscription has been activated.`,
             });
             navigate("/onboarding");
           },
@@ -119,9 +120,8 @@ export function PricingSection() {
         );
       }
     } else {
-      // Show sign up dialog for new users
       setSelectedPlan(plan);
-      setIsSignUpOpen(true);
+      setShowSignUpDialog(true);
     }
   };
 
@@ -135,13 +135,6 @@ export function PricingSection() {
           <p className="mx-auto max-w-[700px] text-muted-foreground mt-4">
             Start with our 24-hour Pro trial to experience all Premium features before choosing your plan.
           </p>
-          <Button
-            variant="link"
-            className="mt-4 text-primary hover:text-primary/80"
-            onClick={() => navigate("/auth")}
-          >
-            Already signed up? Login here
-          </Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -156,10 +149,10 @@ export function PricingSection() {
       </div>
 
       <SignUpDialog
-        isOpen={isSignUpOpen}
-        onOpenChange={setIsSignUpOpen}
+        isOpen={showSignUpDialog}
+        onOpenChange={setShowSignUpDialog}
         selectedPlan={selectedPlan}
-        onSubmit={handleSignUpSuccess}
+        onSubmit={handleSignUpSubmit}
       />
     </section>
   );
