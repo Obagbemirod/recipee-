@@ -8,13 +8,42 @@ import { MobileHeader } from "@/components/home/MobileHeader";
 import { useFeatureAccess } from '@/components/home/FeatureAccess';
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from 'react';
+import { supabase } from "@/lib/supabase";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
   const { plan, isTrialExpired } = useSubscription();
   const navigate = useNavigate();
+  const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
   
-  const handleLogout = () => {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+
+      // Fetch subscription details
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .gt('end_date', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      setSubscriptionDetails(subscription);
+    };
+
+    checkAuth();
+  }, [navigate]);
+  
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/");
   };
@@ -26,7 +55,7 @@ const Home = () => {
   };
 
   const getPlanBadge = () => {
-    if (!plan) return null;
+    if (!subscriptionDetails) return null;
     
     const badgeVariants = {
       "24_hour_trial": "bg-blue-500",
@@ -40,10 +69,12 @@ const Home = () => {
       "premium": "Premium Plan"
     };
 
+    const planId = subscriptionDetails.plan_id as keyof typeof planNames;
+
     return (
-      <Badge className={`${badgeVariants[plan]} text-white`}>
+      <Badge className={`${badgeVariants[planId]} text-white`}>
         <Crown className="w-4 h-4 mr-1" />
-        {planNames[plan]}
+        {planNames[planId]}
       </Badge>
     );
   };

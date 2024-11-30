@@ -1,13 +1,9 @@
 import { supabase } from "@/lib/supabase";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 const handleDatabaseError = (error: any) => {
   if (error.code === '42P01') {
-    toast({
-      title: "Database Setup Required",
-      description: "The subscription system is being configured. Please try again in a few minutes.",
-      variant: "destructive",
-    });
+    toast.error("Database setup required. Please try again in a few minutes.");
     return true;
   }
   return false;
@@ -15,9 +11,22 @@ const handleDatabaseError = (error: any) => {
 
 export const handleTrialActivation = async (userId: string) => {
   try {
+    // Check if user already has an active trial
+    const { data: existingTrial } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('plan_id', '24_hour_trial')
+      .single();
+
+    if (existingTrial) {
+      toast.error("You have already used your trial period");
+      return false;
+    }
+
     const { error } = await supabase
       .from('subscriptions')
-      .upsert({
+      .insert({
         user_id: userId,
         plan_id: '24_hour_trial',
         start_date: new Date().toISOString(),
@@ -32,11 +41,7 @@ export const handleTrialActivation = async (userId: string) => {
     return true;
   } catch (error) {
     console.error('Trial activation error:', error);
-    toast({
-      title: "Error",
-      description: "Failed to activate trial. Please try again later.",
-      variant: "destructive",
-    });
+    toast.error("Failed to activate trial. Please try again later.");
     return false;
   }
 };
@@ -69,7 +74,7 @@ export const handlePaymentFlow = async (
           try {
             const { error } = await supabase
               .from('subscriptions')
-              .upsert({
+              .insert({
                 user_id: user.id,
                 plan_id: plan.planId,
                 start_date: new Date().toISOString(),
@@ -86,18 +91,10 @@ export const handlePaymentFlow = async (
             onSuccess(response.transaction_id);
           } catch (error) {
             console.error('Subscription activation error:', error);
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to activate subscription. Please contact support.",
-            });
+            toast.error("Failed to activate subscription. Please contact support.");
           }
         } else {
-          toast({
-            variant: "destructive",
-            title: "Payment Failed",
-            description: "Please try again or contact support if the issue persists.",
-          });
+          toast.error("Payment failed. Please try again or contact support.");
         }
       },
       onclose: function() {
@@ -109,10 +106,6 @@ export const handlePaymentFlow = async (
     window.FlutterwaveCheckout(flutterwaveConfig);
   } catch (error) {
     console.error('Payment initialization error:', error);
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Unable to initialize payment. Please try again.",
-    });
+    toast.error("Unable to initialize payment. Please try again.");
   }
 };

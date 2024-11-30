@@ -23,6 +23,15 @@ export function PricingSection() {
       setUser(user);
     };
     checkUser();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignUpSubmit = async (values: any) => {
@@ -39,12 +48,9 @@ export function PricingSection() {
 
       if (error) throw error;
 
-      toast({
-        title: "Account created successfully!",
-        description: "Please check your email to confirm your account.",
-      });
+      // Close the dialog
+      setShowSignUpDialog(false);
 
-      // If it's a trial plan, activate it immediately
       if (selectedPlan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(data.user!.id);
         if (success) {
@@ -52,7 +58,7 @@ export function PricingSection() {
             title: "Trial Activated!",
             description: "Your 24-hour trial has been activated. Enjoy all premium features!",
           });
-          navigate("/home");
+          navigate("/onboarding");
         }
       } else {
         // For paid plans, proceed to payment
@@ -78,7 +84,7 @@ export function PricingSection() {
     }
   };
 
-  const handlePayment = async (plan: typeof plans[0]) => {
+  const handlePlanSelection = async (plan: typeof plans[0]) => {
     if (user) {
       if (plan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(user.id);
@@ -87,11 +93,12 @@ export function PricingSection() {
             title: "Trial Activated!",
             description: "Your 24-hour trial has been activated. Enjoy all premium features!",
           });
-          navigate("/home");
+          navigate("/onboarding");
         }
         return;
       }
 
+      // For paid plans with logged-in user
       handlePaymentFlow(
         user,
         plan,
@@ -105,6 +112,7 @@ export function PricingSection() {
         navigate
       );
     } else {
+      // Show signup dialog for both trial and paid plans
       setSelectedPlan(plan);
       setShowSignUpDialog(true);
     }
@@ -165,7 +173,7 @@ export function PricingSection() {
                 <Button 
                   className="w-full" 
                   variant={plan.buttonVariant}
-                  onClick={() => handlePayment(plan)}
+                  onClick={() => handlePlanSelection(plan)}
                 >
                   {plan.buttonText}
                 </Button>
@@ -182,7 +190,7 @@ export function PricingSection() {
             <p className="text-sm text-muted-foreground">
               {selectedPlan?.planId === "24_hour_trial" 
                 ? "Sign up to start your free trial" 
-                : "Sign up to continue with your subscription"}
+                : `Sign up to continue with your ${selectedPlan?.name} subscription`}
             </p>
           </div>
           <SignUpForm onSubmit={handleSignUpSubmit} />
