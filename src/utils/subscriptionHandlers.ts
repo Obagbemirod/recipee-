@@ -3,6 +3,14 @@ import { toast } from "sonner";
 
 export const handleTrialActivation = async (userId: string) => {
   try {
+    // First verify the user is authenticated
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    
+    if (authError || !session) {
+      toast.error("You must be logged in to activate a trial");
+      return false;
+    }
+
     // Check if user already has an active trial
     const { data: existingTrials, error: checkError } = await supabase
       .from('subscriptions')
@@ -20,10 +28,11 @@ export const handleTrialActivation = async (userId: string) => {
       return false;
     }
 
+    // Insert new trial subscription
     const { error: insertError } = await supabase
       .from('subscriptions')
       .insert({
-        user_id: userId,
+        user_id: session.user.id, // Use the authenticated user's ID
         plan_id: '24_hour_trial',
         start_date: new Date().toISOString(),
         end_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -51,16 +60,25 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
+    // Verify user is still authenticated
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    
+    if (authError || !session) {
+      toast.error("You must be logged in to make a purchase");
+      navigate('/auth');
+      return;
+    }
+
     const flutterwaveConfig = {
       public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-      tx_ref: `${user.id}-${Date.now()}`,
+      tx_ref: `${session.user.id}-${Date.now()}`,
       amount: Number(plan.price),
       currency: "USD",
       payment_options: "card,mobilemoney,ussd",
       customer: {
-        email: user.email,
+        email: session.user.email,
         phone_number: user.phone || "",
-        name: user.user_metadata?.full_name || user.email,
+        name: user.user_metadata?.full_name || session.user.email,
       },
       customizations: {
         title: "Recipee Subscription",
@@ -73,7 +91,7 @@ export const handlePaymentFlow = async (
             const { error } = await supabase
               .from('subscriptions')
               .insert({
-                user_id: user.id,
+                user_id: session.user.id, // Use the authenticated user's ID
                 plan_id: plan.planId,
                 start_date: new Date().toISOString(),
                 end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
