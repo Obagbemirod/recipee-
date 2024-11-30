@@ -69,19 +69,10 @@ const Auth = () => {
           <Button
             variant="link"
             className="text-sm text-primary hover:text-primary/80"
-            onClick={() => navigate("/forgot-password")}
+            onClick={() => navigate("/")}
           >
-            Forgot password?
+            Need an account? Sign up
           </Button>
-          <div>
-            <Button
-              variant="link"
-              className="text-sm text-primary hover:text-primary/80"
-              onClick={() => navigate("/")}
-            >
-              Need an account? Sign up
-            </Button>
-          </div>
         </div>
 
         <div className="relative">
