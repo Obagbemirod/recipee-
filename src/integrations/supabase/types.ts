@@ -33,6 +33,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          allergies: string[] | null
+          avatar_url: string | null
+          country: string | null
+          cuisine_style: string | null
+          dietary_preference: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          avatar_url?: string | null
+          country?: string | null
+          cuisine_style?: string | null
+          dietary_preference?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          allergies?: string[] | null
+          avatar_url?: string | null
+          country?: string | null
+          cuisine_style?: string | null
+          dietary_preference?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string

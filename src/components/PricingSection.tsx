@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { useToast } from "./ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { plans } from "@/data/plans";
 import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
-import { PricingCard } from "./pricing/PricingCard";
 import { SignUpDialog } from "./pricing/SignUpDialog";
-import { Button } from "./ui/button";
+import { PricingHeader } from "./pricing/PricingHeader";
+import { PricingGrid } from "./pricing/PricingGrid";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -34,9 +33,9 @@ export function PricingSection() {
   const handleSignUpSubmit = async (values: any) => {
     try {
       const { data: existingUser } = await supabase
-        .from('auth.users')
+        .from('profiles')
         .select()
-        .eq('email', values.email)
+        .eq('id', values.email)
         .single();
 
       if (existingUser) {
@@ -55,17 +54,6 @@ export function PricingSection() {
                 }}
               >
                 Click here to login instead
-              </Button>
-              {" or "}
-              <Button
-                variant="link"
-                className="p-0 text-white underline"
-                onClick={() => {
-                  setShowSignUpDialog(false);
-                  navigate('/forgot-password');
-                }}
-              >
-                click here to reset your password
               </Button>
             </div>
           ),
@@ -125,7 +113,7 @@ export function PricingSection() {
     }
   };
 
-  const handlePlanSelection = async (plan: typeof plans[0]) => {
+  const handlePlanSelection = async (plan: any) => {
     if (user) {
       if (plan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(user.id);
@@ -166,33 +154,8 @@ export function PricingSection() {
   return (
     <section id="pricing-section" className="py-16 bg-accent">
       <div className="container px-4 md:px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            Choose Your Plan
-          </h2>
-          <p className="mx-auto max-w-[700px] text-muted-foreground mt-4">
-            Start with our 24-hour Pro trial to experience all Premium features before choosing your plan.
-          </p>
-          {!user && (
-            <Button
-              variant="link"
-              className="mt-4 text-primary hover:text-primary/80"
-              onClick={() => navigate('/auth')}
-            >
-              Already signed up? Login here
-            </Button>
-          )}
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <PricingCard 
-              key={plan.name}
-              plan={plan}
-              onSelect={handlePlanSelection}
-            />
-          ))}
-        </div>
+        <PricingHeader user={user} />
+        <PricingGrid onPlanSelect={handlePlanSelection} />
       </div>
 
       <SignUpDialog

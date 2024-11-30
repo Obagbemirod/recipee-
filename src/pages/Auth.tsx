@@ -65,7 +65,7 @@ const Auth = () => {
 
         <LoginForm onSubmit={onSubmit} />
 
-        <div className="text-center space-y-4">
+        <div className="text-center">
           <Button
             variant="link"
             className="text-sm text-primary hover:text-primary/80"
