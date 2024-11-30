@@ -11,7 +11,7 @@ export const plans = [
       "Shopping list generation"
     ],
     buttonText: "Start Free Trial",
-    buttonVariant: "default",
+    buttonVariant: "default" as const,
     planId: "24_hour_trial"
   },
   {
@@ -26,7 +26,7 @@ export const plans = [
       "Save up to 10 meal plans"
     ],
     buttonText: "Choose Basic",
-    buttonVariant: "outline",
+    buttonVariant: "outline" as const,
     planId: "basic",
   },
   {
@@ -42,7 +42,7 @@ export const plans = [
       "Priority support"
     ],
     buttonText: "Choose Premium",
-    buttonVariant: "default",
+    buttonVariant: "default" as const,
     featured: true,
     planId: "premium"
   }

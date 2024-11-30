@@ -1,8 +1,18 @@
 import { PricingCard } from "./PricingCard";
 import { plans } from "@/data/plans";
+import { ButtonProps } from "@/components/ui/button";
 
 interface PricingGridProps {
-  onPlanSelect: (plan: any) => void;
+  onPlanSelect: (plan: {
+    name: string;
+    description: string;
+    price: number;
+    features: string[];
+    buttonText: string;
+    buttonVariant: ButtonProps['variant'];
+    featured?: boolean;
+    planId: string;
+  }) => void;
 }
 
 export const PricingGrid = ({ onPlanSelect }: PricingGridProps) => {
