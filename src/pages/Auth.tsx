@@ -36,54 +36,53 @@ const Auth = () => {
     return null;
   }
 
-  const onSubmit = async (values: any) => {
+  const handleLogin = async (values: { email: string; password: string }) => {
     try {
-      if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: values.email,
-          password: values.password,
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
 
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid email or password. Please try again.");
-            return;
-          }
-          if (error.message.includes("Email not confirmed")) {
-            toast.error("Please verify your email before signing in.");
-            return;
-          }
-          toast.error(error.message);
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          toast.error("Invalid email or password. Please try again.");
           return;
         }
+        toast.error(error.message);
+        return;
+      }
 
-        if (data.user) {
-          toast.success("Welcome back!");
-        }
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email: values.email,
-          password: values.password,
-          options: {
-            data: {
-              full_name: values.name,
-            },
+      toast.success("Welcome back!");
+    } catch (error: any) {
+      toast.error("An unexpected error occurred. Please try again.");
+      console.error("Auth error:", error);
+    }
+  };
+
+  const handleSignUp = async (values: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            full_name: values.name,
           },
-        });
+        },
+      });
 
-        if (error) {
-          if (error.message.includes("User already registered")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
-            return;
-          }
-          toast.error(error.message);
+      if (error) {
+        if (error.message.includes("User already registered")) {
+          toast.error("An account with this email already exists. Please sign in instead.");
           return;
         }
+        toast.error(error.message);
+        return;
+      }
 
-        if (data.user) {
-          toast.success("Account created! Please check your email to confirm your account.");
-          navigate("/onboarding");
-        }
+      if (data.user) {
+        toast.success("Account created! Please check your email to confirm your account.");
+        navigate("/onboarding");
       }
     } catch (error: any) {
       toast.error("An unexpected error occurred. Please try again.");
@@ -108,9 +107,9 @@ const Auth = () => {
         <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(checked)} />
 
         {isLogin ? (
-          <LoginForm onSubmit={onSubmit} />
+          <LoginForm onSubmit={handleLogin} />
         ) : (
-          <SignUpForm onSubmit={onSubmit} />
+          <SignUpForm onSubmit={handleSignUp} />
         )}
 
         <div className="relative">
