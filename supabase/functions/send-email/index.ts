@@ -1,37 +1,20 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
 
-const SENDPULSE_CLIENT_ID = Deno.env.get("SENDPULSE_CLIENT_ID");
-const SENDPULSE_CLIENT_SECRET = Deno.env.get("SENDPULSE_CLIENT_SECRET");
-const FROM_EMAIL = "notifications@recipee.app";
+const SMTP_CONFIG = {
+  hostname: "smtp-pulse.com",
+  port: 587,
+  username: "obagbemirod@gmail.com",
+  password: "XWPaiJZckm",
+};
+
+const FROM_EMAIL = "hello@recipee-app.com";
 const BRAND_NAME = "Recipee";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-interface EmailRequest {
-  to: string;
-  templateId: string;
-  variables: Record<string, string>;
-}
-
-async function getAccessToken() {
-  const response = await fetch('https://api.sendpulse.com/oauth/access_token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      grant_type: 'client_credentials',
-      client_id: SENDPULSE_CLIENT_ID,
-      client_secret: SENDPULSE_CLIENT_SECRET,
-    }),
-  });
-
-  const data = await response.json();
-  return data.access_token;
-}
 
 const emailTemplates = {
   welcome: {
@@ -113,48 +96,34 @@ const emailTemplates = {
 };
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { to, templateId, variables } = await req.json() as EmailRequest;
-    const template = emailTemplates[templateId as keyof typeof emailTemplates];
+    const { to, templateId, variables } = await req.json();
+    const template = emailTemplates[templateId];
     
     if (!template) {
       throw new Error('Invalid template ID');
     }
 
-    const accessToken = await getAccessToken();
+    const client = new SmtpClient();
+    await client.connectTLS(SMTP_CONFIG);
+
     const html = template.html(variables.name, variables.resetLink);
     
-    const response = await fetch('https://api.sendpulse.com/smtp/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: {
-          html,
-          text_content: "Please view this email in an HTML-capable client",
-          subject: template.subject,
-          from: {
-            name: BRAND_NAME,
-            email: FROM_EMAIL,
-          },
-          to: [
-            {
-              email: to,
-            },
-          ],
-        },
-      }),
+    await client.send({
+      from: `${BRAND_NAME} <${FROM_EMAIL}>`,
+      to: to,
+      subject: template.subject,
+      content: "Please view this email in an HTML-capable client",
+      html: html,
     });
 
-    const result = await response.json();
-    return new Response(JSON.stringify(result), {
+    await client.close();
+
+    return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

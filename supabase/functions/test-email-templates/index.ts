@@ -6,6 +6,10 @@ const corsHeaders = {
 };
 
 const handler = async (_req: Request): Promise<Response> => {
+  if (_req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   const testUser = {
     name: "TEMITOPE",
     email: "OBAGBEMIROD@GMAIL.COM"
@@ -16,10 +20,12 @@ const handler = async (_req: Request): Promise<Response> => {
 
   for (const templateId of templates) {
     try {
+      console.log(`Sending ${templateId} template to ${testUser.email}...`);
+      
       const response = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-email`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -33,6 +39,7 @@ const handler = async (_req: Request): Promise<Response> => {
       });
 
       const result = await response.json();
+      console.log(`${templateId} template result:`, result);
       results.push({ templateId, success: true, result });
     } catch (error) {
       console.error(`Error sending ${templateId} template:`, error);
