@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface PricingCardProps {
   plan: {
@@ -54,7 +55,7 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
         </CardContent>
       </div>
       
-      <CardFooter>
+      <CardFooter className="flex flex-col space-y-3">
         <Button 
           className="w-full" 
           variant={plan.buttonVariant}
@@ -62,6 +63,11 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
         >
           {plan.buttonText}
         </Button>
+        <Link to="/auth">
+          <Button variant="link" className="text-sm w-full">
+            Already signed up? Login here
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

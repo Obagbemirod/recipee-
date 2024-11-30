@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Facebook, Mail } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -17,7 +19,6 @@ type LoginFormProps = {
 };
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -34,49 +35,88 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
     }
   };
 
+  const handleSocialLogin = async (provider: 'facebook' | 'google') => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        },
+      });
+
+      if (error) {
+        toast.error(`Error signing in with ${provider}: ${error.message}`);
+      }
+    } catch (error: any) {
+      toast.error(`Unexpected error during ${provider} sign in`);
+    }
+  };
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Enter your password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex flex-col space-y-2">
+    <div className="space-y-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Enter your password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign in"}
           </Button>
-          <Button
-            type="button"
-            variant="link"
-            className="text-sm text-primary hover:text-primary/80"
-            onClick={() => navigate("/forgot-password")}
-          >
-            Forgot password?
-          </Button>
+        </form>
+      </Form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
         </div>
-      </form>
-    </Form>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Button 
+          variant="outline" 
+          className="w-full" 
+          onClick={() => handleSocialLogin('facebook')}
+        >
+          <Facebook className="mr-2 h-4 w-4" />
+          Continue with Facebook
+        </Button>
+        <Button 
+          variant="outline" 
+          className="w-full" 
+          onClick={() => handleSocialLogin('google')}
+        >
+          <Mail className="mr-2 h-4 w-4" />
+          Continue with Google
+        </Button>
+      </div>
+    </div>
   );
 };

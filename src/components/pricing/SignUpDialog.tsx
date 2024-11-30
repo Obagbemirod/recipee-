@@ -23,14 +23,15 @@ export function SignUpDialog({ isOpen, onOpenChange, selectedPlan, onSubmit }: S
           </p>
         </div>
         <SignUpForm onSubmit={onSubmit} />
-        <div className="mt-4 text-center">
+        <div className="mt-4 text-center space-y-2">
           <Link to="/auth">
-            <Button
-              variant="link"
-              className="text-sm text-primary hover:text-primary/80"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button variant="link" className="text-sm">
               Already signed up? Login here
+            </Button>
+          </Link>
+          <Link to="/forgot-password">
+            <Button variant="link" className="text-sm">
+              Forgot your password?
             </Button>
           </Link>
         </div>
