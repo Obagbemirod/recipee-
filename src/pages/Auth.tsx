@@ -1,174 +1,67 @@
-import { useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
-import { AuthSwitch } from "@/components/auth/AuthSwitch";
-import { SocialAuth } from "@/components/auth/SocialAuth";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { SignUpForm } from "@/components/auth/SignUpForm";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
+import { motion } from "framer-motion";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const selectedPlan = searchParams.get('plan');
-  const isTrialSignup = selectedPlan === '24_hour_trial';
+  const [searchParams] = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        if (selectedPlan) {
-          if (isTrialSignup) {
-            const success = await handleTrialActivation(user.id);
-            if (success) {
-              navigate('/onboarding');
-            }
-          } else {
-            // Handle paid plan flow for existing users
-            const planDetails = {
-              planId: selectedPlan,
-              // Add other plan details as needed
-            };
-            handlePaymentFlow(user, planDetails, () => {
-              navigate('/onboarding');
-            }, navigate);
-          }
-        } else {
-          navigate('/home');
-        }
+        navigate("/home");
       }
+      setIsLoading(false);
     };
     checkUser();
-  }, [navigate, selectedPlan, isTrialSignup]);
+  }, [navigate]);
 
-  const onSubmit = async (values: any) => {
-    try {
-      if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: values.email,
-          password: values.password,
-        });
+  if (isLoading) {
+    return null;
+  }
 
-        if (error) throw error;
-
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
-
-        if (selectedPlan) {
-          if (isTrialSignup) {
-            const success = await handleTrialActivation(data.user.id);
-            if (success) {
-              navigate('/onboarding');
-            }
-          } else {
-            const planDetails = {
-              planId: selectedPlan,
-              // Add other plan details as needed
-            };
-            handlePaymentFlow(data.user, planDetails, () => {
-              navigate('/onboarding');
-            }, navigate);
-          }
-        } else {
-          navigate("/home");
-        }
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email: values.email,
-          password: values.password,
-          options: {
-            data: {
-              full_name: values.name,
-            },
-          },
-        });
-
-        if (error) throw error;
-
-        if (selectedPlan) {
-          if (isTrialSignup) {
-            const success = await handleTrialActivation(data.user!.id);
-            if (success) {
-              navigate('/onboarding');
-            }
-          } else {
-            const planDetails = {
-              planId: selectedPlan,
-              // Add other plan details as needed
-            };
-            handlePaymentFlow(data.user, planDetails, () => {
-              navigate('/onboarding');
-            }, navigate);
-          }
-        } else {
-          toast({
-            title: "Account created successfully!",
-            description: "Please check your email to confirm your account.",
-          });
-          navigate("/onboarding");
-        }
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: error.message || "An unexpected error occurred. Please try again.",
-      });
+  const handleLoginSuccess = async () => {
+    const plan = searchParams.get("plan");
+    if (plan) {
+      navigate(`/onboarding?plan=${plan}`);
+    } else {
+      navigate("/home");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md space-y-8 p-8"
+    <div className="min-h-screen flex items-center justify-center bg-accent/30">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
       >
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">
-            {isLogin ? "Welcome back" : (isTrialSignup ? "Start Your Free Trial" : "Create your account")}
-          </h2>
-          <p className="text-muted-foreground mt-2">
-            {isLogin ? "Sign in to your account" : "Start your journey today"}
-          </p>
+        <div className="text-center mb-8">
+          <img
+            src="/lovable-uploads/9ca683d9-07dc-465b-ba8b-eb0f938ac0aa.png"
+            alt="Recipee Logo"
+            className="h-12 mx-auto mb-4"
+          />
+          <h2 className="text-2xl font-bold">Welcome back!</h2>
+          <p className="text-muted-foreground">Sign in to your account</p>
         </div>
 
-        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(!checked)} />
+        <LoginForm onSubmit={handleLoginSuccess} />
 
-        {isLogin ? (
-          <LoginForm onSubmit={onSubmit} />
-        ) : (
-          <SignUpForm onSubmit={onSubmit} />
-        )}
-
-        <div className="text-center">
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary hover:underline"
+        <div className="mt-6 text-center">
+          <Button
+            variant="link"
+            className="text-sm text-primary hover:text-primary/80"
+            onClick={() => navigate("/")}
           >
-            {isLogin ? "Need an account? Sign up" : "Already signed up? Login here"}
-          </button>
+            Need an account? Sign up
+          </Button>
         </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <SocialAuth isLogin={isLogin} />
       </motion.div>
     </div>
   );

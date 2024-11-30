@@ -4,11 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { plans } from "@/data/plans";
 import { PricingCard } from "./pricing/PricingCard";
+import { SignUpDialog } from "./pricing/SignUpDialog";
+import { Button } from "./ui/button";
+import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 
 export function PricingSection() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -26,17 +31,70 @@ export function PricingSection() {
     };
   }, []);
 
-  const handlePlanSelection = (plan: typeof plans[0]) => {
-    if (user) {
-      // If user is already logged in, handle the flow directly
-      if (plan.planId === "24_hour_trial") {
-        navigate('/auth?plan=24_hour_trial');
+  const handleSignUpSuccess = async (values: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            full_name: values.fullName,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (selectedPlan.planId === "24_hour_trial") {
+        const success = await handleTrialActivation(data.user!.id);
+        if (success) {
+          toast("Trial activated successfully!", {
+            description: "Welcome to Recipee! Let's set up your preferences.",
+          });
+          navigate("/onboarding");
+        }
       } else {
-        navigate(`/auth?plan=${plan.planId}`);
+        await handlePaymentFlow(
+          data.user,
+          selectedPlan,
+          (transactionId: string) => {
+            toast("Payment successful!", {
+              description: "Welcome to Recipee! Let's set up your preferences.",
+            });
+            navigate("/onboarding");
+          },
+          navigate
+        );
+      }
+    } catch (error: any) {
+      toast("Error creating account", {
+        description: error.message,
+      });
+    }
+  };
+
+  const handlePlanSelection = async (plan: typeof plans[0]) => {
+    if (user) {
+      // User is already logged in
+      if (plan.planId === "24_hour_trial") {
+        const success = await handleTrialActivation(user.id);
+        if (success) {
+          navigate("/onboarding");
+        }
+      } else {
+        await handlePaymentFlow(
+          user,
+          plan,
+          (transactionId: string) => {
+            navigate("/onboarding");
+          },
+          navigate
+        );
       }
     } else {
-      // If user is not logged in, redirect to auth page with plan parameter
-      navigate(`/auth?plan=${plan.planId}`);
+      // Show sign up dialog for new users
+      setSelectedPlan(plan);
+      setIsSignUpOpen(true);
     }
   };
 
@@ -50,6 +108,13 @@ export function PricingSection() {
           <p className="mx-auto max-w-[700px] text-muted-foreground mt-4">
             Start with our 24-hour Pro trial to experience all Premium features before choosing your plan.
           </p>
+          <Button
+            variant="link"
+            className="mt-4 text-primary hover:text-primary/80"
+            onClick={() => navigate("/auth")}
+          >
+            Already signed up? Login here
+          </Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -62,6 +127,13 @@ export function PricingSection() {
           ))}
         </div>
       </div>
+
+      <SignUpDialog
+        isOpen={isSignUpOpen}
+        onOpenChange={setIsSignUpOpen}
+        selectedPlan={selectedPlan}
+        onSubmit={handleSignUpSuccess}
+      />
     </section>
   );
 }
