@@ -14,13 +14,15 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
         navigate('/home');
       }
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    checkUser();
   }, [navigate]);
 
   const onSubmit = async (values: any) => {

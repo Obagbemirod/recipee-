@@ -1,52 +1,20 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Onboarding from "./pages/Onboarding";
-import Home from "./pages/Home";
-import UploadIngredients from "./pages/UploadIngredients";
-import GenerateMealPlan from "./pages/GenerateMealPlan";
-import GenerateRecipes from "./pages/GenerateRecipes";
-import Marketplace from "./pages/Marketplace";
-import Profile from "./pages/Profile";
-import SavedItems from "./pages/SavedItems";
-import AffiliateProgram from "./pages/AffiliateProgram";
-import ForgotPassword from "./pages/ForgotPassword";
-import AboutUs from "./pages/AboutUs";
-import Success from "./pages/Success";
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "sonner";
+import { createClient } from '@supabase/supabase-js';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { supabase } from "@/lib/supabase";
+import "./App.css";
+import { AppRoutes } from "./AppRoutes";
 
-const queryClient = new QueryClient();
-
-const App = () => {
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <SessionContextProvider supabaseClient={supabase}>
       <BrowserRouter>
-        <TooltipProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/upload-ingredients" element={<UploadIngredients />} />
-            <Route path="/generate-meal-plan" element={<GenerateMealPlan />} />
-            <Route path="/generate-recipes" element={<GenerateRecipes />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/saved-items" element={<SavedItems />} />
-            <Route path="/affiliate-program" element={<AffiliateProgram />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/success" element={<Success />} />
-          </Routes>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
+        <Toaster position="top-center" richColors />
+        <AppRoutes />
       </BrowserRouter>
-    </QueryClientProvider>
+    </SessionContextProvider>
   );
-};
+}
 
 export default App;
