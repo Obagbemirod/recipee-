@@ -1,64 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { RecipeCard } from "@/components/RecipeCard";
 import { ArrowLeft } from "lucide-react";
 
 const Marketplace = () => {
   const navigate = useNavigate();
-  const isAuthenticated = false; // This should come from your auth context
-
-  const handleCloneRecipe = () => {
-    if (!isAuthenticated) {
-      toast.error("Please sign up or login to clone recipes");
-      navigate("/auth");
-      return;
-    }
-    // Handle clone logic here
-  };
-
-  const recipes = [
-    {
-      title: "Homemade Margherita Pizza",
-      image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
-      time: "45 mins",
-      difficulty: "Medium",
-    },
-    {
-      title: "Classic Caesar Salad",
-      image: "https://images.unsplash.com/photo-1546793665-c74683f339c1",
-      time: "15 mins",
-      difficulty: "Easy",
-    },
-    // Add more recipes as needed
-  ];
 
   return (
     <div className="min-h-screen pt-20 bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            variant="ghost"
-            className="border border-primary text-primary hover:bg-primary hover:text-white rounded-lg"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-          </Button>
-          <h1 className="text-3xl font-bold">Recipe Marketplace</h1>
-        </div>
+        <Button
+          variant="ghost"
+          className="border border-primary text-primary hover:bg-primary hover:text-white rounded-lg mb-8"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recipes.map((recipe, index) => (
-            <div key={index} className="relative">
-              <RecipeCard {...recipe} />
-              <Button
-                className="mt-4 w-full"
-                onClick={handleCloneRecipe}
-              >
-                Clone Recipe
-              </Button>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center space-y-8 mt-12">
+          <img 
+            src="/lovable-uploads/0379d011-edd8-41ce-98c1-3a3bdbb30b21.png" 
+            alt="Recipee Logo" 
+            className="w-48 h-auto"
+          />
+          <h2 className="text-3xl font-bold text-center">Coming Soon</h2>
+          <p className="text-xl text-muted-foreground text-center">Please check back again.</p>
         </div>
       </div>
     </div>
