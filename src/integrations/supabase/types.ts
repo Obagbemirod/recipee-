@@ -9,13 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      email_notifications: {
+        Row: {
+          id: string
+          notification_type: string
+          sent_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_type: string
+          sent_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_type?: string
+          sent_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_trial_expiration: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
