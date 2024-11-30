@@ -33,30 +33,35 @@ const Auth = () => {
   }, [session, navigate]);
 
   if (isLoading) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   const onSubmit = async (values: any) => {
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: values.email,
           password: values.password,
         });
 
         if (error) {
-          if (error.message.includes("Email not confirmed")) {
-            throw new Error("Please check your email and confirm your account before signing in.");
-          }
           if (error.message.includes("Invalid login credentials")) {
-            throw new Error("The email or password you entered is incorrect. Please try again.");
+            toast.error("Invalid email or password. Please try again.");
+            return;
           }
-          throw error;
+          if (error.message.includes("Email not confirmed")) {
+            toast.error("Please verify your email before signing in.");
+            return;
+          }
+          toast.error(error.message);
+          return;
         }
 
-        toast.success("Welcome back!");
+        if (data.user) {
+          toast.success("Welcome back!");
+        }
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
           options: {
@@ -68,16 +73,21 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes("User already registered")) {
-            throw new Error("An account with this email already exists. Please sign in instead.");
+            toast.error("An account with this email already exists. Please sign in instead.");
+            return;
           }
-          throw error;
+          toast.error(error.message);
+          return;
         }
 
-        toast.success("Account created! Please check your email to confirm your account.");
-        navigate("/onboarding");
+        if (data.user) {
+          toast.success("Account created! Please check your email to confirm your account.");
+          navigate("/onboarding");
+        }
       }
     } catch (error: any) {
-      toast.error(error.message || "An unexpected error occurred. Please try again.");
+      toast.error("An unexpected error occurred. Please try again.");
+      console.error("Auth error:", error);
     }
   };
 
