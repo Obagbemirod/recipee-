@@ -8,6 +8,17 @@ import { PricingHeader } from "./pricing/PricingHeader";
 import { PricingGrid } from "./pricing/PricingGrid";
 import { toast } from "sonner";
 
+// Add PaystackPop type definition
+declare global {
+  interface Window {
+    PaystackPop: {
+      setup: (config: any) => {
+        openIframe: () => void;
+      };
+    };
+  }
+}
+
 export function PricingSection() {
   const { toast: toastUI } = useToast();
   const navigate = useNavigate();
