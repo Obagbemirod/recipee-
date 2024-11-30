@@ -1,6 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "sonner";
-import { createClient } from '@supabase/supabase-js';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/lib/supabase";
 import "./App.css";
