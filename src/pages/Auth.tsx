@@ -1,54 +1,81 @@
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { LoginForm } from "@/components/auth/LoginForm";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { AuthSwitch } from "@/components/auth/AuthSwitch";
+import { SocialAuth } from "@/components/auth/SocialAuth";
 import { motion } from "framer-motion";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 import { supabase } from "@/lib/supabase";
-import { useSessionContext } from '@supabase/auth-helpers-react';
-import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 
 const Auth = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const { session, isLoading } = useSessionContext();
 
   useEffect(() => {
-    if (session) {
-      navigate('/home');
-    }
-  }, [session, navigate]);
-
-  if (isLoading) {
-    return null;
-  }
-
-  const handleLogin = async (values: { email: string; password: string }) => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (error) {
-        console.error("Login error:", error);
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("The email or password you entered is incorrect. Please try again.");
-          return;
-        }
-        if (error.message.includes("Email not confirmed")) {
-          toast.error("Please verify your email before logging in.");
-          return;
-        }
-        toast.error("An error occurred during login. Please try again.");
-        return;
-      }
-
-      if (data?.user) {
-        toast.success("Welcome back!");
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         navigate('/home');
       }
+    };
+    checkUser();
+  }, [navigate]);
+
+  const onSubmit = async (values: any) => {
+    try {
+      if (isLogin) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+
+        if (error) {
+          if (error.message.includes("Email not confirmed")) {
+            throw new Error("Please check your email and confirm your account before signing in.");
+          }
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("The email or password you entered is incorrect. Please try again.");
+          }
+          throw error;
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+        navigate("/home");
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+          options: {
+            data: {
+              full_name: values.name,
+            },
+          },
+        });
+
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            throw new Error("An account with this email already exists. Please sign in instead.");
+          }
+          throw error;
+        }
+
+        toast({
+          title: "Account created successfully!",
+          description: "Please check your email to confirm your account.",
+        });
+        navigate("/onboarding");
+      }
     } catch (error: any) {
-      console.error("Unexpected auth error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: error.message || "An unexpected error occurred. Please try again.",
+      });
     }
   };
 
@@ -60,32 +87,32 @@ const Auth = () => {
         className="w-full max-w-md space-y-8 p-8"
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Welcome back</h2>
+          <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create your account"}</h2>
           <p className="text-muted-foreground mt-2">
-            Sign in to your account
+            {isLogin ? "Sign in to your account" : "Start your journey today"}
           </p>
         </div>
 
-        <LoginForm onSubmit={handleLogin} />
+        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(!checked)} />
 
-        <div className="text-center space-y-4">
-          <Button
-            variant="link"
-            className="text-sm"
-            onClick={() => navigate("/forgot-password")}
-          >
-            Forgot password?
-          </Button>
-          <div className="flex flex-col space-y-2">
-            <p className="text-sm text-muted-foreground">Need an account?</p>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/#pricing-section")}
-            >
-              View Plans & Sign Up
-            </Button>
+        {isLogin ? (
+          <LoginForm onSubmit={onSubmit} />
+        ) : (
+          <SignUpForm onSubmit={onSubmit} />
+        )}
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
           </div>
         </div>
+
+        <SocialAuth isLogin={isLogin} />
       </motion.div>
     </div>
   );

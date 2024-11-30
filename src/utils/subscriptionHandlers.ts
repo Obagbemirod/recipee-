@@ -4,34 +4,27 @@ import { toast } from "sonner";
 export const handleTrialActivation = async (userId: string) => {
   try {
     // Check if user already has an active trial
-    const { data: existingTrials, error: checkError } = await supabase
+    const { data: existingTrial, error: checkError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .eq('plan_id', '24_hour_trial');
+      .eq('plan_id', '24_hour_trial')
+      .single();
 
-    if (checkError) {
+    if (checkError && checkError.code !== 'PGRST116') {
       console.error('Error checking existing trial:', checkError);
       return false;
     }
 
-    // Check if there are any trial subscriptions
-    if (existingTrials && existingTrials.length > 0) {
+    if (existingTrial) {
       toast.error("You have already used your trial period");
-      return false;
-    }
-
-    // Get the current authenticated user
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("Please log in to activate trial");
       return false;
     }
 
     const { error: insertError } = await supabase
       .from('subscriptions')
       .insert({
-        user_id: session.user.id, // Use the authenticated user's ID
+        user_id: userId,
         plan_id: '24_hour_trial',
         start_date: new Date().toISOString(),
         end_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -59,23 +52,16 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    // Verify user is authenticated
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("Please log in to continue");
-      return;
-    }
-
     const flutterwaveConfig = {
       public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-      tx_ref: `${session.user.id}-${Date.now()}`,
+      tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
       currency: "USD",
       payment_options: "card,mobilemoney,ussd",
       customer: {
-        email: session.user.email,
+        email: user.email,
         phone_number: user.phone || "",
-        name: session.user.user_metadata?.full_name || session.user.email,
+        name: user.user_metadata?.full_name || user.email,
       },
       customizations: {
         title: "Recipee Subscription",
@@ -88,7 +74,7 @@ export const handlePaymentFlow = async (
             const { error } = await supabase
               .from('subscriptions')
               .insert({
-                user_id: session.user.id, // Use the authenticated user's ID
+                user_id: user.id,
                 plan_id: plan.planId,
                 start_date: new Date().toISOString(),
                 end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),

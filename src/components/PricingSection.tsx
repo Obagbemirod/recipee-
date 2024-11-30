@@ -42,52 +42,38 @@ export function PricingSection() {
         },
       });
 
-      if (error) {
-        // Handle rate limit error specifically
-        if (error.message.includes("rate limit exceeded")) {
+      if (error) throw error;
+
+      setShowSignUpDialog(false);
+
+      if (selectedPlan.planId === "24_hour_trial") {
+        const success = await handleTrialActivation(data.user!.id);
+        if (success) {
+          toast({
+            title: "Trial Activated!",
+            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+          });
+          navigate("/onboarding");
+        } else {
           toast({
             variant: "destructive",
-            title: "Too many attempts",
-            description: "Please wait a few minutes before trying to sign up again.",
+            title: "Error",
+            description: "Failed to activate trial. Please try again.",
           });
-          return;
         }
-        throw error;
-      }
-
-      if (data.user) {
-        setShowSignUpDialog(false);
-
-        if (selectedPlan.planId === "24_hour_trial") {
-          const success = await handleTrialActivation(data.user.id);
-          if (success) {
+      } else {
+        handlePaymentFlow(
+          data.user,
+          selectedPlan,
+          (transactionId) => {
             toast({
-              title: "Trial Activated!",
-              description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+              title: "Payment Successful!",
+              description: `Your ${selectedPlan.name} subscription has been activated.`,
             });
-            navigate("/onboarding");
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to activate trial. Please try again.",
-            });
-          }
-        } else {
-          // For paid plans, initiate payment flow immediately after signup
-          handlePaymentFlow(
-            data.user,
-            selectedPlan,
-            (transactionId) => {
-              toast({
-                title: "Payment Successful!",
-                description: `Your ${selectedPlan.name} subscription has been activated.`,
-              });
-              navigate("/onboarding");
-            },
-            navigate
-          );
-        }
+            navigate(`/success?transaction_id=${transactionId}&order_value=${selectedPlan.price}`);
+          },
+          navigate
+        );
       }
     } catch (error: any) {
       toast({
@@ -115,21 +101,21 @@ export function PricingSection() {
             description: "Failed to activate trial. Please try again.",
           });
         }
-      } else {
-        // For logged-in users selecting paid plans
-        handlePaymentFlow(
-          user,
-          plan,
-          (transactionId) => {
-            toast({
-              title: "Payment Successful!",
-              description: `Your ${plan.name} subscription has been activated.`,
-            });
-            navigate("/onboarding");
-          },
-          navigate
-        );
+        return;
       }
+
+      handlePaymentFlow(
+        user,
+        plan,
+        (transactionId) => {
+          toast({
+            title: "Payment Successful!",
+            description: `Your ${plan.name} subscription has been activated.`,
+          });
+          navigate(`/success?transaction_id=${transactionId}&order_value=${plan.price}`);
+        },
+        navigate
+      );
     } else {
       setSelectedPlan(plan);
       setShowSignUpDialog(true);
