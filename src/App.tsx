@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
+import { checkFeatureAccess } from "@/utils/subscriptionUtils";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -22,10 +23,10 @@ import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children, requiresPremium = false }) => {
+const ProtectedRoute = ({ children, feature }: { children: React.ReactNode, feature?: keyof SubscriptionFeatures }) => {
   const { plan } = useSubscription();
   
-  if (requiresPremium && plan === 'basic') {
+  if (feature && !checkFeatureAccess(plan, feature)) {
     toast.error("This feature requires a Premium subscription. Please upgrade to access.");
     return <Navigate to="/home" replace />;
   }
@@ -47,7 +48,7 @@ const App = () => {
             <Route 
               path="/generate-meal-plan" 
               element={
-                <ProtectedRoute requiresPremium>
+                <ProtectedRoute feature="recipeGeneration">
                   <GenerateMealPlan />
                 </ProtectedRoute>
               } 
@@ -55,7 +56,7 @@ const App = () => {
             <Route 
               path="/generate-recipes" 
               element={
-                <ProtectedRoute requiresPremium>
+                <ProtectedRoute feature="recipeGeneration">
                   <GenerateRecipes />
                 </ProtectedRoute>
               } 

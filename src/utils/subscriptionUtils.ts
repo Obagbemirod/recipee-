@@ -5,7 +5,6 @@ export interface SubscriptionFeatures {
   videoInputs: boolean;
   textInputs: boolean;
   audioInputs: boolean;
-  ingredientUpdatesPerWeek: number;
   mealPlansPerWeek: number;
   recipeGeneration: boolean;
   nutritionalContent: boolean;
@@ -26,7 +25,6 @@ const TRIAL_FEATURES: SubscriptionFeatures = {
   videoInputs: true,
   textInputs: true,
   audioInputs: true,
-  ingredientUpdatesPerWeek: 999,
   mealPlansPerWeek: 999,
   recipeGeneration: true,
   nutritionalContent: true,
@@ -44,12 +42,11 @@ const TRIAL_FEATURES: SubscriptionFeatures = {
 
 const BASIC_FEATURES: SubscriptionFeatures = {
   imageInputs: true,
-  videoInputs: true,
+  videoInputs: false,
   textInputs: true,
   audioInputs: false,
-  ingredientUpdatesPerWeek: 1,
-  mealPlansPerWeek: 7,
-  recipeGeneration: true,
+  mealPlansPerWeek: 1,
+  recipeGeneration: false,
   nutritionalContent: true,
   cookingGuide: true,
   notifications: {
@@ -68,7 +65,6 @@ const PREMIUM_FEATURES: SubscriptionFeatures = {
   videoInputs: true,
   textInputs: true,
   audioInputs: true,
-  ingredientUpdatesPerWeek: 999,
   mealPlansPerWeek: 999,
   recipeGeneration: true,
   nutritionalContent: true,
