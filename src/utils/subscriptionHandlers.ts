@@ -1,20 +1,15 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
-declare const PaystackPop: {
-  setup: (config: {
-    key: string;
-    email: string;
-    amount: number;
-    currency: string;
-    ref: string;
-    metadata: any;
-    callback: (response: any) => void;
-    onClose: () => void;
-  }) => {
-    openIframe: () => void;
-  };
-};
+declare global {
+  interface Window {
+    PaystackPop: {
+      setup: (config: any) => {
+        openIframe: () => void;
+      };
+    };
+  }
+}
 
 export const handleTrialActivation = async (userId: string) => {
   try {
@@ -57,10 +52,23 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    const handler = PaystackPop.setup({
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+    if (typeof window.PaystackPop === 'undefined') {
+      console.error('PaystackPop not initialized');
+      toast.error("Payment system is not initialized. Please refresh and try again.");
+      return;
+    }
+
+    const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+    if (!paystackKey) {
+      console.error('Paystack public key not found');
+      toast.error("Payment configuration error. Please contact support.");
+      return;
+    }
+
+    const handler = window.PaystackPop.setup({
+      key: paystackKey,
       email: user.email,
-      amount: plan.price * 100, // Paystack expects amount in kobo/cents
+      amount: plan.price * 100, // Convert to kobo
       currency: 'NGN',
       ref: `${user.id}-${Date.now()}`,
       metadata: {
@@ -100,7 +108,6 @@ export const handlePaymentFlow = async (
         }
       },
       onClose: function() {
-        // Handle modal close
         console.log('Payment modal closed');
       }
     });
