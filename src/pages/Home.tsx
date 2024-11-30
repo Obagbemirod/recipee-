@@ -25,7 +25,6 @@ const Home = () => {
         return;
       }
 
-      // Fetch subscription details
       const { data: subscription } = await supabase
         .from('subscriptions')
         .select('*')
@@ -54,17 +53,21 @@ const Home = () => {
     }
   };
 
+  const handleUpgrade = () => {
+    navigate('/pricing');
+  };
+
   const getPlanBadge = () => {
     if (!subscriptionDetails) return null;
     
     const badgeVariants = {
-      "24_hour_trial": "bg-blue-500",
+      "24_hour_trial": isTrialExpired ? "bg-red-500" : "bg-blue-500",
       "basic": "bg-green-500",
       "premium": "bg-purple-500"
     };
 
     const planNames = {
-      "24_hour_trial": "Pro Trial",
+      "24_hour_trial": isTrialExpired ? "Trial Expired" : "Pro Trial",
       "basic": "Basic Plan",
       "premium": "Premium Plan"
     };
@@ -72,10 +75,22 @@ const Home = () => {
     const planId = subscriptionDetails.plan_id as keyof typeof planNames;
 
     return (
-      <Badge className={`${badgeVariants[planId]} text-white`}>
-        <Crown className="w-4 h-4 mr-1" />
-        {planNames[planId]}
-      </Badge>
+      <div className="flex items-center gap-2">
+        <Badge className={`${badgeVariants[planId]} text-white`}>
+          <Crown className="w-4 h-4 mr-1" />
+          {planNames[planId]}
+        </Badge>
+        {isTrialExpired && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleUpgrade}
+            className="ml-2"
+          >
+            Upgrade Now
+          </Button>
+        )}
+      </div>
     );
   };
 

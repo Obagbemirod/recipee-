@@ -17,7 +17,9 @@ export type Database = {
           notification_type: string
           sent_at: string | null
           status: string | null
+          template_id: string | null
           user_id: string
+          variables: Json | null
         }
         Insert: {
           email_type?: string
@@ -26,7 +28,9 @@ export type Database = {
           notification_type: string
           sent_at?: string | null
           status?: string | null
+          template_id?: string | null
           user_id: string
+          variables?: Json | null
         }
         Update: {
           email_type?: string
@@ -35,7 +39,9 @@ export type Database = {
           notification_type?: string
           sent_at?: string | null
           status?: string | null
+          template_id?: string | null
           user_id?: string
+          variables?: Json | null
         }
         Relationships: []
       }

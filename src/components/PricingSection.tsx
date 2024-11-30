@@ -6,7 +6,6 @@ import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHa
 import { SignUpDialog } from "./pricing/SignUpDialog";
 import { PricingHeader } from "./pricing/PricingHeader";
 import { PricingGrid } from "./pricing/PricingGrid";
-import { Button } from "./ui/button";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -71,7 +70,7 @@ export function PricingSection() {
               title: "Payment Successful!",
               description: `Your ${selectedPlan.name} subscription has been activated.`,
             });
-            navigate(`/success?transaction_id=${transactionId}&order_value=${selectedPlan.price}`);
+            navigate("/onboarding");
           },
           navigate
         );
@@ -89,15 +88,14 @@ export function PricingSection() {
     if (user) {
       if (plan.planId === "24_hour_trial") {
         try {
-          const { data: existingTrial, error } = await supabase
+          const { data: existingTrial } = await supabase
             .from('subscriptions')
             .select()
             .eq('user_id', user.id)
-            .eq('plan_id', '24_hour_trial');
+            .eq('plan_id', '24_hour_trial')
+            .single();
 
-          if (error) throw error;
-
-          if (existingTrial && existingTrial.length > 0) {
+          if (existingTrial) {
             toast({
               variant: "destructive",
               title: "Trial Already Used",
@@ -127,21 +125,20 @@ export function PricingSection() {
             description: error.message || "Failed to check trial eligibility. Please try again.",
           });
         }
-        return;
+      } else {
+        handlePaymentFlow(
+          user,
+          plan,
+          (transactionId) => {
+            toast({
+              title: "Payment Successful!",
+              description: `Your ${plan.name} subscription has been activated.`,
+            });
+            navigate("/onboarding");
+          },
+          navigate
+        );
       }
-
-      handlePaymentFlow(
-        user,
-        plan,
-        (transactionId) => {
-          toast({
-            title: "Payment Successful!",
-            description: `Your ${plan.name} subscription has been activated.`,
-          });
-          navigate(`/success?transaction_id=${transactionId}&order_value=${plan.price}`);
-        },
-        navigate
-      );
     } else {
       setSelectedPlan(plan);
       setShowSignUpDialog(true);

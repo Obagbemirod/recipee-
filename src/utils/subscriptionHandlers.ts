@@ -3,17 +3,13 @@ import { toast } from "sonner";
 
 export const handleTrialActivation = async (userId: string) => {
   try {
-    // Check if user already has an active trial
     const { data: existingTrials, error: checkError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('plan_id', '24_hour_trial');
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking existing trial:', checkError);
-      return false;
-    }
+    if (checkError) throw checkError;
 
     if (existingTrials && existingTrials.length > 0) {
       toast.error("You have already used your trial period");
@@ -30,16 +26,11 @@ export const handleTrialActivation = async (userId: string) => {
         status: 'active'
       });
 
-    if (insertError) {
-      console.error('Error inserting trial subscription:', insertError);
-      toast.error("Failed to activate trial. Please try again.");
-      return false;
-    }
+    if (insertError) throw insertError;
 
     return true;
   } catch (error) {
     console.error('Trial activation error:', error);
-    toast.error("Failed to activate trial. Please try again.");
     return false;
   }
 };
@@ -81,14 +72,10 @@ export const handlePaymentFlow = async (
                 payment_reference: response.transaction_id
               });
 
-            if (error) {
-              console.error('Database error:', error);
-              toast.error("Failed to activate subscription. Please contact support.");
-              return;
-            }
+            if (error) throw error;
             
             onSuccess(response.transaction_id);
-          } catch (error) {
+          } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
           }
@@ -106,5 +93,30 @@ export const handlePaymentFlow = async (
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast.error("Unable to initialize payment. Please try again.");
+  }
+};
+
+export const checkTrialStatus = async (userId: string) => {
+  try {
+    const { data: subscription, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('plan_id', '24_hour_trial')
+      .eq('status', 'active')
+      .single();
+
+    if (error) throw error;
+
+    if (subscription) {
+      const endDate = new Date(subscription.end_date);
+      const now = new Date();
+      return endDate > now;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('Error checking trial status:', error);
+    return false;
   }
 };
