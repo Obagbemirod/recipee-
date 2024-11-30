@@ -1,46 +1,30 @@
 import { Button } from "@/components/ui/button";
-import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText, Crown } from "lucide-react";
+import { Camera, ChefHat, Image as ImageIcon, Video, Mic, FileText } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { QuickLinks } from "@/components/home/QuickLinks";
-import { MobileHeader } from "@/components/home/MobileHeader";
+import { HomeHeader } from "@/components/home/HomeHeader";
 import { useFeatureAccess } from '@/components/home/FeatureAccess';
 import { useSubscription } from "@/hooks/useSubscription";
-import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { supabase } from "@/lib/supabase";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
   const { plan, isTrialExpired } = useSubscription();
   const navigate = useNavigate();
-  const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
   
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate('/auth');
-        return;
       }
-
-      const { data: subscription } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .gt('end_date', new Date().toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      setSubscriptionDetails(subscription);
     };
-
     checkAuth();
   }, [navigate]);
-  
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logged out successfully");
@@ -48,50 +32,15 @@ const Home = () => {
   };
 
   const handleFeatureClick = (path: string) => {
+    if (isTrialExpired && plan === "24_hour_trial") {
+      toast.error("Your trial has expired. Please upgrade to continue using premium features.");
+      navigate("/pricing");
+      return;
+    }
+    
     if (checkAccess()) {
       navigate(path);
     }
-  };
-
-  const handleUpgrade = () => {
-    navigate('/pricing');
-  };
-
-  const getPlanBadge = () => {
-    if (!subscriptionDetails) return null;
-    
-    const badgeVariants = {
-      "24_hour_trial": isTrialExpired ? "bg-red-500" : "bg-blue-500",
-      "basic": "bg-green-500",
-      "premium": "bg-purple-500"
-    };
-
-    const planNames = {
-      "24_hour_trial": isTrialExpired ? "Trial Expired" : "Pro Trial",
-      "basic": "Basic Plan",
-      "premium": "Premium Plan"
-    };
-
-    const planId = subscriptionDetails.plan_id as keyof typeof planNames;
-
-    return (
-      <div className="flex items-center gap-2">
-        <Badge className={`${badgeVariants[planId]} text-white`}>
-          <Crown className="w-4 h-4 mr-1" />
-          {planNames[planId]}
-        </Badge>
-        {isTrialExpired && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleUpgrade}
-            className="ml-2"
-          >
-            Upgrade Now
-          </Button>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -105,10 +54,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-black/40">
           <div className="container mx-auto px-4 h-full">
             <div className="h-full flex flex-col py-4">
-              <div className="flex justify-between items-center">
-                <MobileHeader onLogout={handleLogout} />
-                {getPlanBadge()}
-              </div>
+              <HomeHeader onLogout={handleLogout} />
               
               <div className="flex-1 flex items-center justify-center">
                 <motion.h1 
@@ -124,23 +70,21 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          {/* Quick Links */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
             <QuickLinks onFeatureClick={handleFeatureClick} />
           </div>
 
-          {/* Quick Actions */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 gap-4">
+              {/* Quick Actions content */}
               <div 
                 onClick={() => handleFeatureClick("/upload-ingredients")}
                 className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"

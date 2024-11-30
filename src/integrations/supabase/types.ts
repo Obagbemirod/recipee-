@@ -141,6 +141,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_auth_status: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          last_attempt: string | null
+          login_attempts: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          last_attempt?: string | null
+          login_attempts?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          last_attempt?: string | null
+          login_attempts?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       trial_status: {
