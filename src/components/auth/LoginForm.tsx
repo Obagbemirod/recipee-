@@ -15,20 +15,45 @@ const loginSchema = z.object({
 });
 
 type LoginFormProps = {
-  onSubmit: (values: z.infer<typeof loginSchema>) => void;
+  onSubmit: (values: z.infer<typeof loginSchema>) => Promise<void>;
 };
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
+  const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      setIsLoading(true);
+      await onSubmit(values);
+    } catch (error: any) {
+      // Handle authentication errors
+      if (error.message.includes("Invalid login credentials")) {
+        toast({
+          title: "Authentication Error",
+          description: "Invalid email or password. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -56,8 +81,8 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           )}
         />
         <div className="flex flex-col space-y-2">
-          <Button type="submit" className="w-full">
-            Sign in
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign in"}
           </Button>
           <Button
             type="button"
