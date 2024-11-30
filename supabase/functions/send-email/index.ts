@@ -112,34 +112,6 @@ const emailTemplates = {
   }
 };
 
-async function sendEmail(accessToken: string, to: string, subject: string, html: string) {
-  const response = await fetch('https://api.sendpulse.com/smtp/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: {
-        html,
-        text_content: "Please view this email in an HTML-capable client",
-        subject,
-        from: {
-          name: BRAND_NAME,
-          email: FROM_EMAIL,
-        },
-        to: [
-          {
-            email: to,
-          },
-        ],
-      },
-    }),
-  });
-
-  return response.json();
-}
-
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -157,8 +129,31 @@ const handler = async (req: Request): Promise<Response> => {
     const accessToken = await getAccessToken();
     const html = template.html(variables.name, variables.resetLink);
     
-    const result = await sendEmail(accessToken, to, template.subject, html);
+    const response = await fetch('https://api.sendpulse.com/smtp/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: {
+          html,
+          text_content: "Please view this email in an HTML-capable client",
+          subject: template.subject,
+          from: {
+            name: BRAND_NAME,
+            email: FROM_EMAIL,
+          },
+          to: [
+            {
+              email: to,
+            },
+          ],
+        },
+      }),
+    });
 
+    const result = await response.json();
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
