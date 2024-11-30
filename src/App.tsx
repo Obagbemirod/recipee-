@@ -11,11 +11,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setInitialSession(session);
       setIsLoading(false);
     });
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setInitialSession(session);
     });
