@@ -4,19 +4,18 @@ import { toast } from "sonner";
 export const handleTrialActivation = async (userId: string) => {
   try {
     // Check if user already has an active trial
-    const { data: existingTrial, error: checkError } = await supabase
+    const { data: existingTrials, error: checkError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .eq('plan_id', '24_hour_trial')
-      .single();
+      .eq('plan_id', '24_hour_trial');
 
     if (checkError && checkError.code !== 'PGRST116') {
       console.error('Error checking existing trial:', checkError);
       return false;
     }
 
-    if (existingTrial) {
+    if (existingTrials && existingTrials.length > 0) {
       toast.error("You have already used your trial period");
       return false;
     }

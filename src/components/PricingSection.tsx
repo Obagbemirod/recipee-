@@ -33,13 +33,16 @@ export function PricingSection() {
 
   const handleSignUpSubmit = async (values: any) => {
     try {
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select()
-        .eq('id', values.email)
-        .single();
+      // Check if user exists by email in auth, not profiles
+      const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
+        filters: {
+          email: values.email
+        }
+      });
 
-      if (existingUser) {
+      if (getUserError) throw getUserError;
+
+      if (users && users.length > 0) {
         toast({
           variant: "destructive",
           title: "Account Already Exists",
@@ -117,18 +120,43 @@ export function PricingSection() {
   const handlePlanSelection = async (plan: any) => {
     if (user) {
       if (plan.planId === "24_hour_trial") {
-        const success = await handleTrialActivation(user.id);
-        if (success) {
-          toast({
-            title: "Trial Activated!",
-            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
-          });
-          navigate("/onboarding");
-        } else {
+        try {
+          const { data: existingTrial, error } = await supabase
+            .from('subscriptions')
+            .select()
+            .eq('user_id', user.id)
+            .eq('plan_id', '24_hour_trial');
+
+          if (error && error.code !== 'PGRST116') throw error;
+
+          if (existingTrial && existingTrial.length > 0) {
+            toast({
+              variant: "destructive",
+              title: "Trial Already Used",
+              description: "You have already used your trial period.",
+            });
+            return;
+          }
+
+          const success = await handleTrialActivation(user.id);
+          if (success) {
+            toast({
+              title: "Trial Activated!",
+              description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+            });
+            navigate("/onboarding");
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to activate trial. Please try again.",
+            });
+          }
+        } catch (error: any) {
           toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to activate trial. Please try again.",
+            description: error.message || "Failed to check trial eligibility. Please try again.",
           });
         }
         return;
