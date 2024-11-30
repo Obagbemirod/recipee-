@@ -26,18 +26,6 @@ const Auth = () => {
 
   const handleLogin = async (values: { email: string; password: string }) => {
     try {
-      // First, check if the user exists
-      const { data: userExists } = await supabase
-        .from('auth.users')
-        .select('id')
-        .eq('email', values.email)
-        .single();
-
-      if (!userExists) {
-        toast.error("No account found with this email. Please sign up first.");
-        return;
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
@@ -46,11 +34,7 @@ const Auth = () => {
       if (error) {
         console.error("Login error:", error);
         if (error.message.includes("Invalid login credentials")) {
-          toast.error("Incorrect password. Please try again.");
-          return;
-        }
-        if (error.message.includes("Email not confirmed")) {
-          toast.error("Please verify your email before signing in.");
+          toast.error("Invalid email or password. Please try again.");
           return;
         }
         toast.error(error.message);
@@ -69,18 +53,6 @@ const Auth = () => {
 
   const handleSignUp = async (values: { email: string; password: string; name: string }) => {
     try {
-      // First check if user already exists
-      const { data: existingUser } = await supabase
-        .from('auth.users')
-        .select('id')
-        .eq('email', values.email)
-        .single();
-
-      if (existingUser) {
-        toast.error("An account with this email already exists. Please sign in instead.");
-        return;
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -98,8 +70,8 @@ const Auth = () => {
       }
 
       if (data?.user) {
-        toast.success("Account created! Please check your email to confirm your account.");
-        navigate("/onboarding");
+        toast.success("Account created successfully! You can now sign in.");
+        setIsLogin(true); // Switch to login view
       }
     } catch (error: any) {
       console.error("Unexpected auth error:", error);
