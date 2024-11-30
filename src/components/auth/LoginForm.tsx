@@ -4,8 +4,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,24 +28,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (error) {
-        if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please try again.");
-          return;
-        }
-        toast.error(error.message);
-        return;
-      }
-
-      toast.success("Welcome back!");
       await onSubmit(values);
-    } catch (error: any) {
-      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
