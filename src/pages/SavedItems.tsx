@@ -29,19 +29,6 @@ const SavedItems = () => {
     }
   }, [location]);
 
-  const updateMealPlan = (planId: number, day: string, meals: any) => {
-    const updatedPlans = savedMealPlans.map((plan: any) => {
-      if (plan.id === planId) {
-        return {
-          ...plan,
-          [day]: meals,
-        };
-      }
-      return plan;
-    });
-    localStorage.setItem('savedMealPlans', JSON.stringify(updatedPlans));
-  };
-
   return (
     <div className="min-h-screen pt-20 bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -131,7 +118,8 @@ const SavedItems = () => {
                                   key={day}
                                   day={day}
                                   meals={meals}
-                                  onUpdate={(day, meals) => updateMealPlan(plan.id, day, meals)}
+                                  readOnly={true}
+                                  onUpdate={() => {}}
                                 />
                               ))}
                           </div>

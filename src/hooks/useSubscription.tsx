@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { SubscriptionPlan } from '@/utils/subscriptionUtils';
+import { addDays, isAfter } from 'date-fns';
 
 export const useSubscription = () => {
   const [plan, setPlan] = useState<SubscriptionPlan>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isTrialExpired, setIsTrialExpired] = useState(false);
+  const [lastMealPlanGenerated, setLastMealPlanGenerated] = useState<Date | null>(null);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -18,6 +20,7 @@ export const useSubscription = () => {
           return;
         }
 
+        // Get subscription status
         const { data: subscription } = await supabase
           .from('subscriptions')
           .select('*')
@@ -27,6 +30,17 @@ export const useSubscription = () => {
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
+
+        // Get last meal plan generation
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('last_meal_plan_generated')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.last_meal_plan_generated) {
+          setLastMealPlanGenerated(new Date(profile.last_meal_plan_generated));
+        }
 
         if (subscription) {
           setPlan(subscription.plan_id as SubscriptionPlan);
@@ -72,5 +86,19 @@ export const useSubscription = () => {
     };
   }, []);
 
-  return { plan, isLoading, isTrialExpired };
+  const canGenerateMealPlan = () => {
+    if (plan === 'premium') return true;
+    if (!lastMealPlanGenerated) return true;
+    
+    const nextAllowedDate = addDays(lastMealPlanGenerated, 7);
+    return isAfter(new Date(), nextAllowedDate);
+  };
+
+  return { 
+    plan, 
+    isLoading, 
+    isTrialExpired,
+    canGenerateMealPlan,
+    lastMealPlanGenerated 
+  };
 };

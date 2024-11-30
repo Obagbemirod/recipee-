@@ -2,7 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSubscription } from "@/hooks/useSubscription";
+import { toast } from "sonner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -20,6 +22,17 @@ import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
 
+const ProtectedRoute = ({ children, requiresPremium = false }) => {
+  const { plan } = useSubscription();
+  
+  if (requiresPremium && plan === 'basic') {
+    toast.error("This feature requires a Premium subscription. Please upgrade to access.");
+    return <Navigate to="/home" replace />;
+  }
+  
+  return children;
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -31,8 +44,22 @@ const App = () => {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/home" element={<Home />} />
             <Route path="/upload-ingredients" element={<UploadIngredients />} />
-            <Route path="/generate-meal-plan" element={<GenerateMealPlan />} />
-            <Route path="/generate-recipes" element={<GenerateRecipes />} />
+            <Route 
+              path="/generate-meal-plan" 
+              element={
+                <ProtectedRoute requiresPremium>
+                  <GenerateMealPlan />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/generate-recipes" 
+              element={
+                <ProtectedRoute requiresPremium>
+                  <GenerateRecipes />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/saved-items" element={<SavedItems />} />

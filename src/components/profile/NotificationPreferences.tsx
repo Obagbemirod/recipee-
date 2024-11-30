@@ -11,6 +11,7 @@ export const NotificationPreferences = () => {
     lunch: false,
     dinner: false
   });
+  const [pushEnabled, setPushEnabled] = useState(false);
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -26,6 +27,11 @@ export const NotificationPreferences = () => {
       if (profile?.notification_preferences) {
         setPreferences(profile.notification_preferences);
       }
+
+      // Check if push notifications are already enabled
+      if ('Notification' in window) {
+        setPushEnabled(Notification.permission === 'granted');
+      }
     };
 
     loadPreferences();
@@ -34,6 +40,17 @@ export const NotificationPreferences = () => {
   const handlePreferenceChange = async (meal: keyof typeof preferences) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    // Request notification permission if not already granted
+    if (!pushEnabled && 'Notification' in window) {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        setPushEnabled(true);
+      } else {
+        toast.error("Please enable notifications in your browser settings to receive meal reminders");
+        return;
+      }
+    }
 
     const newPreferences = {
       ...preferences,
@@ -55,11 +72,26 @@ export const NotificationPreferences = () => {
     setPreferences(newPreferences);
     toast.success("Notification preferences updated");
 
-    // Request notification permission if enabling any notification
-    if (newPreferences[meal] && Notification.permission !== "granted") {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        toast.error("Please enable notifications in your browser settings");
+    // Register service worker for push notifications
+    if (newPreferences[meal] && 'serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY'
+        });
+
+        // Send subscription to backend
+        const { error: subscriptionError } = await supabase.functions.invoke('register-push-subscription', {
+          body: { subscription, userId: user.id }
+        });
+
+        if (subscriptionError) {
+          throw subscriptionError;
+        }
+      } catch (error) {
+        console.error('Error registering push notification:', error);
+        toast.error("Failed to enable push notifications");
       }
     }
   };
