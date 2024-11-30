@@ -33,12 +33,14 @@ export const handleTrialActivation = async (userId: string) => {
 
     if (insertError) {
       console.error('Error inserting trial subscription:', insertError);
+      toast.error("Failed to activate trial. Please try again.");
       return false;
     }
 
     return true;
   } catch (error) {
     console.error('Trial activation error:', error);
+    toast.error("Failed to activate trial. Please try again.");
     return false;
   }
 };
