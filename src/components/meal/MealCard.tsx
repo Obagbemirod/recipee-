@@ -12,9 +12,10 @@ interface MealCardProps {
   meal: MealDetails;
   title: string;
   onUpdate: (updatedMeal: MealDetails) => void;
+  readOnly?: boolean;
 }
 
-export const MealCard = ({ meal, title, onUpdate }: MealCardProps) => {
+export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(meal.name);
@@ -52,7 +53,7 @@ export const MealCard = ({ meal, title, onUpdate }: MealCardProps) => {
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        {isEditing ? (
+        {!readOnly && isEditing ? (
           <>
             <Input
               value={editedName}
@@ -87,14 +88,16 @@ export const MealCard = ({ meal, title, onUpdate }: MealCardProps) => {
         ) : (
           <>
             <h5 className="font-medium">{meal.name}</h5>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsEditing(true)}
-              className="shrink-0"
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
+            {!readOnly && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                className="shrink-0"
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            )}
           </>
         )}
       </div>
