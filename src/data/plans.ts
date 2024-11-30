@@ -1,59 +1,48 @@
 export const plans = [
   {
-    name: "24-Hour Pro Trial",
+    name: "24-Hour Trial",
+    description: "Try all Premium features free for 24 hours",
     price: 0,
-    description: "Experience all Premium features free for 24 hours",
     features: [
-      "Full access to Premium features for 24 hours",
-      "Generate unlimited meal plans",
-      "Access to all Premium recipes",
-      "Full AI recipe generation features",
-      "Try all Premium features risk-free"
+      "Full access to all Premium features",
+      "Unlimited meal plan generation",
+      "Recipe customization",
+      "Nutritional information",
+      "Shopping list generation"
     ],
     buttonText: "Start Free Trial",
-    buttonVariant: "outline" as const,
+    buttonVariant: "default",
     planId: "24_hour_trial"
   },
   {
     name: "Basic",
-    price: 9,
-    description: "Perfect for home cooks",
+    description: "Essential features for meal planning",
+    price: 4.99,
     features: [
-      "Image, video, and text inputs",
-      "Update Your Ingredient List once per week",
-      "Generate one complete meal plan per day",
-      "Get Nutritional Content of Meals",
-      "Get Step-by-Step Cooking Guide",
-      "Limited Marketplace community access",
-      "Basic Grocery List Management",
-      "Get Notified once per day",
-      "Recipe Cloning in Marketplace",
-      "Limited offline access to recent plans"
+      "Upload and scan ingredients",
+      "Generate 1 meal plan per week",
+      "Basic nutritional information",
+      "Simple shopping lists",
+      "Save up to 10 meal plans"
     ],
-    buttonText: "Start Basic Plan",
-    buttonVariant: "secondary" as const,
-    planId: "basic"
+    buttonText: "Choose Basic",
+    buttonVariant: "outline",
+    planId: "basic",
   },
   {
     name: "Premium",
-    price: 19,
-    description: "For serious home chefs and creators",
+    description: "Complete meal planning solution",
+    price: 9.99,
     features: [
-      "All Basic features plus:",
-      "Audio input support",
-      "Unlimited ingredient updates",
-      "Unlimited Weekly Meal Planning",
-      "Advanced notifications for all meals",
-      "Generate Different Meal Plans for Family Members",
-      "Expanded Grocery List Management",
-      "Full Marketplace Community Access",
-      "Unlimited Access to Recipee Masterchef",
-      "Recipe monetization",
-      "Extended offline access",
-      "Early access to new features"
+      "Unlimited meal plan generation",
+      "Advanced recipe customization",
+      "Detailed nutritional analysis",
+      "Smart shopping lists",
+      "Unlimited recipe generation",
+      "Priority support"
     ],
-    buttonVariant: "default" as const,
-    buttonText: "Go Premium",
+    buttonText: "Choose Premium",
+    buttonVariant: "default",
     featured: true,
     planId: "premium"
   }
