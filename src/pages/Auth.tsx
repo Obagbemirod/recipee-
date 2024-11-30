@@ -14,7 +14,6 @@ import { PricingCard } from "@/components/pricing/PricingCard";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const navigate = useNavigate();
   const { session, isLoading } = useSessionContext();
 
@@ -56,11 +55,6 @@ const Auth = () => {
   };
 
   const handleSignUp = async (values: { email: string; password: string; name: string }) => {
-    if (!selectedPlan) {
-      toast.error("Please select a plan to continue.");
-      return;
-    }
-
     try {
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
@@ -84,24 +78,12 @@ const Auth = () => {
       }
 
       if (data.user) {
-        if (selectedPlan.planId === "24_hour_trial") {
-          const success = await handleTrialActivation(data.user.id);
-          if (success) {
-            toast.success("Trial activated! You now have access to all premium features for 24 hours.");
-            navigate("/onboarding");
-          } else {
-            toast.error("Failed to activate trial. Please try again or contact support.");
-          }
+        const success = await handleTrialActivation(data.user.id);
+        if (success) {
+          toast.success("Trial activated! You now have access to all premium features for 24 hours.");
+          navigate("/onboarding");
         } else {
-          handlePaymentFlow(
-            data.user,
-            selectedPlan,
-            (transactionId) => {
-              toast.success(`Your ${selectedPlan.name} subscription has been activated!`);
-              navigate("/onboarding");
-            },
-            navigate
-          );
+          toast.error("Failed to activate trial. Please try again or contact support.");
         }
       }
     } catch (error: any) {
@@ -115,7 +97,7 @@ const Auth = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-6xl p-8"
+        className="w-full max-w-md p-8"
       >
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create your account"}</h2>
@@ -124,73 +106,26 @@ const Auth = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(checked)} />
+        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(checked)} />
 
-            {isLogin ? (
-              <LoginForm onSubmit={handleLogin} />
-            ) : (
-              <>
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Select a Plan</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {plans.map((plan) => (
-                      <div
-                        key={plan.planId}
-                        className={`cursor-pointer transition-all ${
-                          selectedPlan?.planId === plan.planId
-                            ? 'ring-2 ring-primary'
-                            : ''
-                        }`}
-                        onClick={() => setSelectedPlan(plan)}
-                      >
-                        <PricingCard plan={plan} onSelect={() => setSelectedPlan(plan)} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <SignUpForm onSubmit={handleSignUp} />
-              </>
-            )}
+        {isLogin ? (
+          <LoginForm onSubmit={handleLogin} />
+        ) : (
+          <SignUpForm onSubmit={handleSignUp} />
+        )}
 
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <SocialAuth isLogin={isLogin} />
+        <div className="relative my-8">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
           </div>
-
-          {!isLogin && (
-            <div className="hidden lg:block">
-              <div className="bg-muted p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">
-                  {selectedPlan ? `Selected Plan: ${selectedPlan.name}` : 'Select a Plan'}
-                </h3>
-                {selectedPlan && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">{selectedPlan.description}</p>
-                    <ul className="space-y-2">
-                      {selectedPlan.features.map((feature: string, index: number) => (
-                        <li key={index} className="text-sm flex items-center gap-2">
-                          <span className="text-primary">✓</span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
         </div>
+
+        <SocialAuth isLogin={isLogin} />
       </motion.div>
     </div>
   );

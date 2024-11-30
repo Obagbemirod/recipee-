@@ -1,12 +1,53 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { SignUpDialog } from "./pricing/SignUpDialog";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { handleTrialActivation } from "@/utils/subscriptionHandlers";
+import { useToast } from "./ui/use-toast";
 
 export const Hero = () => {
-  const scrollToPricing = () => {
-    const pricingSection = document.querySelector('#pricing-section');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
+  const [showSignUpDialog, setShowSignUpDialog] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignUpSubmit = async (values: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            full_name: values.name,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        const success = await handleTrialActivation(data.user.id);
+        if (success) {
+          toast({
+            title: "Trial Activated!",
+            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
+          });
+          navigate("/onboarding");
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to activate trial. Please try again.",
+          });
+        }
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     }
   };
 
@@ -46,13 +87,20 @@ export const Hero = () => {
               size="lg" 
               variant="default" 
               className="text-base px-6 py-2 sm:px-8 sm:py-3 bg-primary hover:bg-primary/90 w-full sm:w-auto"
-              onClick={scrollToPricing}
+              onClick={() => setShowSignUpDialog(true)}
             >
-              Start Cooking Smartly
+              Start Free Trial
             </Button>
           </motion.div>
         </motion.div>
       </div>
+
+      <SignUpDialog
+        isOpen={showSignUpDialog}
+        onOpenChange={setShowSignUpDialog}
+        selectedPlan={{ planId: "24_hour_trial", name: "24-Hour Trial" }}
+        onSubmit={handleSignUpSubmit}
+      />
     </section>
   );
 };
