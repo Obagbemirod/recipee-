@@ -34,10 +34,10 @@ const Auth = () => {
       if (error) {
         console.error("Login error:", error);
         if (error.message.includes("Invalid login credentials")) {
-          toast.error("Invalid email or password. Please try again.");
+          toast.error("The email or password you entered is incorrect. Please try again or sign up if you don't have an account.");
           return;
         }
-        toast.error(error.message);
+        toast.error("An error occurred during login. Please try again.");
         return;
       }
 
@@ -65,6 +65,11 @@ const Auth = () => {
 
       if (error) {
         console.error("Signup error:", error);
+        if (error.message.includes("already registered")) {
+          toast.error("An account with this email already exists. Please sign in instead.");
+          setIsLogin(true);
+          return;
+        }
         toast.error(error.message);
         return;
       }
