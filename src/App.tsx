@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
-import { checkFeatureAccess } from "@/utils/subscriptionUtils";
+import { checkFeatureAccess, type SubscriptionFeatures } from "@/utils/subscriptionUtils";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
