@@ -36,13 +36,13 @@ export function PricingSection() {
       // Check if user exists by email in auth
       const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
         page: 1,
-        perPage: 1,
-        query: values.email
+        perPage: 1
       });
 
       if (getUserError) throw getUserError;
 
-      if (users && users.length > 0) {
+      const existingUser = users?.find(u => u.email === values.email);
+      if (existingUser) {
         toast({
           variant: "destructive",
           title: "Account Already Exists",
