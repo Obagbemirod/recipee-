@@ -30,12 +30,23 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
-      await onSubmit(values);
-    } catch (error: any) {
-      if (error?.message?.includes("Invalid login credentials")) {
-        toast.error("Invalid email or password. Please try again.");
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        if (error.message === "Invalid login credentials") {
+          toast.error("Invalid email or password. Please try again.");
+          return;
+        }
+        toast.error(error.message);
         return;
       }
+
+      toast.success("Welcome back!");
+      await onSubmit(values);
+    } catch (error: any) {
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
