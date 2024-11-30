@@ -33,11 +33,11 @@ export function PricingSection() {
 
   const handleSignUpSubmit = async (values: any) => {
     try {
-      // Check if user exists by email in auth, not profiles
+      // Check if user exists by email in auth
       const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
-        filters: {
-          email: values.email
-        }
+        page: 1,
+        perPage: 1,
+        query: values.email
       });
 
       if (getUserError) throw getUserError;
