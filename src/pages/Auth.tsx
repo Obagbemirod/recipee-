@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { AuthSwitch } from "@/components/auth/AuthSwitch";
 import { SocialAuth } from "@/components/auth/SocialAuth";
@@ -7,28 +7,23 @@ import { motion } from "framer-motion";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { supabase } from "@/lib/supabase";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { session } = useSessionContext();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate('/home');
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    if (session) {
+      navigate('/home');
+    }
+  }, [session, navigate]);
 
   const onSubmit = async (values: any) => {
     try {
       if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: values.email,
           password: values.password,
         });
@@ -43,13 +38,9 @@ const Auth = () => {
           throw error;
         }
 
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
-        navigate("/home");
+        toast.success("Welcome back!");
       } else {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
           options: {
@@ -66,18 +57,11 @@ const Auth = () => {
           throw error;
         }
 
-        toast({
-          title: "Account created successfully!",
-          description: "Please check your email to confirm your account.",
-        });
+        toast.success("Account created! Please check your email to confirm your account.");
         navigate("/onboarding");
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: error.message || "An unexpected error occurred. Please try again.",
-      });
+      toast.error(error.message || "An unexpected error occurred. Please try again.");
     }
   };
 
