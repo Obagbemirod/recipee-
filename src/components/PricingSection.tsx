@@ -6,6 +6,7 @@ import { plans } from "@/data/plans";
 import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 import { PricingCard } from "./pricing/PricingCard";
 import { SignUpDialog } from "./pricing/SignUpDialog";
+import { Button } from "./ui/button";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -32,6 +33,46 @@ export function PricingSection() {
 
   const handleSignUpSubmit = async (values: any) => {
     try {
+      const { data: existingUser } = await supabase
+        .from('auth.users')
+        .select()
+        .eq('email', values.email)
+        .single();
+
+      if (existingUser) {
+        toast({
+          variant: "destructive",
+          title: "Account Already Exists",
+          description: (
+            <div>
+              <p>An account with this email already exists.</p>
+              <Button
+                variant="link"
+                className="p-0 text-white underline"
+                onClick={() => {
+                  setShowSignUpDialog(false);
+                  navigate('/auth');
+                }}
+              >
+                Click here to login instead
+              </Button>
+              {" or "}
+              <Button
+                variant="link"
+                className="p-0 text-white underline"
+                onClick={() => {
+                  setShowSignUpDialog(false);
+                  navigate('/forgot-password');
+                }}
+              >
+                click here to reset your password
+              </Button>
+            </div>
+          ),
+        });
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -42,17 +83,7 @@ export function PricingSection() {
         },
       });
 
-      if (error) {
-        if (error.message.includes('rate limit') || error.status === 429) {
-          toast({
-            variant: "destructive",
-            title: "Too Many Attempts",
-            description: "Please wait a few minutes before trying to sign up again.",
-          });
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       setShowSignUpDialog(false);
 
@@ -89,7 +120,7 @@ export function PricingSection() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred. Please try again.",
       });
     }
   };
@@ -142,6 +173,15 @@ export function PricingSection() {
           <p className="mx-auto max-w-[700px] text-muted-foreground mt-4">
             Start with our 24-hour Pro trial to experience all Premium features before choosing your plan.
           </p>
+          {!user && (
+            <Button
+              variant="link"
+              className="mt-4 text-primary hover:text-primary/80"
+              onClick={() => navigate('/auth')}
+            >
+              Already signed up? Login here
+            </Button>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
