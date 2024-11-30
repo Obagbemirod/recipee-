@@ -12,13 +12,29 @@ import { useSessionContext } from '@supabase/auth-helpers-react';
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
-  const { session } = useSessionContext();
+  const { session, isLoading } = useSessionContext();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/home');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   useEffect(() => {
     if (session) {
       navigate('/home');
     }
   }, [session, navigate]);
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
 
   const onSubmit = async (values: any) => {
     try {
@@ -79,7 +95,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(!checked)} />
+        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(checked)} />
 
         {isLogin ? (
           <LoginForm onSubmit={onSubmit} />
