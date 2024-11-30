@@ -42,7 +42,17 @@ export function PricingSection() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('rate limit') || error.status === 429) {
+          toast({
+            variant: "destructive",
+            title: "Too Many Attempts",
+            description: "Please wait a few minutes before trying to sign up again.",
+          });
+          return;
+        }
+        throw error;
+      }
 
       setShowSignUpDialog(false);
 
