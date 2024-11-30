@@ -3,8 +3,12 @@ import { Toaster } from "sonner";
 import { SessionContextProvider, Session } from '@supabase/auth-helpers-react';
 import { useState, useEffect } from 'react';
 import { supabase } from "@/lib/supabase";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import "./App.css";
 import { AppRoutes } from "./AppRoutes";
+
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   const [initialSession, setInitialSession] = useState<Session | null>(null);
@@ -30,15 +34,17 @@ function App() {
   }
 
   return (
-    <SessionContextProvider 
-      supabaseClient={supabase}
-      initialSession={initialSession}
-    >
-      <BrowserRouter>
-        <Toaster position="top-center" richColors />
-        <AppRoutes />
-      </BrowserRouter>
-    </SessionContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <SessionContextProvider 
+        supabaseClient={supabase}
+        initialSession={initialSession}
+      >
+        <BrowserRouter>
+          <Toaster position="top-center" richColors />
+          <AppRoutes />
+        </BrowserRouter>
+      </SessionContextProvider>
+    </QueryClientProvider>
   );
 }
 
