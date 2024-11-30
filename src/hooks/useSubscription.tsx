@@ -52,7 +52,6 @@ export const useSubscription = () => {
             .eq('user_id', user.id)
             .eq('plan_id', '24_hour_trial');
 
-          // If we found any trial subscriptions, the trial is considered expired
           setIsTrialExpired(trialSubscriptions && trialSubscriptions.length > 0);
         }
       } catch (error) {
