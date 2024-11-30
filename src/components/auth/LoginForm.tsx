@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,30 +15,20 @@ const loginSchema = z.object({
 });
 
 type LoginFormProps = {
-  onSubmit: (values: z.infer<typeof loginSchema>) => Promise<void>;
+  onSubmit: (values: z.infer<typeof loginSchema>) => void;
 };
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
-    try {
-      setIsLoading(true);
-      await onSubmit(values);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -64,8 +56,8 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           )}
         />
         <div className="flex flex-col space-y-2">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign in"}
+          <Button type="submit" className="w-full">
+            Sign in
           </Button>
           <Button
             type="button"

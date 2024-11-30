@@ -12,7 +12,7 @@ interface SignUpDialogProps {
 
 export function SignUpDialog({ isOpen, onOpenChange, selectedPlan, onSubmit }: SignUpDialogProps) {
   const navigate = useNavigate();
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">

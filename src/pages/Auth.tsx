@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { AuthSwitch } from "@/components/auth/AuthSwitch";
 import { SocialAuth } from "@/components/auth/SocialAuth";
@@ -7,88 +7,75 @@ import { motion } from "framer-motion";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { supabase } from "@/lib/supabase";
-import { useSessionContext } from '@supabase/auth-helpers-react';
-import { plans } from "@/data/plans";
-import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
-import { PricingCard } from "@/components/pricing/PricingCard";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const { session, isLoading } = useSessionContext();
 
   useEffect(() => {
-    if (session) {
-      navigate('/home');
-    }
-  }, [session, navigate]);
-
-  if (isLoading) {
-    return null;
-  }
-
-  const handleLogin = async (values: { email: string; password: string }) => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (error) {
-        console.error("Login error:", error);
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("The email or password you entered is incorrect. Please try again or sign up if you don't have an account.");
-          return;
-        }
-        toast.error("An error occurred during login. Please try again.");
-        return;
-      }
-
-      if (data?.user) {
-        toast.success("Welcome back!");
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         navigate('/home');
       }
-    } catch (error: any) {
-      console.error("Unexpected auth error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-    }
-  };
+    };
+    checkUser();
+  }, [navigate]);
 
-  const handleSignUp = async (values: { email: string; password: string; name: string }) => {
+  const onSubmit = async (values: any) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            full_name: values.name,
+      if (isLogin) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+
+        if (error) {
+          if (error.message.includes("Email not confirmed")) {
+            throw new Error("Please check your email and confirm your account before signing in.");
+          }
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("The email or password you entered is incorrect. Please try again.");
+          }
+          throw error;
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+        navigate("/home");
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+          options: {
+            data: {
+              full_name: values.name,
+            },
           },
-        },
-      });
+        });
 
-      if (error) {
-        console.error("Signup error:", error);
-        if (error.message.includes("already registered")) {
-          toast.error("An account with this email already exists. Please sign in instead.");
-          setIsLogin(true);
-          return;
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            throw new Error("An account with this email already exists. Please sign in instead.");
+          }
+          throw error;
         }
-        toast.error(error.message);
-        return;
-      }
 
-      if (data.user) {
-        const success = await handleTrialActivation(data.user.id);
-        if (success) {
-          toast.success("Trial activated! You now have access to all premium features for 24 hours.");
-          navigate("/onboarding");
-        } else {
-          toast.error("Failed to activate trial. Please try again or contact support.");
-        }
+        toast({
+          title: "Account created successfully!",
+          description: "Please check your email to confirm your account.",
+        });
+        navigate("/onboarding");
       }
     } catch (error: any) {
-      console.error("Unexpected auth error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: error.message || "An unexpected error occurred. Please try again.",
+      });
     }
   };
 
@@ -97,24 +84,24 @@ const Auth = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md p-8"
+        className="w-full max-w-md space-y-8 p-8"
       >
-        <div className="text-center mb-8">
+        <div className="text-center">
           <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create your account"}</h2>
           <p className="text-muted-foreground mt-2">
             {isLogin ? "Sign in to your account" : "Start your journey today"}
           </p>
         </div>
 
-        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(checked)} />
+        <AuthSwitch isLogin={isLogin} onToggle={(checked) => setIsLogin(!checked)} />
 
         {isLogin ? (
-          <LoginForm onSubmit={handleLogin} />
+          <LoginForm onSubmit={onSubmit} />
         ) : (
-          <SignUpForm onSubmit={handleSignUp} />
+          <SignUpForm onSubmit={onSubmit} />
         )}
 
-        <div className="relative my-8">
+        <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>

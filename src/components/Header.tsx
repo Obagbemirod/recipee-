@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LogIn, X, Menu } from "lucide-react";
+import { LogIn, UserPlus, X, Menu } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -37,19 +37,14 @@ export const Header = () => {
 
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center space-x-4">
-                <Link to="/about">
+                <Link to="/auth">
                   <Button variant="ghost" className="rounded-lg">
-                    About Us
-                  </Button>
-                </Link>
-                <Link to="/affiliate-program">
-                  <Button variant="ghost" className="rounded-lg">
-                    Become an Affiliate
+                    <LogIn className="mr-2 h-4 w-4" /> Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
                   <Button variant="default" className="rounded-lg">
-                    <LogIn className="mr-2 h-4 w-4" /> Sign In
+                    <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                   </Button>
                 </Link>
               </div>
@@ -77,19 +72,14 @@ export const Header = () => {
             <div className="bg-white/95 backdrop-blur-md shadow-lg p-4">
               <nav className="flex flex-col space-y-4">
                 <div className="flex flex-col gap-2 px-4 py-2">
-                  <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full rounded-lg">
-                      About Us
-                    </Button>
-                  </Link>
-                  <Link to="/affiliate-program" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full rounded-lg">
-                      Become an Affiliate
+                      <LogIn className="mr-2 h-4 w-4" /> Sign In
                     </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="default" className="w-full rounded-lg">
-                      <LogIn className="mr-2 h-4 w-4" /> Sign In
+                      <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                     </Button>
                   </Link>
                 </div>
