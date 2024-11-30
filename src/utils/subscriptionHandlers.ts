@@ -21,10 +21,17 @@ export const handleTrialActivation = async (userId: string) => {
       return false;
     }
 
+    // Get the current authenticated user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Please log in to activate trial");
+      return false;
+    }
+
     const { error: insertError } = await supabase
       .from('subscriptions')
       .insert({
-        user_id: userId,
+        user_id: session.user.id, // Use the authenticated user's ID
         plan_id: '24_hour_trial',
         start_date: new Date().toISOString(),
         end_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -52,16 +59,23 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
+    // Verify user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Please log in to continue");
+      return;
+    }
+
     const flutterwaveConfig = {
       public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-      tx_ref: `${user.id}-${Date.now()}`,
+      tx_ref: `${session.user.id}-${Date.now()}`,
       amount: Number(plan.price),
       currency: "USD",
       payment_options: "card,mobilemoney,ussd",
       customer: {
-        email: user.email,
+        email: session.user.email,
         phone_number: user.phone || "",
-        name: user.user_metadata?.full_name || user.email,
+        name: session.user.user_metadata?.full_name || session.user.email,
       },
       customizations: {
         title: "Recipee Subscription",
@@ -74,7 +88,7 @@ export const handlePaymentFlow = async (
             const { error } = await supabase
               .from('subscriptions')
               .insert({
-                user_id: user.id,
+                user_id: session.user.id, // Use the authenticated user's ID
                 plan_id: plan.planId,
                 start_date: new Date().toISOString(),
                 end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
