@@ -7,7 +7,6 @@ import { SignUpDialog } from "./pricing/SignUpDialog";
 import { PricingHeader } from "./pricing/PricingHeader";
 import { PricingGrid } from "./pricing/PricingGrid";
 import { Button } from "./ui/button";
-import { User } from "@supabase/supabase-js";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -34,38 +33,6 @@ export function PricingSection() {
 
   const handleSignUpSubmit = async (values: any) => {
     try {
-      // Check if user exists by email in auth
-      const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
-        page: 1,
-        perPage: 1
-      });
-
-      if (getUserError) throw getUserError;
-
-      const existingUser = users?.find((u: User) => u.email === values.email);
-      if (existingUser) {
-        toast({
-          variant: "destructive",
-          title: "Account Already Exists",
-          description: (
-            <div>
-              <p>An account with this email already exists.</p>
-              <Button
-                variant="link"
-                className="p-0 text-white underline"
-                onClick={() => {
-                  setShowSignUpDialog(false);
-                  navigate('/auth');
-                }}
-              >
-                Click here to login instead
-              </Button>
-            </div>
-          ),
-        });
-        return;
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -128,7 +95,7 @@ export function PricingSection() {
             .eq('user_id', user.id)
             .eq('plan_id', '24_hour_trial');
 
-          if (error && error.code !== 'PGRST116') throw error;
+          if (error) throw error;
 
           if (existingTrial && existingTrial.length > 0) {
             toast({
