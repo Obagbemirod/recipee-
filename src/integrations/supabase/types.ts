@@ -45,6 +45,27 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plan_generations: {
+        Row: {
+          generated_at: string | null
+          id: string
+          plan_id: string
+          user_id: string
+        }
+        Insert: {
+          generated_at?: string | null
+          id?: string
+          plan_id: string
+          user_id: string
+        }
+        Update: {
+          generated_at?: string | null
+          id?: string
+          plan_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           allergies: string[] | null
@@ -54,6 +75,8 @@ export type Database = {
           dietary_preference: string | null
           full_name: string | null
           id: string
+          last_meal_plan_generated: string | null
+          notification_preferences: Json | null
           updated_at: string | null
         }
         Insert: {
@@ -64,6 +87,8 @@ export type Database = {
           dietary_preference?: string | null
           full_name?: string | null
           id: string
+          last_meal_plan_generated?: string | null
+          notification_preferences?: Json | null
           updated_at?: string | null
         }
         Update: {
@@ -74,6 +99,8 @@ export type Database = {
           dietary_preference?: string | null
           full_name?: string | null
           id?: string
+          last_meal_plan_generated?: string | null
+          notification_preferences?: Json | null
           updated_at?: string | null
         }
         Relationships: []

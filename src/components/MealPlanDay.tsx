@@ -11,22 +11,23 @@ interface MealPlanDayProps {
   day: string;
   meals: Meal;
   onUpdate: (day: string, meals: Meal) => void;
+  readOnly?: boolean;
 }
 
-export const MealPlanDay = ({ day, meals, onUpdate }: MealPlanDayProps) => {
+export const MealPlanDay = ({ day, meals, onUpdate, readOnly = false }: MealPlanDayProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const shuffleMeals = () => {
+    if (readOnly) return;
+    
     const mealTypes = Object.keys(meals);
     const mealValues = Object.values(meals);
     
-    // Fisher-Yates shuffle algorithm
     for (let i = mealValues.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [mealValues[i], mealValues[j]] = [mealValues[j], mealValues[i]];
     }
     
-    // Create new meals object with shuffled values
     const shuffledMeals = mealTypes.reduce((acc, type, index) => {
       acc[type] = mealValues[index];
       return acc;
@@ -59,25 +60,30 @@ export const MealPlanDay = ({ day, meals, onUpdate }: MealPlanDayProps) => {
                   key={mealType}
                   meal={meal}
                   title={mealType}
+                  readOnly={readOnly}
                   onUpdate={(updatedMeal) => {
-                    const updatedMeals = { ...meals, [mealType]: updatedMeal };
-                    onUpdate(day, updatedMeals);
+                    if (!readOnly) {
+                      const updatedMeals = { ...meals, [mealType]: updatedMeal };
+                      onUpdate(day, updatedMeals);
+                    }
                   }}
                 />
               ))}
             </div>
 
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shuffleMeals}
-                className="flex items-center gap-2"
-              >
-                <ArrowUpDown className="h-4 w-4" />
-                <span className="hidden sm:inline">Shuffle Meals</span>
-              </Button>
-            </div>
+            {!readOnly && (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={shuffleMeals}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  <span className="hidden sm:inline">Shuffle Meals</span>
+                </Button>
+              </div>
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
