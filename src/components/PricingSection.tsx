@@ -7,6 +7,7 @@ import { SignUpDialog } from "./pricing/SignUpDialog";
 import { PricingHeader } from "./pricing/PricingHeader";
 import { PricingGrid } from "./pricing/PricingGrid";
 import { Button } from "./ui/button";
+import { User } from "@supabase/supabase-js";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -41,7 +42,7 @@ export function PricingSection() {
 
       if (getUserError) throw getUserError;
 
-      const existingUser = users?.find(u => u.email === values.email);
+      const existingUser = users?.find((u: User) => u.email === values.email);
       if (existingUser) {
         toast({
           variant: "destructive",
