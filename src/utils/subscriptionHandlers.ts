@@ -1,6 +1,21 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
+declare const PaystackPop: {
+  setup: (config: {
+    key: string;
+    email: string;
+    amount: number;
+    currency: string;
+    ref: string;
+    metadata: any;
+    callback: (response: any) => void;
+    onClose: () => void;
+  }) => {
+    openIframe: () => void;
+  };
+};
+
 export const handleTrialActivation = async (userId: string) => {
   try {
     const { data: existingTrials, error: checkError } = await supabase
@@ -46,7 +61,7 @@ export const handlePaymentFlow = async (
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
       amount: plan.price * 100, // Paystack expects amount in kobo/cents
-      currency: 'NGN', // Can be NGN, USD, GHS, ZAR or KES
+      currency: 'NGN',
       ref: `${user.id}-${Date.now()}`,
       metadata: {
         user_id: user.id,
@@ -86,6 +101,7 @@ export const handlePaymentFlow = async (
       },
       onClose: function() {
         // Handle modal close
+        console.log('Payment modal closed');
       }
     });
     
