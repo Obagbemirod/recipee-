@@ -42,7 +42,18 @@ export function PricingSection() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle rate limit error specifically
+        if (error.message.includes("rate limit exceeded")) {
+          toast({
+            variant: "destructive",
+            title: "Too many attempts",
+            description: "Please wait a few minutes before trying to sign up again.",
+          });
+          return;
+        }
+        throw error;
+      }
 
       if (data.user) {
         setShowSignUpDialog(false);
