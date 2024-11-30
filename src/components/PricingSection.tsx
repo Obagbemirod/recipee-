@@ -48,8 +48,9 @@ export function PricingSection() {
       if (selectedPlan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(data.user!.id);
         if (success) {
-          toast("Trial activated successfully!", {
-            description: "Welcome to Recipee! Let's set up your preferences.",
+          toast({
+            title: "Trial activated successfully!",
+            description: "Welcome to Recipee! Let's set up your preferences."
           });
           navigate("/onboarding");
         }
@@ -58,8 +59,9 @@ export function PricingSection() {
           data.user,
           selectedPlan,
           (transactionId: string) => {
-            toast("Payment successful!", {
-              description: "Welcome to Recipee! Let's set up your preferences.",
+            toast({
+              title: "Payment successful!",
+              description: "Welcome to Recipee! Let's set up your preferences."
             });
             navigate("/onboarding");
           },
@@ -67,8 +69,10 @@ export function PricingSection() {
         );
       }
     } catch (error: any) {
-      toast("Error creating account", {
+      toast({
+        title: "Error creating account",
         description: error.message,
+        variant: "destructive"
       });
     }
   };
