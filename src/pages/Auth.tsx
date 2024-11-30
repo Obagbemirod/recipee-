@@ -38,28 +38,36 @@ const Auth = () => {
 
   const handleLogin = async (values: { email: string; password: string }) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
       if (error) {
+        console.error("Login error:", error);
         if (error.message.includes("Invalid login credentials")) {
           toast.error("Invalid email or password. Please try again.");
+          return;
+        }
+        if (error.message.includes("Email not confirmed")) {
+          toast.error("Please verify your email before signing in.");
           return;
         }
         toast.error(error.message);
         return;
       }
 
-      toast.success("Welcome back!");
+      if (data?.user) {
+        toast.success("Welcome back!");
+        navigate('/home');
+      }
     } catch (error: any) {
+      console.error("Unexpected auth error:", error);
       toast.error("An unexpected error occurred. Please try again.");
-      console.error("Auth error:", error);
     }
   };
 
-  const handleSignUp = async (values: any) => {
+  const handleSignUp = async (values: { email: string; password: string; name: string }) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
@@ -72,6 +80,7 @@ const Auth = () => {
       });
 
       if (error) {
+        console.error("Signup error:", error);
         if (error.message.includes("User already registered")) {
           toast.error("An account with this email already exists. Please sign in instead.");
           return;
@@ -80,13 +89,13 @@ const Auth = () => {
         return;
       }
 
-      if (data.user) {
+      if (data?.user) {
         toast.success("Account created! Please check your email to confirm your account.");
         navigate("/onboarding");
       }
     } catch (error: any) {
+      console.error("Unexpected auth error:", error);
       toast.error("An unexpected error occurred. Please try again.");
-      console.error("Auth error:", error);
     }
   };
 
