@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface PricingCardProps {
   plan: {
     name: string;
     description: string;
     price: number;
+    originalPrice?: number;
+    discount?: number;
     features: string[];
     buttonText: string;
     buttonVariant: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
@@ -40,8 +43,26 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <span className="text-4xl font-bold">${plan.price}</span>
-            <span className="text-muted-foreground">/month</span>
+            {plan.discount ? (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-4xl font-bold">${plan.price.toFixed(2)}</span>
+                  <span className="text-muted-foreground">/month</span>
+                  <Badge variant="destructive" className="ml-2">
+                    {plan.discount}% OFF
+                  </Badge>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <span className="line-through">${plan.originalPrice}</span>
+                  <span className="ml-1">Original price</span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <span className="text-4xl font-bold">${plan.price}</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+            )}
           </div>
           <ul className="space-y-3">
             {plan.features.map((feature) => (

@@ -17,7 +17,9 @@ export const plans = [
   {
     name: "Basic",
     description: "Perfect for home cooks",
-    price: 9,
+    originalPrice: 9,
+    price: 0.09, // 99% discount
+    discount: 99,
     features: [
       "Image, video, and text inputs",
       "Update Your ingredient List once per week",
@@ -34,7 +36,9 @@ export const plans = [
   {
     name: "Premium",
     description: "For serious home chefs and creators",
-    price: 19,
+    originalPrice: 19,
+    price: 11.40, // 40% discount
+    discount: 40,
     features: [
       "All Basic features plus:",
       "Audio input support",
