@@ -83,6 +83,10 @@ export function PricingSection() {
       if (plan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(user.id);
         if (success) {
+          toast({
+            title: "Trial activated successfully!",
+            description: "Welcome to Recipee! Let's set up your preferences."
+          });
           navigate("/onboarding");
         }
       } else {
@@ -90,6 +94,10 @@ export function PricingSection() {
           user,
           plan,
           (transactionId: string) => {
+            toast({
+              title: "Payment successful!",
+              description: "Welcome to Recipee! Let's set up your preferences."
+            });
             navigate("/onboarding");
           },
           navigate
