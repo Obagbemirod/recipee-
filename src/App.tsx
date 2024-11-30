@@ -15,6 +15,12 @@ function App() {
       setInitialSession(session);
       setIsLoading(false);
     });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setInitialSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (isLoading) {
