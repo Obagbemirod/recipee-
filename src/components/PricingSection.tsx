@@ -6,9 +6,10 @@ import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHa
 import { SignUpDialog } from "./pricing/SignUpDialog";
 import { PricingHeader } from "./pricing/PricingHeader";
 import { PricingGrid } from "./pricing/PricingGrid";
+import { toast } from "sonner";
 
 export function PricingSection() {
-  const { toast } = useToast();
+  const { toast: toastUI } = useToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [showSignUpDialog, setShowSignUpDialog] = useState(false);
@@ -49,42 +50,33 @@ export function PricingSection() {
       if (selectedPlan.planId === "24_hour_trial") {
         const success = await handleTrialActivation(data.user!.id);
         if (success) {
-          toast({
-            title: "Trial Activated!",
-            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
-          });
+          toast.success("Trial Activated! Your 24-hour trial has been activated. Enjoy all premium features!");
           navigate("/onboarding");
         } else {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to activate trial. Please try again.",
-          });
+          toast.error("Failed to activate trial. Please try again.");
         }
       } else {
         handlePaymentFlow(
           data.user,
           selectedPlan,
           (transactionId) => {
-            toast({
-              title: "Payment Successful!",
-              description: `Your ${selectedPlan.name} subscription has been activated.`,
-            });
+            toast.success(`Your ${selectedPlan.name} subscription has been activated.`);
             navigate("/onboarding");
           },
           navigate
         );
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "An unexpected error occurred. Please try again.",
-      });
+      toast.error(error.message || "An unexpected error occurred. Please try again.");
     }
   };
 
   const handlePlanSelection = async (plan: any) => {
+    if (!window.PaystackPop) {
+      toast.error("Payment system is not initialized. Please refresh the page and try again.");
+      return;
+    }
+
     if (user) {
       if (plan.planId === "24_hour_trial") {
         try {
@@ -96,44 +88,26 @@ export function PricingSection() {
             .single();
 
           if (existingTrial) {
-            toast({
-              variant: "destructive",
-              title: "Trial Already Used",
-              description: "You have already used your trial period.",
-            });
+            toast.error("You have already used your trial period.");
             return;
           }
 
           const success = await handleTrialActivation(user.id);
           if (success) {
-            toast({
-              title: "Trial Activated!",
-              description: "Your 24-hour trial has been activated. Enjoy all premium features!",
-            });
+            toast.success("Trial Activated! Your 24-hour trial has been activated. Enjoy all premium features!");
             navigate("/onboarding");
           } else {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to activate trial. Please try again.",
-            });
+            toast.error("Failed to activate trial. Please try again.");
           }
         } catch (error: any) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message || "Failed to check trial eligibility. Please try again.",
-          });
+          toast.error(error.message || "Failed to check trial eligibility. Please try again.");
         }
       } else {
         handlePaymentFlow(
           user,
           plan,
           (transactionId) => {
-            toast({
-              title: "Payment Successful!",
-              description: `Your ${plan.name} subscription has been activated.`,
-            });
+            toast.success(`Your ${plan.name} subscription has been activated.`);
             navigate("/onboarding");
           },
           navigate
