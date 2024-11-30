@@ -42,24 +42,25 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    const flutterwaveConfig = {
-      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-      tx_ref: `${user.id}-${Date.now()}`,
-      amount: Number(plan.price),
-      currency: "USD",
-      payment_options: "card,mobilemoney,ussd",
-      customer: {
-        email: user.email,
-        phone_number: user.phone || "",
-        name: user.user_metadata?.full_name || user.email,
-      },
-      customizations: {
-        title: "Recipee Subscription",
-        description: `${plan.name} Plan Subscription`,
-        logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
+    const handler = PaystackPop.setup({
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      email: user.email,
+      amount: plan.price * 100, // Paystack expects amount in kobo/cents
+      currency: 'NGN', // Can be NGN, USD, GHS, ZAR or KES
+      ref: `${user.id}-${Date.now()}`,
+      metadata: {
+        user_id: user.id,
+        plan_id: plan.planId,
+        custom_fields: [
+          {
+            display_name: "Plan Name",
+            variable_name: "plan_name",
+            value: plan.name
+          }
+        ]
       },
       callback: async function(response: any) {
-        if (response.status === "successful") {
+        if (response.status === 'success') {
           try {
             const { error } = await supabase
               .from('subscriptions')
@@ -69,12 +70,12 @@ export const handlePaymentFlow = async (
                 start_date: new Date().toISOString(),
                 end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                 status: 'active',
-                payment_reference: response.transaction_id
+                payment_reference: response.reference
               });
 
             if (error) throw error;
             
-            onSuccess(response.transaction_id);
+            onSuccess(response.reference);
           } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
@@ -83,13 +84,12 @@ export const handlePaymentFlow = async (
           toast.error("Payment failed. Please try again or contact support.");
         }
       },
-      onclose: function() {
+      onClose: function() {
         // Handle modal close
-      },
-    };
-
-    // @ts-ignore
-    window.FlutterwaveCheckout(flutterwaveConfig);
+      }
+    });
+    
+    handler.openIframe();
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast.error("Unable to initialize payment. Please try again.");
