@@ -33,9 +33,8 @@ export const useSubscription = () => {
           return;
         }
 
-        const currentSubscription = activeSubscriptions?.[0];
-
-        if (currentSubscription) {
+        if (activeSubscriptions && activeSubscriptions.length > 0) {
+          const currentSubscription = activeSubscriptions[0];
           setPlan(currentSubscription.plan_id as SubscriptionPlan);
           setIsTrialExpired(
             currentSubscription.plan_id === '24_hour_trial' && 
