@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "./ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { Check } from "lucide-react";
 import { plans } from "@/data/plans";
 import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
-import { Dialog, DialogContent } from "./ui/dialog";
-import { SignUpForm } from "./auth/SignUpForm";
+import { PricingCard } from "./pricing/PricingCard";
+import { SignUpDialog } from "./pricing/SignUpDialog";
 
 export function PricingSection() {
   const { toast } = useToast();
@@ -24,7 +21,6 @@ export function PricingSection() {
     };
     checkUser();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -48,7 +44,6 @@ export function PricingSection() {
 
       if (error) throw error;
 
-      // Close the dialog
       setShowSignUpDialog(false);
 
       if (selectedPlan.planId === "24_hour_trial") {
@@ -59,9 +54,14 @@ export function PricingSection() {
             description: "Your 24-hour trial has been activated. Enjoy all premium features!",
           });
           navigate("/onboarding");
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to activate trial. Please try again.",
+          });
         }
       } else {
-        // For paid plans, proceed to payment
         handlePaymentFlow(
           data.user,
           selectedPlan,
@@ -94,11 +94,16 @@ export function PricingSection() {
             description: "Your 24-hour trial has been activated. Enjoy all premium features!",
           });
           navigate("/onboarding");
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to activate trial. Please try again.",
+          });
         }
         return;
       }
 
-      // For paid plans with logged-in user
       handlePaymentFlow(
         user,
         plan,
@@ -112,7 +117,6 @@ export function PricingSection() {
         navigate
       );
     } else {
-      // Show signup dialog for both trial and paid plans
       setSelectedPlan(plan);
       setShowSignUpDialog(true);
     }
@@ -132,70 +136,21 @@ export function PricingSection() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan) => (
-            <Card 
+            <PricingCard 
               key={plan.name}
-              className={`relative flex flex-col justify-between animate-fade-up ${
-                plan.featured ? 
-                'border-primary shadow-lg scale-105 z-10' : 
-                'border-border'
-              }`}
-            >
-              {plan.featured && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-              
-              <div>
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-muted-foreground">/month</span>
-                  </div>
-                  <ul className="space-y-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-primary" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </div>
-              
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  variant={plan.buttonVariant}
-                  onClick={() => handlePlanSelection(plan)}
-                >
-                  {plan.buttonText}
-                </Button>
-              </CardFooter>
-            </Card>
+              plan={plan}
+              onSelect={handlePlanSelection}
+            />
           ))}
         </div>
       </div>
 
-      <Dialog open={showSignUpDialog} onOpenChange={setShowSignUpDialog}>
-        <DialogContent className="sm:max-w-md">
-          <div className="text-center mb-4">
-            <h3 className="text-lg font-semibold">Create your account</h3>
-            <p className="text-sm text-muted-foreground">
-              {selectedPlan?.planId === "24_hour_trial" 
-                ? "Sign up to start your free trial" 
-                : `Sign up to continue with your ${selectedPlan?.name} subscription`}
-            </p>
-          </div>
-          <SignUpForm onSubmit={handleSignUpSubmit} />
-        </DialogContent>
-      </Dialog>
+      <SignUpDialog
+        isOpen={showSignUpDialog}
+        onOpenChange={setShowSignUpDialog}
+        selectedPlan={selectedPlan}
+        onSubmit={handleSignUpSubmit}
+      />
     </section>
   );
 }

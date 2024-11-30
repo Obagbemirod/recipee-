@@ -1,30 +1,27 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
-const handleDatabaseError = (error: any) => {
-  if (error.code === '42P01') {
-    toast.error("Database setup required. Please try again in a few minutes.");
-    return true;
-  }
-  return false;
-};
-
 export const handleTrialActivation = async (userId: string) => {
   try {
     // Check if user already has an active trial
-    const { data: existingTrial } = await supabase
+    const { data: existingTrial, error: checkError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('plan_id', '24_hour_trial')
       .single();
 
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Error checking existing trial:', checkError);
+      return false;
+    }
+
     if (existingTrial) {
       toast.error("You have already used your trial period");
       return false;
     }
 
-    const { error } = await supabase
+    const { error: insertError } = await supabase
       .from('subscriptions')
       .insert({
         user_id: userId,
@@ -34,14 +31,14 @@ export const handleTrialActivation = async (userId: string) => {
         status: 'active'
       });
 
-    if (error) {
-      if (handleDatabaseError(error)) return false;
-      throw error;
+    if (insertError) {
+      console.error('Error inserting trial subscription:', insertError);
+      return false;
     }
+
     return true;
   } catch (error) {
     console.error('Trial activation error:', error);
-    toast.error("Failed to activate trial. Please try again later.");
     return false;
   }
 };
