@@ -38,7 +38,7 @@ export function PricingSection() {
         password: values.password,
         options: {
           data: {
-            full_name: values.fullName,
+            full_name: values.name,
           },
         },
       });
