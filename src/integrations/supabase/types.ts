@@ -11,21 +11,27 @@ export type Database = {
     Tables: {
       email_notifications: {
         Row: {
+          email_type: string
           id: string
+          metadata: Json | null
           notification_type: string
           sent_at: string | null
           status: string | null
           user_id: string
         }
         Insert: {
+          email_type?: string
           id?: string
+          metadata?: Json | null
           notification_type: string
           sent_at?: string | null
           status?: string | null
           user_id: string
         }
         Update: {
+          email_type?: string
           id?: string
+          metadata?: Json | null
           notification_type?: string
           sent_at?: string | null
           status?: string | null
