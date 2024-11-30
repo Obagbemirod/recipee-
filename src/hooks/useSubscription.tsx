@@ -19,32 +19,40 @@ export const useSubscription = () => {
         }
 
         // Get active subscriptions
-        const { data: subscriptions } = await supabase
+        const { data: activeSubscriptions, error: activeError } = await supabase
           .from('subscriptions')
-          .select('*')
+          .select()
           .eq('user_id', user.id)
           .eq('status', 'active')
-          .gt('end_date', new Date().toISOString())
-          .order('created_at', { ascending: false });
+          .gt('end_date', new Date().toISOString());
 
-        const activeSubscription = subscriptions?.[0];
+        if (activeError) {
+          console.error('Error fetching active subscriptions:', activeError);
+          setPlan(null);
+          setIsLoading(false);
+          return;
+        }
 
-        if (activeSubscription) {
-          setPlan(activeSubscription.plan_id as SubscriptionPlan);
+        const currentSubscription = activeSubscriptions?.[0];
+
+        if (currentSubscription) {
+          setPlan(currentSubscription.plan_id as SubscriptionPlan);
           setIsTrialExpired(
-            activeSubscription.plan_id === '24_hour_trial' && 
-            new Date(activeSubscription.end_date) <= new Date()
+            currentSubscription.plan_id === '24_hour_trial' && 
+            new Date(currentSubscription.end_date) <= new Date()
           );
         } else {
           setPlan(null);
           // Check if trial has expired
-          const { data: trialSubs } = await supabase
+          const { data: trialSubscriptions, error: trialError } = await supabase
             .from('subscriptions')
-            .select('*')
+            .select()
             .eq('user_id', user.id)
             .eq('plan_id', '24_hour_trial');
 
-          setIsTrialExpired(trialSubs && trialSubs.length > 0);
+          if (!trialError && trialSubscriptions) {
+            setIsTrialExpired(trialSubscriptions.length > 0);
+          }
         }
       } catch (error) {
         console.error('Error checking subscription:', error);
