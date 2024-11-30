@@ -31,12 +31,12 @@ export const useSubscription = () => {
           .limit(1)
           .single();
 
-        // Get last meal plan generation
+        // Get last meal plan generation - using maybeSingle() to handle no profile case
         const { data: profile } = await supabase
           .from('profiles')
           .select('last_meal_plan_generated')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profile?.last_meal_plan_generated) {
           setLastMealPlanGenerated(new Date(profile.last_meal_plan_generated));
