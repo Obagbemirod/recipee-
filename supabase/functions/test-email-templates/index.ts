@@ -12,11 +12,13 @@ const handler = async (_req: Request): Promise<Response> => {
 
   const testUser = {
     name: "TEMITOPE",
-    email: "OBAGBEMIROD@GMAIL.COM"
+    email: "obagbemirod@gmail.com"
   };
 
   const templates = ['welcome', 'trialExpired', 'trialExpiredReminder', 'resetPassword'];
   const results = [];
+
+  console.log('Starting email template test for:', testUser.email);
 
   for (const templateId of templates) {
     try {
@@ -46,6 +48,8 @@ const handler = async (_req: Request): Promise<Response> => {
       results.push({ templateId, success: false, error: error.message });
     }
   }
+
+  console.log('Email template test completed');
 
   return new Response(JSON.stringify({ results }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
