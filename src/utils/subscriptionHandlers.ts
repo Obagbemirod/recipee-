@@ -1,16 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
-declare global {
-  interface Window {
-    PaystackPop: {
-      setup: (config: any) => {
-        openIframe: () => void;
-      };
-    };
-  }
-}
-
 export const handleTrialActivation = async (userId: string) => {
   try {
     const { data: existingTrials, error: checkError } = await supabase
@@ -52,38 +42,24 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    if (typeof window.PaystackPop === 'undefined') {
-      console.error('PaystackPop not initialized');
-      toast.error("Payment system is not initialized. Please refresh and try again.");
-      return;
-    }
-
-    const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-    if (!paystackKey) {
-      console.error('Paystack public key not found');
-      toast.error("Payment configuration error. Please contact support.");
-      return;
-    }
-
-    const handler = window.PaystackPop.setup({
-      key: paystackKey,
-      email: user.email,
-      amount: plan.price * 100, // Convert to kobo
-      currency: 'NGN',
-      ref: `${user.id}-${Date.now()}`,
-      metadata: {
-        user_id: user.id,
-        plan_id: plan.planId,
-        custom_fields: [
-          {
-            display_name: "Plan Name",
-            variable_name: "plan_name",
-            value: plan.name
-          }
-        ]
+    const flutterwaveConfig = {
+      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+      tx_ref: `${user.id}-${Date.now()}`,
+      amount: Number(plan.price),
+      currency: "USD",
+      payment_options: "card,mobilemoney,ussd",
+      customer: {
+        email: user.email,
+        phone_number: user.phone || "",
+        name: user.user_metadata?.full_name || user.email,
+      },
+      customizations: {
+        title: "Recipee Subscription",
+        description: `${plan.name} Plan Subscription`,
+        logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
       },
       callback: async function(response: any) {
-        if (response.status === 'success') {
+        if (response.status === "successful") {
           try {
             const { error } = await supabase
               .from('subscriptions')
@@ -93,12 +69,12 @@ export const handlePaymentFlow = async (
                 start_date: new Date().toISOString(),
                 end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                 status: 'active',
-                payment_reference: response.reference
+                payment_reference: response.transaction_id
               });
 
             if (error) throw error;
             
-            onSuccess(response.reference);
+            onSuccess(response.transaction_id);
           } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
@@ -107,12 +83,13 @@ export const handlePaymentFlow = async (
           toast.error("Payment failed. Please try again or contact support.");
         }
       },
-      onClose: function() {
-        console.log('Payment modal closed');
-      }
-    });
-    
-    handler.openIframe();
+      onclose: function() {
+        // Handle modal close
+      },
+    };
+
+    // @ts-ignore
+    window.FlutterwaveCheckout(flutterwaveConfig);
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast.error("Unable to initialize payment. Please try again.");

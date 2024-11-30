@@ -20,8 +20,6 @@ export const HomeHeader = ({ onLogout }: HomeHeaderProps) => {
   const navigate = useNavigate();
   const { plan, isTrialExpired } = useSubscription();
 
-  const showUpgradeButton = !plan || plan === "basic" || (plan === "24_hour_trial" && isTrialExpired);
-
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-4">
@@ -29,50 +27,37 @@ export const HomeHeader = ({ onLogout }: HomeHeaderProps) => {
       </div>
       
       <div className="flex flex-col items-end gap-2">
-        <div className="flex items-center gap-4">
-          {showUpgradeButton && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate("/pricing")}
-              className="mr-2"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Upgrade Plan
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback>
+                  <User className="h-6 w-6" />
+                </AvatarFallback>
+              </Avatar>
             </Button>
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback>
-                    <User className="h-6 w-6" />
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={() => navigate("/profile")}>
-                <Settings className="mr-2 h-4 w-4" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/marketplace")}>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <Settings className="mr-2 h-4 w-4" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/marketplace")}>
+              <Crown className="mr-2 h-4 w-4" />
+              Marketplace
+            </DropdownMenuItem>
+            {(isTrialExpired || !plan || plan === "basic") && (
+              <DropdownMenuItem onClick={() => navigate("/pricing")}>
                 <Crown className="mr-2 h-4 w-4" />
-                Marketplace
+                Upgrade Plan
               </DropdownMenuItem>
-              {showUpgradeButton && (
-                <DropdownMenuItem onClick={() => navigate("/pricing")}>
-                  <Crown className="mr-2 h-4 w-4" />
-                  Upgrade Plan
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={onLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+            )}
+            <DropdownMenuItem onClick={onLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <TrialBanner />
       </div>
     </div>
