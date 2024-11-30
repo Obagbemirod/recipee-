@@ -143,7 +143,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      trial_status: {
+        Row: {
+          end_date: string | null
+          is_expired: boolean | null
+          plan_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          end_date?: string | null
+          is_expired?: never
+          plan_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          end_date?: string | null
+          is_expired?: never
+          plan_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_trial_expiration: {
