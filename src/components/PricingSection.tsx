@@ -45,28 +45,32 @@ export function PricingSection() {
 
       if (error) throw error;
 
-      if (selectedPlan.planId === "24_hour_trial") {
-        const success = await handleTrialActivation(data.user!.id);
-        if (success) {
-          toast({
-            title: "Trial activated successfully!",
-            description: "Welcome to Recipee! Let's set up your preferences."
-          });
-          navigate("/onboarding");
-        }
-      } else {
-        await handlePaymentFlow(
-          data.user,
-          selectedPlan,
-          (transactionId: string) => {
+      if (data.user) {
+        if (selectedPlan.planId === "24_hour_trial") {
+          const success = await handleTrialActivation(data.user.id);
+          if (success) {
             toast({
-              title: "Payment successful!",
+              title: "Trial activated successfully!",
               description: "Welcome to Recipee! Let's set up your preferences."
             });
+            setIsSignUpOpen(false);
             navigate("/onboarding");
-          },
-          navigate
-        );
+          }
+        } else {
+          await handlePaymentFlow(
+            data.user,
+            selectedPlan,
+            (transactionId: string) => {
+              toast({
+                title: "Payment successful!",
+                description: "Welcome to Recipee! Let's set up your preferences."
+              });
+              setIsSignUpOpen(false);
+              navigate("/onboarding");
+            },
+            navigate
+          );
+        }
       }
     } catch (error: any) {
       toast({

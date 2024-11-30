@@ -13,6 +13,11 @@ interface SignUpDialogProps {
 export function SignUpDialog({ isOpen, onOpenChange, selectedPlan, onSubmit }: SignUpDialogProps) {
   const navigate = useNavigate();
 
+  const handleLoginRedirect = () => {
+    onOpenChange(false);
+    navigate("/auth");
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -29,10 +34,7 @@ export function SignUpDialog({ isOpen, onOpenChange, selectedPlan, onSubmit }: S
           <Button
             variant="link"
             className="text-sm text-primary hover:text-primary/80"
-            onClick={() => {
-              onOpenChange(false);
-              navigate("/auth");
-            }}
+            onClick={handleLoginRedirect}
           >
             Already signed up? Login here
           </Button>
