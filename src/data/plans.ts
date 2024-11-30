@@ -1,7 +1,7 @@
 export const plans = [
   {
     name: "24-Hour Pro Trial",
-    price: "0",
+    price: 0,
     description: "Experience all Premium features free for 24 hours",
     features: [
       "Full access to Premium features for 24 hours",
@@ -16,7 +16,7 @@ export const plans = [
   },
   {
     name: "Basic",
-    price: "9",
+    price: 9,
     description: "Perfect for home cooks",
     features: [
       "Image, video, and text inputs",
@@ -36,7 +36,7 @@ export const plans = [
   },
   {
     name: "Premium",
-    price: "19",
+    price: 19,
     description: "For serious home chefs and creators",
     features: [
       "All Basic features plus:",

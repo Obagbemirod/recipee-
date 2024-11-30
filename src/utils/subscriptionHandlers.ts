@@ -81,8 +81,9 @@ export const handlePaymentFlow = async (
               });
 
             if (error) {
-              if (handleDatabaseError(error)) return;
-              throw error;
+              console.error('Database error:', error);
+              toast.error("Failed to activate subscription. Please contact support.");
+              return;
             }
             
             onSuccess(response.transaction_id);
