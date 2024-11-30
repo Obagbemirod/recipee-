@@ -75,6 +75,9 @@ export const handlePaymentFlow = async (
             if (error) throw error;
             
             onSuccess(response.transaction_id);
+            
+            // Redirect to success page with transaction details
+            navigate(`/success?transaction_id=${response.transaction_id}&order_value=${plan.price}`);
           } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
