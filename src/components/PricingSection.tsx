@@ -6,6 +6,7 @@ import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHa
 import { SignUpDialog } from "./pricing/SignUpDialog";
 import { PricingHeader } from "./pricing/PricingHeader";
 import { PricingGrid } from "./pricing/PricingGrid";
+import { Button } from "./ui/button";
 
 export function PricingSection() {
   const { toast } = useToast();
