@@ -34,16 +34,12 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
     } catch (error: any) {
       // Handle authentication errors
       if (error.message.includes("Invalid login credentials")) {
-        toast({
-          title: "Authentication Error",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive",
+        toast("Invalid email or password. Please try again.", {
+          description: "Please check your credentials and try again.",
         });
       } else {
-        toast({
-          title: "Error",
+        toast("An error occurred", {
           description: "An unexpected error occurred. Please try again.",
-          variant: "destructive",
         });
       }
     } finally {
