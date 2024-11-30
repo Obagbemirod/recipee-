@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { AuthSwitch } from "@/components/auth/AuthSwitch";
@@ -7,21 +7,44 @@ import { motion } from "framer-motion";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { supabase } from "@/lib/supabase";
+import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const selectedPlan = searchParams.get('plan');
+  const isTrialSignup = selectedPlan === '24_hour_trial';
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        navigate('/home');
+        if (selectedPlan) {
+          if (isTrialSignup) {
+            const success = await handleTrialActivation(user.id);
+            if (success) {
+              navigate('/onboarding');
+            }
+          } else {
+            // Handle paid plan flow for existing users
+            const planDetails = {
+              planId: selectedPlan,
+              // Add other plan details as needed
+            };
+            handlePaymentFlow(user, planDetails, () => {
+              navigate('/onboarding');
+            }, navigate);
+          }
+        } else {
+          navigate('/home');
+        }
       }
     };
     checkUser();
-  }, [navigate]);
+  }, [navigate, selectedPlan, isTrialSignup]);
 
   const onSubmit = async (values: any) => {
     try {
@@ -31,21 +54,31 @@ const Auth = () => {
           password: values.password,
         });
 
-        if (error) {
-          if (error.message.includes("Email not confirmed")) {
-            throw new Error("Please check your email and confirm your account before signing in.");
-          }
-          if (error.message.includes("Invalid login credentials")) {
-            throw new Error("The email or password you entered is incorrect. Please try again.");
-          }
-          throw error;
-        }
+        if (error) throw error;
 
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        navigate("/home");
+
+        if (selectedPlan) {
+          if (isTrialSignup) {
+            const success = await handleTrialActivation(data.user.id);
+            if (success) {
+              navigate('/onboarding');
+            }
+          } else {
+            const planDetails = {
+              planId: selectedPlan,
+              // Add other plan details as needed
+            };
+            handlePaymentFlow(data.user, planDetails, () => {
+              navigate('/onboarding');
+            }, navigate);
+          }
+        } else {
+          navigate("/home");
+        }
       } else {
         const { data, error } = await supabase.auth.signUp({
           email: values.email,
@@ -57,18 +90,30 @@ const Auth = () => {
           },
         });
 
-        if (error) {
-          if (error.message.includes("User already registered")) {
-            throw new Error("An account with this email already exists. Please sign in instead.");
-          }
-          throw error;
-        }
+        if (error) throw error;
 
-        toast({
-          title: "Account created successfully!",
-          description: "Please check your email to confirm your account.",
-        });
-        navigate("/onboarding");
+        if (selectedPlan) {
+          if (isTrialSignup) {
+            const success = await handleTrialActivation(data.user!.id);
+            if (success) {
+              navigate('/onboarding');
+            }
+          } else {
+            const planDetails = {
+              planId: selectedPlan,
+              // Add other plan details as needed
+            };
+            handlePaymentFlow(data.user, planDetails, () => {
+              navigate('/onboarding');
+            }, navigate);
+          }
+        } else {
+          toast({
+            title: "Account created successfully!",
+            description: "Please check your email to confirm your account.",
+          });
+          navigate("/onboarding");
+        }
       }
     } catch (error: any) {
       toast({
@@ -87,7 +132,9 @@ const Auth = () => {
         className="w-full max-w-md space-y-8 p-8"
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create your account"}</h2>
+          <h2 className="text-2xl font-bold">
+            {isLogin ? "Welcome back" : (isTrialSignup ? "Start Your Free Trial" : "Create your account")}
+          </h2>
           <p className="text-muted-foreground mt-2">
             {isLogin ? "Sign in to your account" : "Start your journey today"}
           </p>
@@ -100,6 +147,15 @@ const Auth = () => {
         ) : (
           <SignUpForm onSubmit={onSubmit} />
         )}
+
+        <div className="text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-primary hover:underline"
+          >
+            {isLogin ? "Need an account? Sign up" : "Already signed up? Login here"}
+          </button>
+        </div>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">

@@ -3,16 +3,12 @@ import { useToast } from "./ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { plans } from "@/data/plans";
-import { handleTrialActivation, handlePaymentFlow } from "@/utils/subscriptionHandlers";
 import { PricingCard } from "./pricing/PricingCard";
-import { SignUpDialog } from "./pricing/SignUpDialog";
 
 export function PricingSection() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
-  const [showSignUpDialog, setShowSignUpDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -30,95 +26,17 @@ export function PricingSection() {
     };
   }, []);
 
-  const handleSignUpSubmit = async (values: any) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            full_name: values.name,
-          },
-        },
-      });
-
-      if (error) throw error;
-
-      setShowSignUpDialog(false);
-
-      if (selectedPlan.planId === "24_hour_trial") {
-        const success = await handleTrialActivation(data.user!.id);
-        if (success) {
-          toast({
-            title: "Trial Activated!",
-            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
-          });
-          navigate("/onboarding");
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to activate trial. Please try again.",
-          });
-        }
-      } else {
-        handlePaymentFlow(
-          data.user,
-          selectedPlan,
-          (transactionId) => {
-            toast({
-              title: "Payment Successful!",
-              description: `Your ${selectedPlan.name} subscription has been activated.`,
-            });
-            navigate(`/success?transaction_id=${transactionId}&order_value=${selectedPlan.price}`);
-          },
-          navigate
-        );
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    }
-  };
-
-  const handlePlanSelection = async (plan: typeof plans[0]) => {
+  const handlePlanSelection = (plan: typeof plans[0]) => {
     if (user) {
+      // If user is already logged in, handle the flow directly
       if (plan.planId === "24_hour_trial") {
-        const success = await handleTrialActivation(user.id);
-        if (success) {
-          toast({
-            title: "Trial Activated!",
-            description: "Your 24-hour trial has been activated. Enjoy all premium features!",
-          });
-          navigate("/onboarding");
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to activate trial. Please try again.",
-          });
-        }
-        return;
+        navigate('/auth?plan=24_hour_trial');
+      } else {
+        navigate(`/auth?plan=${plan.planId}`);
       }
-
-      handlePaymentFlow(
-        user,
-        plan,
-        (transactionId) => {
-          toast({
-            title: "Payment Successful!",
-            description: `Your ${plan.name} subscription has been activated.`,
-          });
-          navigate(`/success?transaction_id=${transactionId}&order_value=${plan.price}`);
-        },
-        navigate
-      );
     } else {
-      setSelectedPlan(plan);
-      setShowSignUpDialog(true);
+      // If user is not logged in, redirect to auth page with plan parameter
+      navigate(`/auth?plan=${plan.planId}`);
     }
   };
 
@@ -144,13 +62,6 @@ export function PricingSection() {
           ))}
         </div>
       </div>
-
-      <SignUpDialog
-        isOpen={showSignUpDialog}
-        onOpenChange={setShowSignUpDialog}
-        selectedPlan={selectedPlan}
-        onSubmit={handleSignUpSubmit}
-      />
     </section>
   );
 }
