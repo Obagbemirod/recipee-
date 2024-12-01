@@ -3,23 +3,37 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecipeCard } from "@/components/RecipeCard";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { MealPlanDay } from "@/components/MealPlanDay";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const SavedItems = () => {
   const [activeTab, setActiveTab] = useState<"recipes" | "mealPlans">("recipes");
   const [expandedPlanId, setExpandedPlanId] = useState<number | null>(null);
+  const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
+  const [savedMealPlans, setSavedMealPlans] = useState<any[]>([]);
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const [deleteType, setDeleteType] = useState<"recipe" | "mealPlan" | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get saved recipes from localStorage
-  const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-  const savedMealPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
+  useEffect(() => {
+    loadSavedItems();
+  }, []);
 
   useEffect(() => {
-    // Set active tab based on the source of navigation
     const params = new URLSearchParams(location.search);
     const source = params.get('source');
     if (source === 'mealPlan') {
@@ -28,6 +42,35 @@ const SavedItems = () => {
       setActiveTab('recipes');
     }
   }, [location]);
+
+  const loadSavedItems = () => {
+    setSavedRecipes(JSON.parse(localStorage.getItem('savedRecipes') || '[]'));
+    setSavedMealPlans(JSON.parse(localStorage.getItem('savedMealPlans') || '[]'));
+  };
+
+  const handleDelete = (id: number, type: "recipe" | "mealPlan") => {
+    setDeleteItemId(id);
+    setDeleteType(type);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteItemId || !deleteType) return;
+
+    if (deleteType === "recipe") {
+      const updatedRecipes = savedRecipes.filter(recipe => recipe.id !== deleteItemId);
+      localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
+      setSavedRecipes(updatedRecipes);
+      toast.success("Recipe deleted successfully");
+    } else {
+      const updatedMealPlans = savedMealPlans.filter(plan => plan.id !== deleteItemId);
+      localStorage.setItem('savedMealPlans', JSON.stringify(updatedMealPlans));
+      setSavedMealPlans(updatedMealPlans);
+      toast.success("Meal plan deleted successfully");
+    }
+
+    setDeleteItemId(null);
+    setDeleteType(null);
+  };
 
   return (
     <div className="min-h-screen pt-20 bg-background">
@@ -72,14 +115,23 @@ const SavedItems = () => {
                     No saved recipes yet
                   </div>
                 ) : (
-                  savedRecipes.map((recipe: any, index: number) => (
-                    <RecipeCard 
-                      key={index} 
-                      title={recipe.name}
-                      image={recipe.image || "/placeholder.svg"}
-                      time={recipe.totalTime}
-                      difficulty={recipe.difficulty}
-                    />
+                  savedRecipes.map((recipe: any) => (
+                    <div key={recipe.id} className="relative">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 z-10"
+                        onClick={() => handleDelete(recipe.id, "recipe")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <RecipeCard 
+                        title={recipe.name}
+                        image={recipe.image || "/placeholder.svg"}
+                        time={recipe.totalTime}
+                        difficulty={recipe.difficulty}
+                      />
+                    </div>
                   ))
                 )}
               </div>
@@ -93,8 +145,16 @@ const SavedItems = () => {
                   savedMealPlans.map((plan: any) => (
                     <Card 
                       key={plan.id}
-                      className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                      className="overflow-hidden hover:shadow-lg transition-shadow duration-300 relative"
                     >
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 z-10"
+                        onClick={() => handleDelete(plan.id, "mealPlan")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                       <div 
                         className="p-6 cursor-pointer"
                         onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
@@ -132,6 +192,23 @@ const SavedItems = () => {
             )}
           </motion.div>
         </AnimatePresence>
+
+        <AlertDialog open={!!deleteItemId} onOpenChange={() => setDeleteItemId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your saved {deleteType}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

@@ -43,6 +43,42 @@ const UploadIngredients = () => {
     { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
   ];
 
+  const handleConfirm = async () => {
+    if (!mealPlanName.trim()) {
+      toast.error("Please enter a meal plan name");
+      return;
+    }
+
+    if (recognizedIngredients.length === 0) {
+      toast.error("Please add some ingredients first");
+      return;
+    }
+
+    setIsGeneratingMealPlan(true);
+    try {
+      const selectedCuisine = methods.getValues('cuisine');
+      const userDiet = localStorage.getItem('dietaryPreference') || 'none';
+      
+      const ingredientsList = recognizedIngredients.map(ing => normalizeIngredient(ing.name));
+      const preferences = [
+        `ONLY generate traditional ${selectedCuisine} dishes and local delicacies.`,
+        `Consider dietary preference: ${userDiet}.`,
+        'Include only dishes that are commonly prepared in this region.'
+      ];
+      
+      const plan = await generateMealPlan(preferences, ingredientsList);
+      if (plan) {
+        setMealPlan({ ...plan, name: mealPlanName });
+        toast.success("Meal plan generated successfully!");
+      }
+    } catch (error) {
+      console.error("Error generating meal plan:", error);
+      toast.error("Failed to generate meal plan. Please try again.");
+    } finally {
+      setIsGeneratingMealPlan(false);
+    }
+  };
+
   return (
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed overflow-x-hidden fixed-mobile"
@@ -109,40 +145,7 @@ const UploadIngredients = () => {
               setRecognizedIngredients(prev => prev.filter((_, i) => i !== index));
             }}
             isGenerating={isGeneratingMealPlan}
-            onConfirm={async () => {
-              if (!mealPlanName.trim()) {
-                toast.error("Please enter a meal plan name");
-                return;
-              }
-
-              if (recognizedIngredients.length === 0) {
-                toast.error("Please add some ingredients first");
-                return;
-              }
-
-              setIsGeneratingMealPlan(true);
-              try {
-                const selectedCuisine = methods.getValues('cuisine');
-                const userDiet = localStorage.getItem('dietaryPreference') || 'none';
-                
-                const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
-                const preferences = [
-                  `Generate meals using these ingredients: ${ingredientsList}.`,
-                  `ONLY generate traditional ${selectedCuisine} dishes and local delicacies.`,
-                  `Consider dietary preference: ${userDiet}.`,
-                  'Include only dishes that are commonly prepared in this region.'
-                ];
-                
-                const plan = await generateMealPlan(preferences);
-                setMealPlan({ ...plan, name: mealPlanName });
-                toast.success("Meal plan generated successfully!");
-              } catch (error) {
-                console.error("Error generating meal plan:", error);
-                toast.error("Failed to generate meal plan. Please try again.");
-              } finally {
-                setIsGeneratingMealPlan(false);
-              }
-            }}
+            onConfirm={handleConfirm}
           />
 
           {mealPlan && <IngredientBasedMealPlan mealPlan={mealPlan} />}

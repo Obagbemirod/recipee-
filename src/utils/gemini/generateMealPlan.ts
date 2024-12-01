@@ -9,13 +9,6 @@ const getGeminiAPI = () => {
     throw new Error("Invalid or missing Gemini API key");
   }
   
-  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdZ") {
-    toast.error(
-      "Please replace the default API key with your own Gemini API key from https://makersuite.google.com/app/apikey"
-    );
-    throw new Error("Default API key detected - please use your own key");
-  }
-  
   return new GoogleGenerativeAI(apiKey);
 };
 
@@ -50,17 +43,14 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   let currentDay = "";
   let matches;
 
-  // Split the markdown into day sections
   const sections = markdown.split(dayRegex);
-  sections.shift(); // Remove the first empty element
+  sections.shift();
 
-  // Process each day
   for (let i = 0; i < sections.length; i += 2) {
     const day = sections[i];
     const content = sections[i + 1];
     const meals: Record<string, any> = {};
 
-    // Find all meals in the current day's content
     while ((matches = mealRegex.exec(content)) !== null) {
       const [, mealType, mealText] = matches;
       meals[mealType.toLowerCase()] = parseMealDetails(mealText);
@@ -72,39 +62,15 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   return days;
 };
 
-const getUserPreferences = () => {
-  try {
-    const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
-    const country = preferences.country || '';
-    const cuisineStyle = preferences.cuisineStyle || '';
-    const dietaryPreference = preferences.dietaryPreference || '';
-    const allergies = JSON.parse(localStorage.getItem('allergies') || '[]');
-    
-    return {
-      country,
-      cuisineStyle,
-      dietaryPreference,
-      allergies,
-      lastUpdated: preferences.lastUpdated,
-      age: preferences.age,
-      healthConditions: preferences.healthConditions,
-      tribe: preferences.tribe
-    };
-  } catch (error) {
-    console.error('Error loading user preferences:', error);
-    return {};
-  }
-};
-
-export const generateMealPlan = async (additionalPreferences: string[] = []) => {
+export const generateMealPlan = async (additionalPreferences: string[] = [], availableIngredients: string[] = []) => {
   try {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    const userPrefs = getUserPreferences();
-    const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
+    const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
     
     const allPreferences = [
+      `STRICTLY generate meals using ONLY these ingredients: ${availableIngredients.join(', ')}`,
       `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
       `Follow this dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
       `Generate meals typical to ${userPrefs.country || 'international'} cuisine`,
@@ -112,7 +78,6 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
       userPrefs.tribe ? `Consider traditional meals from ${userPrefs.tribe} tribe` : '',
       userPrefs.age ? `Consider age-appropriate meals for ${userPrefs.age} years old` : '',
       userPrefs.healthConditions ? `Consider dietary restrictions for: ${userPrefs.healthConditions}` : '',
-      userIngredients.length > 0 ? `STRICTLY use these ingredients where possible: ${userIngredients.map((i: any) => i.name).join(', ')}` : '',
       ...additionalPreferences
     ].filter(Boolean);
 
@@ -120,13 +85,14 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     For each meal, include calories, protein, carbs, and fat content in grams. 
     
     IMPORTANT RULES:
-    1. STRICTLY follow these preferences: ${allPreferences.join(". ")}
-    2. Use traditional/local names for dishes where applicable
-    3. All meals MUST be culturally appropriate and commonly prepared in the specified region
-    4. Do not substitute traditional ingredients unless specifically requested
-    5. DO NOT use asterisks (*) in meal names
-    6. Ensure all nutritional information is accurate and appropriate for the specified age and health conditions
-    7. STRICTLY incorporate user-provided ingredients where culturally appropriate
+    1. ONLY use ingredients from this list: ${availableIngredients.join(', ')}
+    2. DO NOT suggest meals that require ingredients not in the provided list
+    3. STRICTLY follow these preferences: ${allPreferences.join(". ")}
+    4. Use traditional/local names for dishes where applicable
+    5. All meals MUST be culturally appropriate and commonly prepared in the specified region
+    6. DO NOT use asterisks (*) in meal names
+    7. Ensure all nutritional information is accurate
+    8. If you cannot create a meal with the available ingredients, respond with "Not enough ingredients"
     
     Format as follows:
 
@@ -148,12 +114,16 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const response = await result.response;
     const text = response.text().trim();
     
+    if (text.includes("Not enough ingredients")) {
+      toast.error("Not enough ingredients provided to generate a complete meal plan");
+      return null;
+    }
+    
     try {
       const mealPlan = parseMarkdownToMealPlan(text);
       return mealPlan;
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
-      console.error('Response text was:', text);
       throw new Error("Failed to parse the meal plan response");
     }
   } catch (error: any) {
