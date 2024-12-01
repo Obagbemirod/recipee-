@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface PricingCardProps {
@@ -45,16 +45,26 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
           <div className="mb-4">
             {plan.discount ? (
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-4xl font-bold">${plan.price.toFixed(2)}</span>
-                  <span className="text-muted-foreground">/month</span>
-                  <Badge variant="destructive" className="ml-2">
-                    {plan.discount}% OFF
-                  </Badge>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <span className="line-through">${plan.originalPrice}</span>
-                  <span className="ml-1">Original price</span>
+                <div className="relative">
+                  {/* Festive Banner */}
+                  <div className="absolute -top-6 left-0 right-0 bg-gradient-to-r from-red-500 via-green-500 to-red-500 text-white p-1 rounded-t-lg text-center transform rotate-2">
+                    <div className="flex items-center justify-center gap-1">
+                      <Sparkles className="w-4 h-4" />
+                      <span className="font-bold">Christmas Sale!</span>
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-4xl font-bold">${plan.price.toFixed(2)}</span>
+                    <span className="text-muted-foreground">/month</span>
+                    <Badge variant="destructive" className="ml-2">
+                      <span className="font-bold">{plan.discount}% OFF</span>
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <span className="line-through font-bold">${plan.originalPrice}</span>
+                    <span className="ml-1">Original price</span>
+                  </div>
                 </div>
               </div>
             ) : (

@@ -35,6 +35,12 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
+declare global {
+  interface Window {
+    jumbleberry: any;
+  }
+}
+
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
@@ -74,10 +80,16 @@ export const handlePaymentFlow = async (
 
             if (error) throw error;
             
-            onSuccess(response.transaction_id);
+            // Track purchase with Jumbleberry
+            if (window.jumbleberry) {
+              window.jumbleberry("track", "Purchase", { 
+                transaction_id: response.transaction_id,
+                order_value: plan.price
+              });
+            }
             
-            // Redirect to success page with transaction details
-            navigate(`/success?transaction_id=${response.transaction_id}&order_value=${plan.price}`);
+            onSuccess(response.transaction_id);
+            navigate("/onboarding");
           } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
