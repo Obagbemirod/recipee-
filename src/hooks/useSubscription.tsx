@@ -20,8 +20,8 @@ export const useSubscription = () => {
           return;
         }
 
-        // Get subscription status
-        const { data: subscription } = await supabase
+        // Get subscription status using maybeSingle() instead of single()
+        const { data: subscription, error } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
@@ -29,9 +29,11 @@ export const useSubscription = () => {
           .gt('end_date', new Date().toISOString())
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
-        // Get last meal plan generation - using maybeSingle() to handle no profile case
+        if (error) throw error;
+
+        // Get last meal plan generation
         const { data: profile } = await supabase
           .from('profiles')
           .select('last_meal_plan_generated')
@@ -50,13 +52,13 @@ export const useSubscription = () => {
           );
         } else {
           setPlan(null);
-          // Check if trial has expired
+          // Check if trial has expired using maybeSingle()
           const { data: trialSub } = await supabase
             .from('subscriptions')
             .select('*')
             .eq('user_id', user.id)
             .eq('plan_id', '24_hour_trial')
-            .single();
+            .maybeSingle();
 
           setIsTrialExpired(!!trialSub);
         }
