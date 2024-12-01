@@ -10,10 +10,6 @@ export const TrialBanner = () => {
 
   if (!plan || plan !== "24_hour_trial") return null;
 
-  const handleUpgrade = () => {
-    navigate("/pricing");
-  };
-
   return (
     <div className="flex flex-col items-end gap-2">
       <Badge className={`${isTrialExpired ? "bg-red-500" : "bg-blue-500"} text-white`}>
@@ -25,7 +21,7 @@ export const TrialBanner = () => {
         <Button
           variant="default"
           size="sm"
-          onClick={handleUpgrade}
+          onClick={() => navigate("/pricing")}
           className="whitespace-nowrap"
         >
           View Plans
