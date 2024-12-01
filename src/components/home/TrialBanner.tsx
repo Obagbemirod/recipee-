@@ -12,7 +12,7 @@ export const TrialBanner = () => {
   if (!plan || plan !== "24_hour_trial") return null;
 
   const handleUpgrade = () => {
-    navigate("/pricing");
+    navigate("/?scrollTo=pricing");
     if (isTrialExpired) {
       toast.info("Choose a plan to continue enjoying premium features!");
     }
