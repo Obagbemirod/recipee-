@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import type { FlutterwaveConfig } from "@/types/flutterwave";
 
 export const handleTrialActivation = async (userId: string) => {
   try {
@@ -36,6 +35,12 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
+declare global {
+  interface Window {
+    FlutterwaveCheckout: any;
+  }
+}
+
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
@@ -43,8 +48,8 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    const flutterwaveConfig: FlutterwaveConfig = {
-      public_key: "FLWPUBK-65dddbba4a7fd8a9ea6a3fb4d6975826-X", // Live public key
+    const flutterwaveConfig = {
+      public_key: "FLWPUBK_TEST-2c01585276e1882f36158a10bfe2c9f1-X",
       tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
       currency: "USD",
@@ -90,6 +95,7 @@ export const handlePaymentFlow = async (
       },
     };
 
+    // @ts-ignore
     window.FlutterwaveCheckout(flutterwaveConfig);
   } catch (error) {
     console.error('Payment initialization error:', error);
