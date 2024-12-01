@@ -1,4 +1,4 @@
-interface FlutterwaveConfig {
+export interface FlutterwaveConfig {
   public_key: string;
   tx_ref: string;
   amount: number;
@@ -18,6 +18,8 @@ interface FlutterwaveConfig {
   onclose: () => void;
 }
 
-interface Window {
-  FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
+declare global {
+  interface Window {
+    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
+  }
 }
