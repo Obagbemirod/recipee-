@@ -17,9 +17,9 @@ export const plans = [
   {
     name: "Basic",
     description: "Perfect for home cooks",
-    originalPrice: 1,
-    price: 0.09, // 91% discount
-    discount: 91,
+    originalPrice: 9,
+    price: 1, // 89% discount
+    discount: 89,
     features: [
       "Image, video, and text inputs",
       "Update Your ingredient List once per week",

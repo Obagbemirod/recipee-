@@ -47,11 +47,13 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
               <div className="space-y-1">
                 <div className="relative">
                   {/* Festive Banner */}
-                  <div className="absolute -top-6 left-0 right-0 bg-gradient-to-r from-red-500 via-green-500 to-red-500 text-white p-1 rounded-t-lg text-center transform rotate-2">
-                    <div className="flex items-center justify-center gap-1">
-                      <Sparkles className="w-4 h-4" />
-                      <span className="font-bold">Christmas Sale!</span>
-                      <Sparkles className="w-4 h-4" />
+                  <div className="absolute -top-6 left-0 right-0">
+                    <div className="bg-gradient-to-r from-red-500 via-green-500 to-red-500 text-white p-2 rounded-t-lg text-center shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <Sparkles className="w-5 h-5" />
+                        <span className="font-bold text-lg">Christmas Sale!</span>
+                        <Sparkles className="w-5 h-5" />
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
@@ -61,7 +63,7 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
                       <span className="font-bold">{plan.discount}% OFF</span>
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground mt-1">
                     <span className="line-through font-bold">${plan.originalPrice}</span>
                     <span className="ml-1">Original price</span>
                   </div>
