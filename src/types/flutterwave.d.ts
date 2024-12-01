@@ -23,3 +23,5 @@ declare global {
     FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
   }
 }
+
+export {};
