@@ -18,10 +18,6 @@ interface FlutterwaveConfig {
   onclose: () => void;
 }
 
-declare global {
-  interface Window {
-    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
-  }
+interface Window {
+  FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
 }
-
-export {};
