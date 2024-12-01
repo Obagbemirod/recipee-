@@ -35,7 +35,12 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
-// Using the type from flutterwave.d.ts
+declare global {
+  interface Window {
+    FlutterwaveCheckout: any;
+  }
+}
+
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
@@ -43,7 +48,7 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    const flutterwaveConfig: FlutterwaveConfig = {
+    const flutterwaveConfig = {
       public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
       tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
