@@ -11,6 +11,11 @@ interface SubscriptionDialogProps {
 export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps) {
   const navigate = useNavigate();
 
+  const handleViewPlans = () => {
+    onClose();
+    navigate("/pricing");
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -38,7 +43,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
             </ul>
           </div>
           <div className="flex flex-col gap-2">
-            <Button onClick={() => navigate("/pricing")}>View Plans</Button>
+            <Button onClick={handleViewPlans}>View Plans</Button>
             <Button variant="outline" onClick={onClose}>Maybe Later</Button>
           </div>
         </div>

@@ -24,7 +24,7 @@ export const TrialBanner = () => {
           onClick={() => navigate("/pricing")}
           className="whitespace-nowrap"
         >
-          Upgrade Plan
+          View Plans
         </Button>
       )}
     </div>
