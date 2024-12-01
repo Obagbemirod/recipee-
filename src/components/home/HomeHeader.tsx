@@ -21,10 +21,6 @@ export const HomeHeader = ({ onLogout }: HomeHeaderProps) => {
   const navigate = useNavigate();
   const { plan, isTrialExpired } = useSubscription();
 
-  const handleUpgrade = () => {
-    navigate("/?scrollTo=pricing");
-  };
-
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-4">
@@ -55,7 +51,7 @@ export const HomeHeader = ({ onLogout }: HomeHeaderProps) => {
               Marketplace
             </DropdownMenuItem>
             {(isTrialExpired || !plan || plan === "basic") && (
-              <DropdownMenuItem onClick={handleUpgrade}>
+              <DropdownMenuItem onClick={() => navigate("/pricing")}>
                 <Crown className="mr-2 h-4 w-4" />
                 Upgrade Plan
               </DropdownMenuItem>

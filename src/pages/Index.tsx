@@ -7,19 +7,8 @@ import { Footer } from "@/components/Footer";
 import { Testimonials } from "@/components/Testimonials";
 import { FAQ } from "@/components/FAQ";
 import { FinalCTA } from "@/components/FinalCTA";
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
 
 const Index = () => {
-  const pricingRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.search.includes("scrollTo=pricing") && pricingRef.current) {
-      pricingRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [location]);
-
   return (
     <main className="min-h-screen">
       <Header />
@@ -27,9 +16,7 @@ const Index = () => {
       <FeatureHighlights />
       <Testimonials />
       <FeaturedRecipes />
-      <div ref={pricingRef}>
-        <PricingSection />
-      </div>
+      <PricingSection />
       <FAQ />
       <FinalCTA />
       <Footer />
