@@ -37,7 +37,7 @@ export const handleTrialActivation = async (userId: string) => {
 
 declare global {
   interface Window {
-    jumbleberry: any;
+    FlutterwaveCheckout: any;
   }
 }
 
@@ -49,7 +49,7 @@ export const handlePaymentFlow = async (
 ) => {
   try {
     const flutterwaveConfig = {
-      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+      public_key: "FLWPUBK_TEST-2c01585276e1882f36158a10bfe2c9f1-X",
       tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
       currency: "USD",
@@ -79,14 +79,6 @@ export const handlePaymentFlow = async (
               });
 
             if (error) throw error;
-            
-            // Track purchase with Jumbleberry
-            if (window.jumbleberry) {
-              window.jumbleberry("track", "Purchase", { 
-                transaction_id: response.transaction_id,
-                order_value: plan.price
-              });
-            }
             
             onSuccess(response.transaction_id);
             navigate("/onboarding");
