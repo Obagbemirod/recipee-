@@ -45,9 +45,9 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
           <div className="mb-4">
             {plan.discount ? (
               <div className="space-y-1">
-                <div className="relative">
+                <div className="relative pt-8"> {/* Added padding-top to make room for the banner */}
                   {/* Festive Banner */}
-                  <div className="absolute -top-6 left-0 right-0">
+                  <div className="absolute -top-2 left-0 right-0"> {/* Adjusted top position */}
                     <div className="bg-gradient-to-r from-red-500 via-green-500 to-red-500 text-white p-2 rounded-t-lg text-center shadow-lg">
                       <div className="flex items-center justify-center gap-2">
                         <Sparkles className="w-5 h-5" />
@@ -56,7 +56,7 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-4"> {/* Added margin-top */}
                     <span className="text-4xl font-bold">${plan.price.toFixed(2)}</span>
                     <span className="text-muted-foreground">/month</span>
                     <Badge variant="destructive" className="ml-2">
