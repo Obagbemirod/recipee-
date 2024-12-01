@@ -20,7 +20,6 @@ export const useSubscription = () => {
           return;
         }
 
-        // Get subscription status using maybeSingle() instead of single()
         const { data: subscription, error } = await supabase
           .from('subscriptions')
           .select('*')
@@ -33,7 +32,6 @@ export const useSubscription = () => {
 
         if (error) throw error;
 
-        // Get last meal plan generation
         const { data: profile } = await supabase
           .from('profiles')
           .select('last_meal_plan_generated')
@@ -52,7 +50,6 @@ export const useSubscription = () => {
           );
         } else {
           setPlan(null);
-          // Check if trial has expired using maybeSingle()
           const { data: trialSub } = await supabase
             .from('subscriptions')
             .select('*')

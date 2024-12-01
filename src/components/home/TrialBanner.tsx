@@ -3,12 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const TrialBanner = () => {
   const { plan, isTrialExpired } = useSubscription();
   const navigate = useNavigate();
 
   if (!plan || plan !== "24_hour_trial") return null;
+
+  const handleUpgrade = () => {
+    navigate("/pricing");
+    if (isTrialExpired) {
+      toast.info("Choose a plan to continue enjoying premium features!");
+    }
+  };
 
   return (
     <div className="flex flex-col items-end gap-2">
@@ -21,7 +29,7 @@ export const TrialBanner = () => {
         <Button
           variant="default"
           size="sm"
-          onClick={() => navigate("/pricing")}
+          onClick={handleUpgrade}
           className="whitespace-nowrap"
         >
           View Plans
