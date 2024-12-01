@@ -35,9 +35,30 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
+interface FlutterwaveConfig {
+  public_key: string;
+  tx_ref: string;
+  amount: number;
+  currency: string;
+  payment_options: string;
+  customer: {
+    email: string;
+    phone_number: string;
+    name: string;
+  };
+  customizations: {
+    title: string;
+    description: string;
+    logo: string;
+  };
+  callback: (response: any) => void;
+  onclose: () => void;
+}
+
 declare global {
   interface Window {
-    FlutterwaveCheckout: any;
+    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
+    jumbleberry: any;
   }
 }
 
@@ -48,7 +69,7 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    const flutterwaveConfig = {
+    const flutterwaveConfig: FlutterwaveConfig = {
       public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
       tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
@@ -80,8 +101,16 @@ export const handlePaymentFlow = async (
 
             if (error) throw error;
             
+            // Track successful purchase with Jumbleberry
+            if (window.jumbleberry) {
+              window.jumbleberry("track", "Purchase", {
+                transaction_id: response.transaction_id,
+                order_value: plan.price
+              });
+            }
+            
             onSuccess(response.transaction_id);
-            navigate("/onboarding");
+            navigate("/success?transaction_id=" + response.transaction_id + "&order_value=" + plan.price);
           } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
