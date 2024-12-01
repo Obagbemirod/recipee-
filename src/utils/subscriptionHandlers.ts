@@ -53,7 +53,7 @@ export const handlePaymentFlow = async (
       tx_ref: `${user.id}-${Date.now()}`,
       amount: Number(plan.price),
       currency: "USD",
-      payment_options: "card,mobilemoney,ussd",
+      payment_options: "card",
       customer: {
         email: user.email,
         phone_number: user.phone || "",
@@ -95,7 +95,12 @@ export const handlePaymentFlow = async (
       },
     };
 
-    window.FlutterwaveCheckout(flutterwaveConfig);
+    if (typeof window.FlutterwaveCheckout === 'function') {
+      window.FlutterwaveCheckout(flutterwaveConfig);
+    } else {
+      console.error('FlutterwaveCheckout is not available');
+      toast.error("Payment system is not available. Please try again later.");
+    }
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast.error("Unable to initialize payment. Please try again.");
