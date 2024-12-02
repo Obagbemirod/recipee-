@@ -96,39 +96,43 @@ export const handlePaymentFlow = async (
       throw new Error('Paystack SDK not properly initialized');
     }
 
-    const handlePaymentCallback = async (response: any) => {
+    function handlePaymentCallback(response: any) {
       if (response.status === 'success') {
-        try {
-          const { error } = await supabase
-            .from('subscriptions')
-            .insert({
-              user_id: user.id,
-              plan_id: plan.planId,
-              start_date: new Date().toISOString(),
-              end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              status: 'active',
-              payment_reference: response.reference
-            });
-
-          if (error) throw error;
-          
-          if (window.jumbleberry) {
-            window.jumbleberry("track", "Purchase", {
-              transaction_id: response.reference,
-              order_value: plan.price
-            });
-          }
-          
-          onSuccess(response.reference);
-          navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
-        } catch (error: any) {
-          console.error('Subscription activation error:', error);
-          toast.error("Failed to activate subscription. Please contact support.");
-        }
+        supabase
+          .from('subscriptions')
+          .insert({
+            user_id: user.id,
+            plan_id: plan.planId,
+            start_date: new Date().toISOString(),
+            end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'active',
+            payment_reference: response.reference
+          })
+          .then(({ error }) => {
+            if (error) {
+              console.error('Subscription activation error:', error);
+              toast.error("Failed to activate subscription. Please contact support.");
+              return;
+            }
+            
+            if (window.jumbleberry) {
+              window.jumbleberry("track", "Purchase", {
+                transaction_id: response.reference,
+                order_value: plan.price
+              });
+            }
+            
+            onSuccess(response.reference);
+            navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
+          })
+          .catch((error) => {
+            console.error('Subscription activation error:', error);
+            toast.error("Failed to activate subscription. Please contact support.");
+          });
       } else {
         toast.error("Payment failed. Please try again or contact support.");
       }
-    };
+    }
 
     const config: PaystackConfig = {
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
