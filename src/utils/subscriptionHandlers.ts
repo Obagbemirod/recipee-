@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import type { PaystackConfig } from "@/types/paystack";
 
 export const handleTrialActivation = async (userId: string) => {
   try {
@@ -36,6 +35,54 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
+interface PaystackConfig {
+  key: string;
+  email: string;
+  amount: number;
+  currency: string;
+  ref: string;
+  callback: (response: any) => void;
+  onClose: () => void;
+  metadata: {
+    custom_fields: Array<{
+      display_name: string;
+      variable_name: string;
+      value: string;
+    }>;
+  };
+}
+
+declare global {
+  interface Window {
+    PaystackPop: {
+      setup: (config: PaystackConfig) => { openIframe: () => void };
+    };
+    jumbleberry: any;
+  }
+}
+
+const waitForPaystack = () => {
+  return new Promise<void>((resolve, reject) => {
+    if (typeof window.PaystackPop !== 'undefined') {
+      resolve();
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 20;
+    const interval = setInterval(() => {
+      attempts++;
+      if (typeof window.PaystackPop !== 'undefined') {
+        clearInterval(interval);
+        resolve();
+      } else if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        reject(new Error('Paystack failed to load'));
+      }
+    }, 500);
+  });
+};
+
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
@@ -43,38 +90,56 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    // Ensure PaystackPop is available
-    if (typeof window.PaystackPop === 'undefined') {
-      console.error('Paystack not loaded');
-      toast.error("Payment system not available. Please refresh the page and try again.");
-      return;
+    await waitForPaystack();
+
+    if (!window.PaystackPop || typeof window.PaystackPop.setup !== 'function') {
+      throw new Error('Paystack SDK not properly initialized');
     }
 
-    const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-    if (!paystackKey) {
-      console.error('Missing Paystack key');
-      toast.error("Payment configuration error. Please contact support.");
-      return;
-    }
-
-    const amount = Math.round(Number(plan.price) * 100); // Convert to kobo
-    if (isNaN(amount) || amount <= 0) {
-      console.error('Invalid amount:', plan.price);
-      toast.error("Invalid plan price. Please contact support.");
-      return;
+    function handlePaymentCallback(response: any) {
+      if (response.status === 'success') {
+        supabase
+          .from('subscriptions')
+          .insert({
+            user_id: user.id,
+            plan_id: plan.planId,
+            start_date: new Date().toISOString(),
+            end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'active',
+            payment_reference: response.reference
+          })
+          .then(({ error }) => {
+            if (error) {
+              console.error('Subscription activation error:', error);
+              toast.error("Failed to activate subscription. Please contact support.");
+              return;
+            }
+            
+            if (window.jumbleberry) {
+              window.jumbleberry("track", "Purchase", {
+                transaction_id: response.reference,
+                order_value: plan.price
+              });
+            }
+            
+            onSuccess(response.reference);
+            navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
+          })
+          .catch((error) => {
+            console.error('Subscription activation error:', error);
+            toast.error("Failed to activate subscription. Please contact support.");
+          });
+      } else {
+        toast.error("Payment failed. Please try again or contact support.");
+      }
     }
 
     const config: PaystackConfig = {
-      publicKey: paystackKey,
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: amount,
+      amount: Number(plan.price) * 100,
+      currency: "USD",
       ref: `${user.id}-${Date.now()}`,
-      onSuccess: (reference) => {
-        handleSubscriptionActivation(user, plan, reference, onSuccess, navigate);
-      },
-      onClose: function() {
-        toast.error("Payment cancelled. Please try again when ready.");
-      },
       metadata: {
         custom_fields: [
           {
@@ -83,6 +148,10 @@ export const handlePaymentFlow = async (
             value: plan.name
           }
         ]
+      },
+      callback: handlePaymentCallback,
+      onClose: function() {
+        toast.error("Payment cancelled. Please try again when you're ready.");
       }
     };
 
@@ -90,35 +159,35 @@ export const handlePaymentFlow = async (
     handler.openIframe();
   } catch (error) {
     console.error('Payment initialization error:', error);
-    toast.error("Unable to initialize payment. Please try again.");
+    if (error instanceof Error) {
+      toast.error(`Payment initialization failed: ${error.message}`);
+    } else {
+      toast.error("Unable to initialize payment. Please try again later.");
+    }
   }
 };
 
-const handleSubscriptionActivation = async (
-  user: any,
-  plan: any,
-  reference: string,
-  onSuccess: (transactionId: string) => void,
-  navigate: (path: string) => void
-) => {
+export const checkTrialStatus = async (userId: string) => {
   try {
-    const { error } = await supabase
+    const { data: subscription, error } = await supabase
       .from('subscriptions')
-      .insert({
-        user_id: user.id,
-        plan_id: plan.planId,
-        start_date: new Date().toISOString(),
-        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'active',
-        payment_reference: reference
-      });
+      .select('*')
+      .eq('user_id', userId)
+      .eq('plan_id', '24_hour_trial')
+      .eq('status', 'active')
+      .single();
 
     if (error) throw error;
-    
-    onSuccess(reference);
-    navigate("/onboarding");
-  } catch (error: any) {
-    console.error('Subscription activation error:', error);
-    toast.error("Failed to activate subscription. Please contact support.");
+
+    if (subscription) {
+      const endDate = new Date(subscription.end_date);
+      const now = new Date();
+      return endDate > now;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('Error checking trial status:', error);
+    return false;
   }
 };

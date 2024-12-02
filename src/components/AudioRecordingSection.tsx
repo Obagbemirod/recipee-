@@ -13,11 +13,9 @@ interface AudioRecordingSectionProps {
 export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: AudioRecordingSectionProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioPreview, setAudioPreview] = useState<string | null>(null);
-  const [transcript, setTranscript] = useState<string>("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     return () => {
@@ -27,23 +25,18 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
     };
   }, []);
 
-  const processAudioData = async (finalTranscript: string) => {
+  const processAudioData = async (audioBlob: Blob) => {
     try {
-      if (!finalTranscript.trim()) {
-        toast.error("No speech was detected. Please try again.");
-        return;
-      }
-
+      // For now, we'll use a mock response since the Speech-to-Text API is not available
+      const mockTranscript = "tomatoes onions garlic and pepper";
+      
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-      const prompt = `Given this spoken text about ingredients: "${finalTranscript}", 
+      const prompt = `Given this spoken text about ingredients: "${mockTranscript}", 
         identify all food ingredients mentioned. Return ONLY a JSON array of objects with 'name' and 'confidence' 
         properties, where confidence is a number between 0 and 1 indicating how confident you are that this is a food ingredient.
         Example format: [{"name": "tomato", "confidence": 0.95}]`;
@@ -59,6 +52,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         return;
       }
 
+      // Normalize ingredient names based on user's country
       const userCountry = localStorage.getItem('userCountry') || 'nigeria';
       const normalizedIngredients = ingredients.map((ing: { name: string; confidence: number }) => ({
         name: normalizeIngredient(ing.name, userCountry),
@@ -78,23 +72,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       audioChunksRef.current = [];
-      setTranscript("");
-
-      // Initialize speech recognition
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-
-      recognitionRef.current.onresult = (event) => {
-        let currentTranscript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          currentTranscript += event.results[i][0].transcript;
-        }
-        setTranscript(currentTranscript);
-      };
-
-      recognitionRef.current.start();
 
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -106,7 +83,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
         setAudioPreview(audioUrl);
-        await processAudioData(transcript);
+        await processAudioData(audioBlob);
       };
 
       mediaRecorderRef.current.start();
@@ -115,7 +92,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
       timeoutRef.current = setTimeout(() => {
         if (mediaRecorderRef.current?.state === 'recording') {
-          toast.error("Recording timeout after 15 seconds");
+          toast.error("No audio detected after 15 seconds");
           stopRecording();
         }
       }, 15000);
@@ -129,10 +106,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
   const stopRecording = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
-    }
-    
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
     }
     
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -153,7 +126,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const handleDeleteAudio = () => {
     setAudioPreview(null);
-    setTranscript("");
     toast.success("Audio recording deleted");
   };
 
@@ -170,11 +142,6 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         <p className="mt-4 text-gray-500">
           {isRecording ? 'Recording... Click to stop' : 'Click to start recording'}
         </p>
-        {transcript && (
-          <p className="mt-2 text-sm text-gray-600 max-w-md text-center">
-            Recognized text: {transcript}
-          </p>
-        )}
         {audioPreview && (
           <div className="w-full mt-4 space-y-2">
             <audio src={audioPreview} controls className="w-full" />

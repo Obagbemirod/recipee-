@@ -9,13 +9,6 @@ const getGeminiAPI = () => {
     throw new Error("Invalid or missing Gemini API key");
   }
   
-  if (apiKey === "AIzaSyBREmgc6S6LkzFFh_3kHcawCBYuCEZSMdZ") {
-    toast.error(
-      "Please replace the default API key with your own Gemini API key from https://makersuite.google.com/app/apikey"
-    );
-    throw new Error("Default API key detected - please use your own key");
-  }
-  
   return new GoogleGenerativeAI(apiKey);
 };
 
@@ -50,17 +43,14 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   let currentDay = "";
   let matches;
 
-  // Split the markdown into day sections
   const sections = markdown.split(dayRegex);
-  sections.shift(); // Remove the first empty element
+  sections.shift();
 
-  // Process each day
   for (let i = 0; i < sections.length; i += 2) {
     const day = sections[i];
     const content = sections[i + 1];
     const meals: Record<string, any> = {};
 
-    // Find all meals in the current day's content
     while ((matches = mealRegex.exec(content)) !== null) {
       const [, mealType, mealText] = matches;
       meals[mealType.toLowerCase()] = parseMealDetails(mealText);
@@ -72,70 +62,37 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   return days;
 };
 
-const getUserPreferences = () => {
-  try {
-    const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
-    const country = preferences.country || '';
-    const cuisineStyle = preferences.cuisineStyle || '';
-    const dietaryPreference = preferences.dietaryPreference || '';
-    const allergies = JSON.parse(localStorage.getItem('allergies') || '[]');
-    
-    return {
-      country,
-      cuisineStyle,
-      dietaryPreference,
-      allergies,
-      lastUpdated: preferences.lastUpdated,
-      age: preferences.age,
-      healthConditions: preferences.healthConditions,
-      tribe: preferences.tribe
-    };
-  } catch (error) {
-    console.error('Error loading user preferences:', error);
-    return {};
-  }
-};
-
 export const generateMealPlan = async (additionalPreferences: string[] = []) => {
   try {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
-    const userPrefs = getUserPreferences();
+    const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
     const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
     
-    const allPreferences = [
-      `Generate meals based on ${userPrefs.cuisineStyle || 'mixed'} style cuisine`,
-      `Follow this dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}`,
-      `Generate meals typical to ${userPrefs.country || 'international'} cuisine`,
-      `Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}`,
-      userPrefs.tribe ? `Consider traditional meals from ${userPrefs.tribe} tribe` : '',
-      userPrefs.age ? `Consider age-appropriate meals for ${userPrefs.age} years old` : '',
-      userPrefs.healthConditions ? `Consider dietary restrictions for: ${userPrefs.healthConditions}` : '',
-      userIngredients.length > 0 ? `STRICTLY use these ingredients where possible: ${userIngredients.map((i: any) => i.name).join(', ')}` : '',
-      ...additionalPreferences
-    ].filter(Boolean);
+    if (!userIngredients.length) {
+      toast.error("Please provide ingredients first");
+      return null;
+    }
 
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day. 
-    For each meal, include calories, protein, carbs, and fat content in grams. 
+    const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
     
-    IMPORTANT RULES:
-    1. STRICTLY follow these preferences: ${allPreferences.join(". ")}
-    2. Use traditional/local names for dishes where applicable
-    3. All meals MUST be culturally appropriate and commonly prepared in the specified region
-    4. Do not substitute traditional ingredients unless specifically requested
-    5. DO NOT use asterisks (*) in meal names
-    6. Ensure all nutritional information is accurate and appropriate for the specified age and health conditions
-    7. STRICTLY incorporate user-provided ingredients where culturally appropriate
+    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day using ONLY these ingredients: ${ingredientsList}.
     
-    Format as follows:
-
-    Monday:
-    - Breakfast: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Lunch: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Dinner: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-
-    [Continue for all days]`;
+    STRICT RULES:
+    1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
+    2. Focus on ${userPrefs.cuisineStyle || 'traditional'} cuisine from ${userPrefs.country || 'local'} region
+    3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
+    4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
+    5. Each meal MUST be possible to make with ONLY the provided ingredients
+    6. If not enough ingredients for a complete meal plan, return fewer meals rather than suggesting unavailable ingredients
+    7. Include calories and nutritional information
+    
+    Format each meal as:
+    Day:
+    - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -153,11 +110,12 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
       return mealPlan;
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
-      console.error('Response text was:', text);
-      throw new Error("Failed to parse the meal plan response");
+      toast.error("Failed to generate meal plan. Please try again.");
+      return null;
     }
   } catch (error: any) {
     console.error('Error generating meal plan:', error);
-    throw error;
+    toast.error(error.message || "Failed to generate meal plan");
+    return null;
   }
 };

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChefHat, Pencil, Save, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 interface Ingredient {
@@ -19,6 +19,11 @@ interface RecognizedIngredientsProps {
 const RecognizedIngredients = ({ ingredients, onRemove, onConfirm, isGenerating = false }: RecognizedIngredientsProps) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
+
+  useEffect(() => {
+    // Store recognized ingredients in localStorage for meal plan generation
+    localStorage.setItem('recognizedIngredients', JSON.stringify(ingredients));
+  }, [ingredients]);
 
   if (!ingredients.length) return null;
 

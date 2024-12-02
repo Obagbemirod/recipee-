@@ -1,27 +1,22 @@
-export interface FlutterwaveConfig {
-  public_key: string;
-  tx_ref: string;
+interface PaystackConfig {
+  key: string;
+  email: string;
   amount: number;
   currency: string;
-  payment_options: string;
-  customer: {
-    email: string;
-    phone_number: string;
-    name: string;
-  };
-  customizations: {
-    title: string;
-    description: string;
-    logo: string;
-  };
+  ref: string;
   callback: (response: any) => void;
-  onclose: () => void;
+  onClose: () => void;
+  metadata: {
+    custom_fields: Array<{
+      display_name: string;
+      variable_name: string;
+      value: string;
+    }>;
+  };
 }
 
-declare global {
-  interface Window {
-    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
-  }
+interface Window {
+  PaystackPop: {
+    setup: (config: PaystackConfig) => { openIframe: () => void };
+  };
 }
-
-export {};
