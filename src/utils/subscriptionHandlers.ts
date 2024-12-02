@@ -61,6 +61,28 @@ declare global {
   }
 }
 
+const waitForPaystack = () => {
+  return new Promise<void>((resolve, reject) => {
+    if (typeof window.PaystackPop !== 'undefined') {
+      resolve();
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 10;
+    const interval = setInterval(() => {
+      attempts++;
+      if (typeof window.PaystackPop !== 'undefined') {
+        clearInterval(interval);
+        resolve();
+      } else if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        reject(new Error('Paystack failed to load'));
+      }
+    }, 1000);
+  });
+};
+
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
@@ -68,6 +90,8 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
+    await waitForPaystack();
+
     const config: PaystackConfig = {
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
@@ -122,13 +146,8 @@ export const handlePaymentFlow = async (
       }
     };
 
-    if (typeof window.PaystackPop?.setup === 'function') {
-      const handler = window.PaystackPop.setup(config);
-      handler.openIframe();
-    } else {
-      console.error('PaystackPop is not available');
-      toast.error("Payment system is not available. Please try again later.");
-    }
+    const handler = window.PaystackPop.setup(config);
+    handler.openIframe();
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast.error("Unable to initialize payment. Please try again.");
