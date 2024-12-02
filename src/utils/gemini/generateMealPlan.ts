@@ -108,6 +108,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     try {
       const mealPlan = parseMarkdownToMealPlan(text);
       return mealPlan;
+      console.log(mealPlan)
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
       toast.error("Failed to generate meal plan. Please try again.");
