@@ -1,100 +1,64 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit2, Save, X, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit2, Save } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { MealNutritionInfo } from "./MealNutritionInfo";
+import { MealCookingGuide } from "./MealCookingGuide";
 import { MealDetails } from "@/types/meal";
-import { CookingGuide } from "../CookingGuide";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface MealCardProps {
   meal: MealDetails;
   title: string;
-  onUpdate: (meal: MealDetails) => void;
+  onUpdate: (updatedMeal: MealDetails) => void;
   readOnly?: boolean;
 }
 
 export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardProps) => {
+  const [showDetails, setShowDetails] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(meal?.name || '');
+  const [editedName, setEditedName] = useState(meal.name);
 
   const handleSave = () => {
     if (!editedName.trim()) {
-      toast.error("Meal name cannot be empty");
+      toast.error("Meal name cannot be empty!");
       return;
     }
     onUpdate({ ...meal, name: editedName.trim() });
     setIsEditing(false);
-    toast.success("Meal updated successfully!");
+    toast.success("Meal name updated successfully!");
   };
 
   const handleCancel = () => {
-    setEditedName(meal?.name || '');
+    setEditedName(meal.name);
     setIsEditing(false);
   };
 
-  if (!meal) {
-    return (
-      <Card className="p-4">
-        <p className="text-sm text-muted-foreground">No meal data available</p>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="p-4 space-y-4">
+    <div className="border rounded-lg p-4 space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h3 className="font-medium capitalize text-secondary">{title}</h3>
+        <h4 className="font-medium text-lg capitalize">{title}</h4>
         <div className="flex items-center gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Info className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <div className="p-4">
-                <h4 className="font-medium mb-2">Nutritional Information</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>Calories: {meal.nutrition?.calories || 'N/A'}</div>
-                  <div>Protein: {meal.nutrition?.protein || 'N/A'}</div>
-                  <div>Carbs: {meal.nutrition?.carbs || 'N/A'}</div>
-                  <div>Fat: {meal.nutrition?.fat || 'N/A'}</div>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-          {meal.ingredients && meal.steps && (
-            <CookingGuide recipe={{
-              name: meal.name || '',
-              ingredients: meal.ingredients || [],
-              instructions: meal.steps.map(step => ({
-                step: step.step,
-                description: step.instruction,
-                time: step.time || "N/A"
-              })),
-              equipment: [],
-              totalTime: "30-45 mins",
-              difficulty: "Medium",
-              servings: 2
-            }} />
-          )}
+          <MealNutritionInfo nutrition={meal.nutrition} />
+          <MealCookingGuide ingredients={meal.ingredients} steps={meal.steps} />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? <ChevronUp /> : <ChevronDown />}
+          </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2">
         {!readOnly && isEditing ? (
           <>
             <Input
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
               className="flex-1"
-              placeholder="Enter meal name"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   handleSave();
@@ -102,32 +66,34 @@ export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardPr
               }}
               autoFocus
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSave}
-              className="text-green-600 hover:text-green-700"
-            >
-              <Save className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCancel}
-              className="text-secondary hover:text-secondary/90"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSave}
+                className="text-green-600 hover:text-green-700"
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCancel}
+                className="text-destructive hover:text-destructive/90"
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+            </div>
           </>
         ) : (
           <>
-            <p className="flex-1 text-sm">{meal.name || 'Unnamed Meal'}</p>
+            <h5 className="font-medium">{meal.name}</h5>
             {!readOnly && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                className="text-blue-600 hover:text-blue-700"
+                className="shrink-0"
               >
                 <Edit2 className="h-4 w-4" />
               </Button>
@@ -135,6 +101,20 @@ export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardPr
           </>
         )}
       </div>
-    </Card>
+
+      <Collapsible open={showDetails}>
+        <CollapsibleContent className="space-y-4">
+          <div className="bg-accent/50 p-4 rounded-lg">
+            <h6 className="font-medium mb-2">Nutritional Information</h6>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>Calories: {meal.nutrition.calories}</div>
+              <div>Protein: {meal.nutrition.protein}</div>
+              <div>Carbs: {meal.nutrition.carbs}</div>
+              <div>Fat: {meal.nutrition.fat}</div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 };
