@@ -42,48 +42,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
     };
   }, []);
 
-  const processAudioData = async (audioBlob: Blob) => {
-    try {
-      const textToProcess = finalTranscript || transcript;
-      
-      if (!textToProcess) {
-        toast.error("No speech was detected. Please try again.");
-        return;
-      }
-      
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-      const prompt = `Given this spoken text about ingredients: "${textToProcess}", 
-        identify all food ingredients mentioned. Return ONLY a JSON array of objects with 'name' and 'confidence' 
-        properties, where confidence is a number between 0 and 1 indicating how confident you are that this is a food ingredient.
-        Example format: [{"name": "tomato", "confidence": 0.95}]`;
-
-      const result = await model.generateContent(prompt);
-      const response_text = await result.response.text();
-      
-      const cleanedResponse = response_text.replace(/```json\n|\n```/g, '').trim();
-      const ingredients = JSON.parse(cleanedResponse);
-
-      if (ingredients.length === 0) {
-        toast.error("No ingredients were detected in the audio");
-        return;
-      }
-
-      // Normalize ingredient names based on user's country
-      const userCountry = localStorage.getItem('userCountry') || 'nigeria';
-      const normalizedIngredients = ingredients.map((ing: { name: string; confidence: number }) => ({
-        name: normalizeIngredient(ing.name, userCountry),
-        confidence: ing.confidence
-      }));
-
-      onIngredientsIdentified(normalizedIngredients);
-      toast.success("Ingredients identified successfully!");
-    } catch (error) {
-      console.error('Error processing audio:', error);
-      toast.error("Failed to process audio. Please try again.");
-    }
-  };
+ 
 
   const startRecording = async () => {
     try {
@@ -176,12 +135,57 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       startRecording();
     }
   };
+  
 
   const handleDeleteAudio = () => {
     setAudioPreview(null);
     setTranscript("");
     setFinalTranscript("");
     toast.success("Audio recording deleted");
+  };
+
+
+   const processAudioData = async (audioBlob: Blob) => {
+    try {
+      const textToProcess = finalTranscript || transcript;
+      
+      if (!textToProcess) {
+        toast.error("No speech was detected. Please try again.");
+        return;
+      }
+      
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+      const prompt = `Given this spoken text about ingredients: "${textToProcess}", 
+        identify all food ingredients mentioned. Return ONLY a JSON array of objects with 'name' and 'confidence' 
+        properties, where confidence is a number between 0 and 1 indicating how confident you are that this is a food ingredient.
+        Example format: [{"name": "tomato", "confidence": 0.95}]`;
+
+      const result = await model.generateContent(prompt);
+      const response_text = await result.response.text();
+      
+      const cleanedResponse = response_text.replace(/```json\n|\n```/g, '').trim();
+      const ingredients = JSON.parse(cleanedResponse);
+
+      if (ingredients.length === 0) {
+        toast.error("No ingredients were detected in the audio");
+        return;
+      }
+
+      // Normalize ingredient names based on user's country
+      const userCountry = localStorage.getItem('userCountry') || 'nigeria';
+      const normalizedIngredients = ingredients.map((ing: { name: string; confidence: number }) => ({
+        name: normalizeIngredient(ing.name, userCountry),
+        confidence: ing.confidence
+      }));
+
+      onIngredientsIdentified(normalizedIngredients);
+      toast.success("Ingredients identified successfully!");
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      toast.error("Failed to process audio. Please try again.");
+    }
   };
 
   return (
