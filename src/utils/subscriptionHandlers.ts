@@ -55,8 +55,8 @@ export const handlePaymentFlow = async (
       email: user.email,
       amount: Math.round(Number(plan.price) * 100), // Convert to kobo and ensure it's a whole number
       ref: `${user.id}-${Date.now()}`,
-      onSuccess: function(response) {
-        handleSubscriptionActivation(user, plan, response.reference, onSuccess, navigate);
+      onSuccess: (reference) => {
+        handleSubscriptionActivation(user, plan, reference, onSuccess, navigate);
       },
       onClose: function() {
         toast.error("Payment cancelled. Please try again when ready.");
