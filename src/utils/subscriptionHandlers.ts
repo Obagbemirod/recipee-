@@ -50,10 +50,24 @@ export const handlePaymentFlow = async (
       return;
     }
 
+    const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+    if (!paystackKey || !paystackKey.startsWith('pk_test_')) {
+      console.error('Invalid Paystack test key');
+      toast.error("Payment configuration error. Please contact support.");
+      return;
+    }
+
+    const amount = Math.round(Number(plan.price) * 100); // Convert to kobo
+    if (isNaN(amount) || amount <= 0) {
+      console.error('Invalid amount:', plan.price);
+      toast.error("Invalid plan price. Please contact support.");
+      return;
+    }
+
     const config: PaystackConfig = {
-      publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      publicKey: paystackKey,
       email: user.email,
-      amount: Math.round(Number(plan.price) * 100), // Convert to kobo and ensure it's a whole number
+      amount: amount,
       ref: `${user.id}-${Date.now()}`,
       onSuccess: (reference) => {
         handleSubscriptionActivation(user, plan, reference, onSuccess, navigate);
