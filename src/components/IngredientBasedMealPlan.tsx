@@ -6,6 +6,8 @@ import { MealPlanDay } from "@/components/MealPlanDay";
 import { useState } from "react";
 import { recordMealPlanGeneration } from "@/utils/subscriptionChecks";
 import { supabase } from "@/lib/supabase";
+import { Card } from "@/components/ui/card";
+import { format } from "date-fns";
 
 interface MealPlanProps {
   mealPlan: any;
@@ -15,6 +17,7 @@ interface MealPlanProps {
 const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) => {
   const navigate = useNavigate();
   const [localMealPlan, setLocalMealPlan] = useState(mealPlan);
+  const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
 
   const saveMealPlan = async () => {
     try {
@@ -27,11 +30,12 @@ const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) 
       await recordMealPlanGeneration(user.id);
       
       const savedPlans = JSON.parse(localStorage.getItem('savedMealPlans') || '[]');
-      savedPlans.push({
+      const newPlan = {
         ...localMealPlan,
-        id: Date.now(),
+        id: Date.now().toString(),
         date: new Date().toISOString(),
-      });
+      };
+      savedPlans.push(newPlan);
       localStorage.setItem('savedMealPlans', JSON.stringify(savedPlans));
       toast.success("Meal plan saved successfully!");
       navigate("/saved-items?source=mealPlan");
@@ -43,44 +47,63 @@ const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) 
   if (!mealPlan) return null;
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-4 md:p-6 animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg md:text-xl font-semibold">
-          {mealPlan.name || "Your Weekly Meal Plan"}
-        </h2>
-        {!readOnly && (
-          <Button
-            onClick={saveMealPlan}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            Save
-          </Button>
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 relative">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-semibold">
+              {mealPlan.name || "Your Weekly Meal Plan"}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Generated on {format(new Date(), "PPpp")}
+            </p>
+          </div>
+          {!readOnly && (
+            <Button
+              onClick={saveMealPlan}
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save
+            </Button>
+          )}
+        </div>
+
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => setExpandedPlanId(expandedPlanId ? null : mealPlan.id || 'current')}
+        >
+          {expandedPlanId ? "Hide Details" : "View Details"}
+        </Button>
+
+        {expandedPlanId && (
+          <div className="border-t mt-4 pt-4">
+            <div className="space-y-4">
+              {Object.entries(localMealPlan)
+                .filter(([key]) => !['name', 'id', 'date'].includes(key))
+                .map(([day, meals]: [string, any]) => (
+                  <MealPlanDay
+                    key={day}
+                    day={day}
+                    meals={meals}
+                    readOnly={readOnly}
+                    onUpdate={(day, meals) => {
+                      if (!readOnly) {
+                        setLocalMealPlan(prev => ({
+                          ...prev,
+                          [day]: meals
+                        }));
+                      }
+                    }}
+                  />
+                ))}
+            </div>
+          </div>
         )}
       </div>
-
-      <div className="space-y-4">
-        {Object.entries(localMealPlan)
-          .filter(([key]) => key !== 'name')
-          .map(([day, meals]: [string, any]) => (
-            <MealPlanDay
-              key={day}
-              day={day}
-              meals={meals}
-              readOnly={readOnly}
-              onUpdate={(day, meals) => {
-                if (!readOnly) {
-                  setLocalMealPlan(prev => ({
-                    ...prev,
-                    [day]: meals
-                  }));
-                }
-              }}
-            />
-          ))}
-      </div>
-    </div>
+    </Card>
   );
 };
 
