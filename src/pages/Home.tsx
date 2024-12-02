@@ -9,7 +9,7 @@ import { useFeatureAccess } from '@/components/home/FeatureAccess';
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect } from 'react';
 import { supabase } from "@/lib/supabase";
-import { checkFeatureAccess } from "@/utils/subscriptionUtils";
+import { checkFeatureAccess, type SubscriptionFeatures } from "@/utils/subscriptionUtils";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
@@ -39,22 +39,26 @@ const Home = () => {
       return;
     }
 
-    const canAccessFeature = (feature: string): boolean => {
-      switch (feature) {
+    const canAccessFeature = (feature: keyof SubscriptionFeatures): boolean => {
+      return checkFeatureAccess(plan, feature);
+    };
+
+    const getFeatureKey = (path: string): keyof SubscriptionFeatures => {
+      switch (path) {
         case "/upload-ingredients":
-          return checkFeatureAccess(plan, "uploadIngredients");
+          return "uploadIngredients";
         case "/generate-meal-plan":
-          return checkFeatureAccess(plan, "mealPlanning");
+          return "mealPlanning";
         case "/generate-recipes":
-          return checkFeatureAccess(plan, "photoRecipes");
+          return "photoRecipes";
         case "/saved-items":
-          return checkFeatureAccess(plan, "savedItems");
+          return "savedItems";
         default:
-          return false;
+          return "quickLinks";
       }
     };
 
-    if (!canAccessFeature(path)) {
+    if (!canAccessFeature(getFeatureKey(path))) {
       toast.error("This feature is not available in your current plan. Please upgrade to access it.");
       navigate("/?scrollTo=pricing");
       return;
@@ -65,8 +69,8 @@ const Home = () => {
     }
   };
 
-  const isFeatureEnabled = (feature: string): boolean => {
-    return checkFeatureAccess(plan, feature as keyof SubscriptionFeatures);
+  const isFeatureEnabled = (feature: keyof SubscriptionFeatures): boolean => {
+    return checkFeatureAccess(plan, feature);
   };
 
   return (
