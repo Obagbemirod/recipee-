@@ -5,6 +5,14 @@ import { toast } from "sonner";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { normalizeIngredient } from "@/utils/ingredientMapping";
 
+// Define the SpeechRecognition type
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 interface AudioRecordingSectionProps {
   isUploading: boolean;
   onIngredientsIdentified: (ingredients: { name: string; confidence: number }[]) => void;
@@ -18,6 +26,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [transcript, setTranscript] = useState<string>("");
+  const [finalTranscript, setFinalTranscript] = useState<string>("");
 
   useEffect(() => {
     return () => {
@@ -35,7 +44,9 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const processAudioData = async (audioBlob: Blob) => {
     try {
-      if (!transcript) {
+      const textToProcess = finalTranscript || transcript;
+      
+      if (!textToProcess) {
         toast.error("No speech was detected. Please try again.");
         return;
       }
@@ -43,7 +54,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-      const prompt = `Given this spoken text about ingredients: "${transcript}", 
+      const prompt = `Given this spoken text about ingredients: "${textToProcess}", 
         identify all food ingredients mentioned. Return ONLY a JSON array of objects with 'name' and 'confidence' 
         properties, where confidence is a number between 0 and 1 indicating how confident you are that this is a food ingredient.
         Example format: [{"name": "tomato", "confidence": 0.95}]`;
@@ -76,6 +87,9 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const startRecording = async () => {
     try {
+      setTranscript("");
+      setFinalTranscript("");
+      
       // Initialize Web Speech API
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -83,10 +97,22 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       recognitionRef.current.interimResults = true;
 
       recognitionRef.current.onresult = (event) => {
-        const currentTranscript = Array.from(event.results)
-          .map(result => result[0].transcript)
-          .join(' ');
-        setTranscript(currentTranscript);
+        let interimTranscript = '';
+        let finalTranscriptPart = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscriptPart += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        setTranscript(interimTranscript);
+        if (finalTranscriptPart) {
+          setFinalTranscript(prev => prev + ' ' + finalTranscriptPart);
+        }
       };
 
       recognitionRef.current.start();
@@ -154,6 +180,7 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
   const handleDeleteAudio = () => {
     setAudioPreview(null);
     setTranscript("");
+    setFinalTranscript("");
     toast.success("Audio recording deleted");
   };
 
@@ -170,9 +197,9 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         <p className="mt-4 text-gray-500">
           {isRecording ? 'Recording... Click to stop' : 'Click to start recording'}
         </p>
-        {transcript && (
+        {(transcript || finalTranscript) && (
           <p className="mt-2 text-sm text-gray-600">
-            Recognized text: {transcript}
+            Recognized text: {finalTranscript} {transcript}
           </p>
         )}
         {audioPreview && (
