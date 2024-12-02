@@ -1,6 +1,6 @@
 {
   "name": "Recipee",
-  "short_name": "Recipee",
+  "short_name": "Chef Assistant",
   "description": "Cooking Made Simple",
   "start_url": "/",
   "display": "standalone",
@@ -8,7 +8,7 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "/lovable-uploads/b53367da-f796-4f4e-9c5b-cf1aaf1baf03.png",
+      "src": "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
       "sizes": "512x512",
       "type": "image/png"
     }
