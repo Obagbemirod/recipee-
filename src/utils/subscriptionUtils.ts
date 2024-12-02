@@ -18,6 +18,9 @@ export interface SubscriptionFeatures {
   recipeMasterchef: boolean;
   recipeMonetization: boolean;
   offlineAccess: 'limited' | 'extended' | 'none';
+  savedItems: boolean;
+  uploadIngredients: boolean;
+  generateRecipes: boolean;
 }
 
 const TRIAL_FEATURES: SubscriptionFeatures = {
@@ -37,7 +40,10 @@ const TRIAL_FEATURES: SubscriptionFeatures = {
   marketplaceAccess: 'full',
   recipeMasterchef: true,
   recipeMonetization: true,
-  offlineAccess: 'extended'
+  offlineAccess: 'extended',
+  savedItems: true,
+  uploadIngredients: true,
+  generateRecipes: true
 };
 
 const BASIC_FEATURES: SubscriptionFeatures = {
@@ -57,7 +63,10 @@ const BASIC_FEATURES: SubscriptionFeatures = {
   marketplaceAccess: 'limited',
   recipeMasterchef: false,
   recipeMonetization: false,
-  offlineAccess: 'limited'
+  offlineAccess: 'limited',
+  savedItems: true,
+  uploadIngredients: true,
+  generateRecipes: false
 };
 
 const PREMIUM_FEATURES: SubscriptionFeatures = {
@@ -77,7 +86,10 @@ const PREMIUM_FEATURES: SubscriptionFeatures = {
   marketplaceAccess: 'full',
   recipeMasterchef: true,
   recipeMonetization: true,
-  offlineAccess: 'extended'
+  offlineAccess: 'extended',
+  savedItems: true,
+  uploadIngredients: true,
+  generateRecipes: true
 };
 
 export const PLAN_FEATURES: Record<Exclude<SubscriptionPlan, null>, SubscriptionFeatures> = {

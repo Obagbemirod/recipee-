@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toast } from "sonner";
+import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
 
 const getGeminiAPI = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -10,6 +11,11 @@ const getGeminiAPI = () => {
   }
   
   return new GoogleGenerativeAI(apiKey);
+};
+
+const getCuisineContext = (country: string) => {
+  const cuisineInfo = COUNTRIES_AND_CUISINES.find(c => c.value === country);
+  return cuisineInfo ? cuisineInfo.cuisine : 'local cuisine';
 };
 
 const parseMealDetails = (text: string) => {
@@ -27,13 +33,7 @@ const parseMealDetails = (text: string) => {
         protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
         carbs: carbsMatch ? `${carbsMatch[1]}g` : "N/A",
         fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
-      },
-      ingredients: [
-        { item: "Ingredients will be provided", amount: "as needed" }
-      ],
-      steps: [
-        { step: 1, instruction: "Cooking instructions will be provided", time: "TBD" }
-      ]
+      }
     };
   } catch (error) {
     console.error("Error parsing meal details:", error);
@@ -44,13 +44,7 @@ const parseMealDetails = (text: string) => {
         protein: "N/A",
         carbs: "N/A",
         fat: "N/A"
-      },
-      ingredients: [
-        { item: "Ingredients will be provided", amount: "as needed" }
-      ],
-      steps: [
-        { step: 1, instruction: "Cooking instructions will be provided", time: "TBD" }
-      ]
+      }
     };
   }
 };
@@ -67,7 +61,6 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   let mealMatch;
   const content = markdown.split(dayRegex);
   
-  // Remove the first empty element if it exists
   if (content[0].trim() === '') {
     content.shift();
   }
@@ -92,7 +85,6 @@ const parseMarkdownToMealPlan = (markdown: string) => {
     }
   }
 
-  // Ensure all days are present with default values if missing
   days.forEach(day => {
     if (!mealPlan[day]) {
       mealPlan[day] = {
@@ -113,6 +105,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     
     const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
     const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
+    const cuisineContext = getCuisineContext(userPrefs.country || 'local');
     
     if (!userIngredients.length) {
       toast.error("Please provide ingredients first");
@@ -125,12 +118,13 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     
     STRICT REQUIREMENTS:
     1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
-    2. Focus on ${userPrefs.cuisineStyle || 'traditional'} cuisine from ${userPrefs.country || 'local'} region
+    2. Focus on ${userPrefs.cuisineStyle || 'traditional'} ${cuisineContext} dishes ONLY
     3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     5. Each meal MUST be possible to make with ONLY the provided ingredients
     6. Include approximate nutritional information for each meal
-    7. Format MUST be exactly as shown below for proper parsing:
+    7. ONLY suggest REAL, AUTHENTIC, and TRADITIONAL meals from ${cuisineContext}
+    8. Format MUST be exactly as shown below for proper parsing:
     
     **Sunday:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
