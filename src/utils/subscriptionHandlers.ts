@@ -61,8 +61,8 @@ declare global {
   }
 }
 
-const waitForPaystack = () => {
-  return new Promise<void>((resolve, reject) => {
+const waitForPaystack = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
     if (typeof window.PaystackPop !== 'undefined') {
       resolve();
       return;
@@ -124,10 +124,6 @@ export const handlePaymentFlow = async (
             
             onSuccess(response.reference);
             navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
-          })
-          .catch((error) => {
-            console.error('Subscription activation error:', error);
-            toast.error("Failed to activate subscription. Please contact support.");
           });
       } else {
         toast.error("Payment failed. Please try again or contact support.");
