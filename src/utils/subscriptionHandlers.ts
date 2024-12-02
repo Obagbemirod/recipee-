@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import type { FlutterwaveConfig } from "@/types/flutterwave";
 
 export const handleTrialActivation = async (userId: string) => {
   try {

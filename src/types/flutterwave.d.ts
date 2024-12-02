@@ -1,4 +1,4 @@
-interface FlutterwaveConfig {
+export interface FlutterwaveConfig {
   public_key: string;
   tx_ref: string;
   amount: number;
