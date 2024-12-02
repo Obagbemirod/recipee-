@@ -13,53 +13,97 @@ const getGeminiAPI = () => {
 };
 
 const parseMealDetails = (text: string) => {
-  const caloriesMatch = text.match(/Calories: (\d+)/);
-  const proteinMatch = text.match(/Protein: (\d+)g/);
-  const carbsMatch = text.match(/Carbs: (\d+)g/);
-  const fatMatch = text.match(/Fat: (\d+)g/);
+  try {
+    const nameMatch = text.match(/^([^(]+)/);
+    const caloriesMatch = text.match(/Calories: (\d+)/);
+    const proteinMatch = text.match(/Protein: (\d+)g/);
+    const carbsMatch = text.match(/Carbs: (\d+)g/);
+    const fatMatch = text.match(/Fat: (\d+)g/);
 
-  return {
-    name: text.split('(')[0].trim(),
-    nutrition: {
-      calories: caloriesMatch ? `${caloriesMatch[1]} kcal` : "N/A",
-      protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
-      carbs: carbsMatch ? `${carbsMatch[1]}g` : "N/A",
-      fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
-    },
-    ingredients: [
-      { item: "Ingredients will be added", amount: "as needed" }
-    ],
-    steps: [
-      { step: 1, instruction: "Detailed cooking instructions will be provided", time: "TBD" }
-    ]
-  };
+    return {
+      name: nameMatch ? nameMatch[1].trim() : text.trim(),
+      nutrition: {
+        calories: caloriesMatch ? `${caloriesMatch[1]} kcal` : "N/A",
+        protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
+        carbs: carbsMatch ? `${carbsMatch[1]}g` : "N/A",
+        fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
+      },
+      ingredients: [
+        { item: "Ingredients will be provided", amount: "as needed" }
+      ],
+      steps: [
+        { step: 1, instruction: "Cooking instructions will be provided", time: "TBD" }
+      ]
+    };
+  } catch (error) {
+    console.error("Error parsing meal details:", error);
+    return {
+      name: text.trim(),
+      nutrition: {
+        calories: "N/A",
+        protein: "N/A",
+        carbs: "N/A",
+        fat: "N/A"
+      },
+      ingredients: [
+        { item: "Ingredients will be provided", amount: "as needed" }
+      ],
+      steps: [
+        { step: 1, instruction: "Cooking instructions will be provided", time: "TBD" }
+      ]
+    };
+  }
 };
 
 const parseMarkdownToMealPlan = (markdown: string) => {
-  const days: Record<string, any> = {};
-  const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const mealPlan: Record<string, any> = {};
+  
+  const dayRegex = /\*\*(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday):\*\*/gi;
   const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
 
   let currentDay = "";
-  let matches;
-
-  const sections = markdown.split(dayRegex);
-  sections.shift();
-
-  for (let i = 0; i < sections.length; i += 2) {
-    const day = sections[i];
-    const content = sections[i + 1];
-    const meals: Record<string, any> = {};
-
-    while ((matches = mealRegex.exec(content)) !== null) {
-      const [, mealType, mealText] = matches;
-      meals[mealType.toLowerCase()] = parseMealDetails(mealText);
-    }
-
-    days[day.toLowerCase()] = meals;
+  let dayMatch;
+  let mealMatch;
+  const content = markdown.split(dayRegex);
+  
+  // Remove the first empty element if it exists
+  if (content[0].trim() === '') {
+    content.shift();
   }
 
-  return days;
+  for (let i = 0; i < content.length; i += 2) {
+    const day = content[i]?.toLowerCase();
+    const mealContent = content[i + 1];
+
+    if (day && days.includes(day)) {
+      const meals: Record<string, any> = {
+        breakfast: null,
+        lunch: null,
+        dinner: null
+      };
+
+      while ((mealMatch = mealRegex.exec(mealContent)) !== null) {
+        const [, mealType, mealText] = mealMatch;
+        meals[mealType.toLowerCase()] = parseMealDetails(mealText);
+      }
+
+      mealPlan[day] = meals;
+    }
+  }
+
+  // Ensure all days are present with default values if missing
+  days.forEach(day => {
+    if (!mealPlan[day]) {
+      mealPlan[day] = {
+        breakfast: parseMealDetails("Default meal"),
+        lunch: parseMealDetails("Default meal"),
+        dinner: parseMealDetails("Default meal")
+      };
+    }
+  });
+
+  return mealPlan;
 };
 
 export const generateMealPlan = async (additionalPreferences: string[] = []) => {
@@ -77,22 +121,23 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
 
     const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
     
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day using ONLY these ingredients: ${ingredientsList}.
+    const prompt = `Generate a complete 7-day meal plan (Sunday through Saturday) with breakfast, lunch, and dinner for each day using these ingredients: ${ingredientsList}.
     
-    STRICT RULES:
+    STRICT REQUIREMENTS:
     1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
     2. Focus on ${userPrefs.cuisineStyle || 'traditional'} cuisine from ${userPrefs.country || 'local'} region
     3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     5. Each meal MUST be possible to make with ONLY the provided ingredients
-    6. If not enough ingredients for a complete meal plan, return fewer meals rather than suggesting unavailable ingredients
-    7. Include calories and nutritional information
+    6. Include approximate nutritional information for each meal
+    7. Format MUST be exactly as shown below for proper parsing:
     
-    Format each meal as:
-    Day:
+    **Sunday:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)`;
+    - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    
+    [Repeat for Monday through Saturday]`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -107,8 +152,8 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     
     try {
       const mealPlan = parseMarkdownToMealPlan(text);
+      console.log("Generated meal plan:", mealPlan);
       return mealPlan;
-      console.log(mealPlan)
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
       toast.error("Failed to generate meal plan. Please try again.");

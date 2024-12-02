@@ -15,6 +15,7 @@ interface MealPlanProps {
 const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) => {
   const navigate = useNavigate();
   const [localMealPlan, setLocalMealPlan] = useState(mealPlan);
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
   const saveMealPlan = async () => {
     try {
@@ -36,11 +37,15 @@ const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) 
       toast.success("Meal plan saved successfully!");
       navigate("/saved-items?source=mealPlan");
     } catch (error) {
+      console.error("Error saving meal plan:", error);
       toast.error("Failed to save meal plan");
     }
   };
 
-  if (!mealPlan) return null;
+  if (!mealPlan) {
+    console.error("No meal plan data provided");
+    return null;
+  }
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-4 md:p-6 animate-fade-in">
@@ -61,24 +66,26 @@ const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) 
       </div>
 
       <div className="space-y-4">
-        {Object.entries(localMealPlan)
-          .filter(([key]) => key !== 'name')
-          .map(([day, meals]: [string, any]) => (
-            <MealPlanDay
-              key={day}
-              day={day}
-              meals={meals}
-              readOnly={readOnly}
-              onUpdate={(day, meals) => {
-                if (!readOnly) {
-                  setLocalMealPlan(prev => ({
-                    ...prev,
-                    [day]: meals
-                  }));
-                }
-              }}
-            />
-          ))}
+        {days.map((day) => (
+          <MealPlanDay
+            key={day}
+            day={day}
+            meals={localMealPlan[day] || {
+              breakfast: { name: "No meal planned", nutrition: {} },
+              lunch: { name: "No meal planned", nutrition: {} },
+              dinner: { name: "No meal planned", nutrition: {} }
+            }}
+            readOnly={readOnly}
+            onUpdate={(day, meals) => {
+              if (!readOnly) {
+                setLocalMealPlan(prev => ({
+                  ...prev,
+                  [day]: meals
+                }));
+              }
+            }}
+          />
+        ))}
       </div>
     </div>
   );
