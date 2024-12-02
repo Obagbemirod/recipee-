@@ -51,8 +51,8 @@ export const handlePaymentFlow = async (
     }
 
     const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-    if (!paystackKey || !paystackKey.startsWith('pk_test_')) {
-      console.error('Invalid Paystack test key');
+    if (!paystackKey) {
+      console.error('Missing Paystack key');
       toast.error("Payment configuration error. Please contact support.");
       return;
     }
