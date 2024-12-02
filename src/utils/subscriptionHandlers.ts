@@ -61,8 +61,8 @@ declare global {
   }
 }
 
-const waitForPaystack = () => {
-  return new Promise<void>((resolve, reject) => {
+const waitForPaystack = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
     if (typeof window.PaystackPop !== 'undefined') {
       resolve();
       return;
@@ -88,12 +88,17 @@ export const handlePaymentFlow = async (
   plan: any,
   onSuccess: (transactionId: string) => void,
   navigate: (path: string) => void
-) => {
+): Promise<void> => {
   try {
     await waitForPaystack();
 
     if (!window.PaystackPop || typeof window.PaystackPop.setup !== 'function') {
       throw new Error('Paystack SDK not properly initialized');
+    }
+
+    const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+    if (!paystackKey) {
+      throw new Error('Paystack public key not found');
     }
 
     function handlePaymentCallback(response: any) {
@@ -124,10 +129,6 @@ export const handlePaymentFlow = async (
             
             onSuccess(response.reference);
             navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
-          })
-          .catch((error) => {
-            console.error('Subscription activation error:', error);
-            toast.error("Failed to activate subscription. Please contact support.");
           });
       } else {
         toast.error("Payment failed. Please try again or contact support.");
@@ -135,9 +136,9 @@ export const handlePaymentFlow = async (
     }
 
     const config: PaystackConfig = {
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      key: paystackKey,
       email: user.email,
-      amount: Number(plan.price) * 100,
+      amount: Math.round(Number(plan.price) * 100), // Convert to kobo/cents
       currency: "USD",
       ref: `${user.id}-${Date.now()}`,
       metadata: {
