@@ -61,28 +61,6 @@ declare global {
   }
 }
 
-const waitForPaystack = () => {
-  return new Promise<void>((resolve, reject) => {
-    if (typeof window.PaystackPop !== 'undefined') {
-      resolve();
-      return;
-    }
-
-    let attempts = 0;
-    const maxAttempts = 20;
-    const interval = setInterval(() => {
-      attempts++;
-      if (typeof window.PaystackPop !== 'undefined') {
-        clearInterval(interval);
-        resolve();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(interval);
-        reject(new Error('Paystack failed to load'));
-      }
-    }, 500);
-  });
-};
-
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
@@ -90,54 +68,10 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    await waitForPaystack();
-
-    if (!window.PaystackPop || typeof window.PaystackPop.setup !== 'function') {
-      throw new Error('Paystack SDK not properly initialized');
-    }
-
-    function handlePaymentCallback(response: any) {
-      if (response.status === 'success') {
-        supabase
-          .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_id: plan.planId,
-            start_date: new Date().toISOString(),
-            end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active',
-            payment_reference: response.reference
-          })
-          .then(({ error }) => {
-            if (error) {
-              console.error('Subscription activation error:', error);
-              toast.error("Failed to activate subscription. Please contact support.");
-              return;
-            }
-            
-            if (window.jumbleberry) {
-              window.jumbleberry("track", "Purchase", {
-                transaction_id: response.reference,
-                order_value: plan.price
-              });
-            }
-            
-            onSuccess(response.reference);
-            navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
-          })
-          .catch((error) => {
-            console.error('Subscription activation error:', error);
-            toast.error("Failed to activate subscription. Please contact support.");
-          });
-      } else {
-        toast.error("Payment failed. Please try again or contact support.");
-      }
-    }
-
     const config: PaystackConfig = {
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: Number(plan.price) * 100,
+      amount: Number(plan.price) * 100, // Paystack expects amount in kobo
       currency: "USD",
       ref: `${user.id}-${Date.now()}`,
       metadata: {
@@ -149,21 +83,55 @@ export const handlePaymentFlow = async (
           }
         ]
       },
-      callback: handlePaymentCallback,
+      callback: async function(response: any) {
+        if (response.status === 'success') {
+          try {
+            const { error } = await supabase
+              .from('subscriptions')
+              .insert({
+                user_id: user.id,
+                plan_id: plan.planId,
+                start_date: new Date().toISOString(),
+                end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'active',
+                payment_reference: response.reference
+              });
+
+            if (error) throw error;
+            
+            // Track successful purchase with Jumbleberry
+            if (window.jumbleberry) {
+              window.jumbleberry("track", "Purchase", {
+                transaction_id: response.reference,
+                order_value: plan.price
+              });
+            }
+            
+            onSuccess(response.reference);
+            navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
+          } catch (error: any) {
+            console.error('Subscription activation error:', error);
+            toast.error("Failed to activate subscription. Please contact support.");
+          }
+        } else {
+          toast.error("Payment failed. Please try again or contact support.");
+        }
+      },
       onClose: function() {
-        toast.error("Payment cancelled. Please try again when you're ready.");
+        // Handle modal close
       }
     };
 
-    const handler = window.PaystackPop.setup(config);
-    handler.openIframe();
+    if (typeof window.PaystackPop?.setup === 'function') {
+      const handler = window.PaystackPop.setup(config);
+      handler.openIframe();
+    } else {
+      console.error('PaystackPop is not available');
+      toast.error("Payment system is not available. Please try again later.");
+    }
   } catch (error) {
     console.error('Payment initialization error:', error);
-    if (error instanceof Error) {
-      toast.error(`Payment initialization failed: ${error.message}`);
-    } else {
-      toast.error("Unable to initialize payment. Please try again later.");
-    }
+    toast.error("Unable to initialize payment. Please try again.");
   }
 };
 
