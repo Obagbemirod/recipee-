@@ -51,31 +51,12 @@ export const handlePaymentFlow = async (
     }
 
     const config: PaystackConfig = {
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
       amount: Math.round(Number(plan.price) * 100), // Convert to kobo and ensure it's a whole number
       ref: `${user.id}-${Date.now()}`,
-      callback: async function(response) {
-        try {
-          const { error } = await supabase
-            .from('subscriptions')
-            .insert({
-              user_id: user.id,
-              plan_id: plan.planId,
-              start_date: new Date().toISOString(),
-              end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              status: 'active',
-              payment_reference: response.reference
-            });
-
-          if (error) throw error;
-          
-          onSuccess(response.reference);
-          navigate("/onboarding");
-        } catch (error: any) {
-          console.error('Subscription activation error:', error);
-          toast.error("Failed to activate subscription. Please contact support.");
-        }
+      onSuccess: function(response) {
+        handleSubscriptionActivation(user, plan, response.reference, onSuccess, navigate);
       },
       onClose: function() {
         toast.error("Payment cancelled. Please try again when ready.");
@@ -96,5 +77,34 @@ export const handlePaymentFlow = async (
   } catch (error) {
     console.error('Payment initialization error:', error);
     toast.error("Unable to initialize payment. Please try again.");
+  }
+};
+
+const handleSubscriptionActivation = async (
+  user: any,
+  plan: any,
+  reference: string,
+  onSuccess: (transactionId: string) => void,
+  navigate: (path: string) => void
+) => {
+  try {
+    const { error } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: user.id,
+        plan_id: plan.planId,
+        start_date: new Date().toISOString(),
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'active',
+        payment_reference: reference
+      });
+
+    if (error) throw error;
+    
+    onSuccess(reference);
+    navigate("/onboarding");
+  } catch (error: any) {
+    console.error('Subscription activation error:', error);
+    toast.error("Failed to activate subscription. Please contact support.");
   }
 };
