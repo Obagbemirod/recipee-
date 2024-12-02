@@ -75,7 +75,7 @@ const Auth = () => {
           </Button>
         </div>
 
-        <div className="relative">
+{/*         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
@@ -84,9 +84,9 @@ const Auth = () => {
               Or continue with
             </span>
           </div>
-        </div>
+        </div> */}
 
-        <SocialAuth isLogin={true} />
+{/*         <SocialAuth isLogin={true} /> */}
       </motion.div>
     </div>
   );
