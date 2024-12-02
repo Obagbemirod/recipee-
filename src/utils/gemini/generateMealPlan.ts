@@ -37,8 +37,17 @@ const parseMealDetails = (text: string) => {
 
 const parseMarkdownToMealPlan = (markdown: string) => {
   try {
-    const days: Record<string, any> = {};
-    const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
+    const days = {
+      sunday: { breakfast: {}, lunch: {}, dinner: {} },
+      monday: { breakfast: {}, lunch: {}, dinner: {} },
+      tuesday: { breakfast: {}, lunch: {}, dinner: {} },
+      wednesday: { breakfast: {}, lunch: {}, dinner: {} },
+      thursday: { breakfast: {}, lunch: {}, dinner: {} },
+      friday: { breakfast: {}, lunch: {}, dinner: {} },
+      saturday: { breakfast: {}, lunch: {}, dinner: {} }
+    };
+
+    const dayRegex = /\*\*(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday):\*\*/g;
     const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
 
     let currentDay = "";
@@ -48,24 +57,13 @@ const parseMarkdownToMealPlan = (markdown: string) => {
     sections.shift(); // Remove the text before the first day
 
     for (let i = 0; i < sections.length; i += 2) {
-      const day = sections[i];
+      const day = sections[i].toLowerCase();
       const content = sections[i + 1];
-      const meals: Record<string, any> = {};
-
+      
       while ((matches = mealRegex.exec(content)) !== null) {
         const [, mealType, mealText] = matches;
-        meals[mealType.toLowerCase()] = parseMealDetails(mealText);
+        days[day][mealType.toLowerCase()] = parseMealDetails(mealText);
       }
-
-      // Only add the day if we have at least one meal
-      if (Object.keys(meals).length > 0) {
-        days[day.toLowerCase()] = meals;
-      }
-    }
-
-    // Validate that we have at least one day with meals
-    if (Object.keys(days).length === 0) {
-      throw new Error("No valid meal plan data was generated");
     }
 
     return days;
@@ -90,19 +88,19 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
 
     const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
     
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day using ONLY these ingredients: ${ingredientsList}.
+    const prompt = `Generate a complete 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day using these ingredients: ${ingredientsList}.
     
     STRICT RULES:
-    1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
-    2. Focus on ${userPrefs.cuisineStyle || 'traditional'} cuisine from ${userPrefs.country || 'local'} region
-    3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
-    4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
-    5. Each meal MUST be possible to make with ONLY the provided ingredients
-    6. If not enough ingredients for a complete meal plan, return fewer meals rather than suggesting unavailable ingredients
-    7. Include calories and nutritional information
+    1. MUST include all 7 days from Sunday to Saturday
+    2. MUST include breakfast, lunch, and dinner for each day
+    3. ONLY use the provided ingredients
+    4. Focus on ${userPrefs.cuisineStyle || 'traditional'} cuisine from ${userPrefs.country || 'local'} region
+    5. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
+    6. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
+    7. Each meal MUST include nutritional information
     
     Format each meal as:
-    Day:
+    **Day:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)`;
