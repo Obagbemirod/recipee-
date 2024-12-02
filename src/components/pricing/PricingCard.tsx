@@ -57,21 +57,21 @@ export function PricingCard({ plan, onSelect }: PricingCardProps) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-4"> {/* Added margin-top */}
-                    <span className="text-4xl font-bold">&#8358;{plan.price.toFixed(2)}</span>
+                    <span className="text-4xl font-bold">${plan.price.toFixed(2)}</span>
                     <span className="text-muted-foreground">/month</span>
                     <Badge variant="destructive" className="ml-2">
                       <span className="font-bold">{plan.discount}% OFF</span>
                     </Badge>
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    <span className="line-through font-bold">&#8358;{plan.originalPrice}</span>
+                    <span className="line-through font-bold">${plan.originalPrice}</span>
                     <span className="ml-1">Original price</span>
                   </div>
                 </div>
               </div>
             ) : (
               <div>
-                <span className="text-4xl font-bold">&#8358;{plan.price}</span>
+                <span className="text-4xl font-bold">${plan.price}</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
             )}
