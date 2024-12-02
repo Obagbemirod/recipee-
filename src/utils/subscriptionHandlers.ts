@@ -69,7 +69,7 @@ const waitForPaystack = () => {
     }
 
     let attempts = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 20; // Increased max attempts
     const interval = setInterval(() => {
       attempts++;
       if (typeof window.PaystackPop !== 'undefined') {
@@ -79,7 +79,7 @@ const waitForPaystack = () => {
         clearInterval(interval);
         reject(new Error('Paystack failed to load'));
       }
-    }, 1000);
+    }, 500); // Decreased interval time for faster checking
   });
 };
 
@@ -92,10 +92,14 @@ export const handlePaymentFlow = async (
   try {
     await waitForPaystack();
 
+    if (!window.PaystackPop || typeof window.PaystackPop.setup !== 'function') {
+      throw new Error('Paystack SDK not properly initialized');
+    }
+
     const config: PaystackConfig = {
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: Number(plan.price) * 100, // Paystack expects amount in kobo
+      amount: Number(plan.price) * 100,
       currency: "USD",
       ref: `${user.id}-${Date.now()}`,
       metadata: {
@@ -123,7 +127,6 @@ export const handlePaymentFlow = async (
 
             if (error) throw error;
             
-            // Track successful purchase with Jumbleberry
             if (window.jumbleberry) {
               window.jumbleberry("track", "Purchase", {
                 transaction_id: response.reference,
@@ -142,7 +145,7 @@ export const handlePaymentFlow = async (
         }
       },
       onClose: function() {
-        // Handle modal close
+        toast.error("Payment cancelled. Please try again when you're ready.");
       }
     };
 
@@ -150,7 +153,11 @@ export const handlePaymentFlow = async (
     handler.openIframe();
   } catch (error) {
     console.error('Payment initialization error:', error);
-    toast.error("Unable to initialize payment. Please try again.");
+    if (error instanceof Error) {
+      toast.error(`Payment initialization failed: ${error.message}`);
+    } else {
+      toast.error("Unable to initialize payment. Please try again later.");
+    }
   }
 };
 
