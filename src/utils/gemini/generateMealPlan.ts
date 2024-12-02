@@ -36,30 +36,43 @@ const parseMealDetails = (text: string) => {
 };
 
 const parseMarkdownToMealPlan = (markdown: string) => {
-  const days: Record<string, any> = {};
-  const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
-  const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
+  try {
+    const days: Record<string, any> = {};
+    const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
+    const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
 
-  let currentDay = "";
-  let matches;
+    let currentDay = "";
+    let matches;
 
-  const sections = markdown.split(dayRegex);
-  sections.shift();
+    const sections = markdown.split(dayRegex);
+    sections.shift(); // Remove the text before the first day
 
-  for (let i = 0; i < sections.length; i += 2) {
-    const day = sections[i];
-    const content = sections[i + 1];
-    const meals: Record<string, any> = {};
+    for (let i = 0; i < sections.length; i += 2) {
+      const day = sections[i];
+      const content = sections[i + 1];
+      const meals: Record<string, any> = {};
 
-    while ((matches = mealRegex.exec(content)) !== null) {
-      const [, mealType, mealText] = matches;
-      meals[mealType.toLowerCase()] = parseMealDetails(mealText);
+      while ((matches = mealRegex.exec(content)) !== null) {
+        const [, mealType, mealText] = matches;
+        meals[mealType.toLowerCase()] = parseMealDetails(mealText);
+      }
+
+      // Only add the day if we have at least one meal
+      if (Object.keys(meals).length > 0) {
+        days[day.toLowerCase()] = meals;
+      }
     }
 
-    days[day.toLowerCase()] = meals;
-  }
+    // Validate that we have at least one day with meals
+    if (Object.keys(days).length === 0) {
+      throw new Error("No valid meal plan data was generated");
+    }
 
-  return days;
+    return days;
+  } catch (error) {
+    console.error("Error parsing meal plan:", error);
+    throw new Error("Failed to parse meal plan data");
+  }
 };
 
 export const generateMealPlan = async (additionalPreferences: string[] = []) => {
