@@ -51,7 +51,7 @@ export const handlePaymentFlow = async (
     }
 
     const config: PaystackConfig = {
-      publicKey: pk_test_299964a28932dee625c4290e1ad977050312fe72,
+      publicKey: "pk_test_299964a28932dee625c4290e1ad977050312fe72",
       // publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
       amount: Math.round(Number(plan.price) * 100), // Convert to kobo and ensure it's a whole number
