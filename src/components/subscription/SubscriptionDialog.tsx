@@ -13,7 +13,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
 
   const handleViewPlans = () => {
     onClose();
-    navigate("/?scrollTo=pricing");
+    navigate("/pricing");
   };
 
   return (
@@ -43,7 +43,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
             </ul>
           </div>
           <div className="flex flex-col gap-2">
-            <Button onClick={handleViewPlans} className="bg-primary hover:bg-primary/90">View Plans</Button>
+            <Button onClick={handleViewPlans}>View Plans</Button>
             <Button variant="outline" onClick={onClose}>Maybe Later</Button>
           </div>
         </div>
