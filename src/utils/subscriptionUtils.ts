@@ -1,109 +1,46 @@
-export type SubscriptionPlan = '24_hour_trial' | 'basic' | 'premium' | null;
-
-export interface SubscriptionFeatures {
-  imageInputs: boolean;
-  videoInputs: boolean;
-  textInputs: boolean;
-  audioInputs: boolean;
-  mealPlansPerWeek: number;
-  recipeGeneration: boolean;
-  nutritionalContent: boolean;
-  cookingGuide: boolean;
-  notifications: {
-    frequency: 'once' | 'thrice' | 'none';
-    type: 'basic' | 'advanced';
-  };
-  groceryListManagement: 'basic' | 'expanded' | 'none';
-  marketplaceAccess: 'limited' | 'full' | 'none';
-  recipeMasterchef: boolean;
-  recipeMonetization: boolean;
-  offlineAccess: 'limited' | 'extended' | 'none';
-  savedItems: boolean;
+export type SubscriptionFeatures = {
   uploadIngredients: boolean;
-  generateRecipes: boolean;
-}
-
-const TRIAL_FEATURES: SubscriptionFeatures = {
-  imageInputs: true,
-  videoInputs: true,
-  textInputs: true,
-  audioInputs: true,
-  mealPlansPerWeek: 999,
-  recipeGeneration: true,
-  nutritionalContent: true,
-  cookingGuide: true,
-  notifications: {
-    frequency: 'thrice',
-    type: 'advanced'
-  },
-  groceryListManagement: 'expanded',
-  marketplaceAccess: 'full',
-  recipeMasterchef: true,
-  recipeMonetization: true,
-  offlineAccess: 'extended',
-  savedItems: true,
-  uploadIngredients: true,
-  generateRecipes: true
+  recipeGeneration: boolean;
+  photoRecipes: boolean;
+  savedItems: boolean;
+  mealPlanning: boolean;
 };
 
-const BASIC_FEATURES: SubscriptionFeatures = {
-  imageInputs: true,
-  videoInputs: false,
-  textInputs: true,
-  audioInputs: false,
-  mealPlansPerWeek: 1,
-  recipeGeneration: false,
-  nutritionalContent: true,
-  cookingGuide: true,
-  notifications: {
-    frequency: 'once',
-    type: 'basic'
-  },
-  groceryListManagement: 'basic',
-  marketplaceAccess: 'limited',
-  recipeMasterchef: false,
-  recipeMonetization: false,
-  offlineAccess: 'limited',
-  savedItems: true,
-  uploadIngredients: true,
-  generateRecipes: false
-};
+export type SubscriptionPlan = 'basic' | 'premium' | '24_hour_trial' | null;
 
-const PREMIUM_FEATURES: SubscriptionFeatures = {
-  imageInputs: true,
-  videoInputs: true,
-  textInputs: true,
-  audioInputs: true,
-  mealPlansPerWeek: 999,
-  recipeGeneration: true,
-  nutritionalContent: true,
-  cookingGuide: true,
-  notifications: {
-    frequency: 'thrice',
-    type: 'advanced'
-  },
-  groceryListManagement: 'expanded',
-  marketplaceAccess: 'full',
-  recipeMasterchef: true,
-  recipeMonetization: true,
-  offlineAccess: 'extended',
-  savedItems: true,
-  uploadIngredients: true,
-  generateRecipes: true
-};
+export const checkFeatureAccess = (plan: SubscriptionPlan, feature: keyof SubscriptionFeatures): boolean => {
+  if (!plan) return false;
 
-export const PLAN_FEATURES: Record<Exclude<SubscriptionPlan, null>, SubscriptionFeatures> = {
-  '24_hour_trial': TRIAL_FEATURES,
-  'basic': BASIC_FEATURES,
-  'premium': PREMIUM_FEATURES
-};
+  const featureAccess: Record<SubscriptionPlan, SubscriptionFeatures> = {
+    'basic': {
+      uploadIngredients: true,
+      recipeGeneration: false,
+      photoRecipes: false,
+      savedItems: true,
+      mealPlanning: true
+    },
+    'premium': {
+      uploadIngredients: true,
+      recipeGeneration: true,
+      photoRecipes: true,
+      savedItems: true,
+      mealPlanning: true
+    },
+    '24_hour_trial': {
+      uploadIngredients: true,
+      recipeGeneration: true,
+      photoRecipes: true,
+      savedItems: true,
+      mealPlanning: true
+    },
+    'null': {
+      uploadIngredients: false,
+      recipeGeneration: false,
+      photoRecipes: false,
+      savedItems: false,
+      mealPlanning: false
+    }
+  };
 
-export const checkFeatureAccess = (userPlan: SubscriptionPlan, feature: keyof SubscriptionFeatures): boolean => {
-  if (!userPlan || !PLAN_FEATURES[userPlan]) return false;
-  return !!PLAN_FEATURES[userPlan]![feature];
-};
-
-export const getPlanLimits = (userPlan: SubscriptionPlan): Partial<SubscriptionFeatures> | null => {
-  if (!userPlan) return null;
-  return PLAN_FEATURES[userPlan] || null;
+  return featureAccess[plan]?.[feature] ?? false;
 };

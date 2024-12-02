@@ -33,7 +33,9 @@ const parseMealDetails = (text: string) => {
         protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
         carbs: carbsMatch ? `${carbsMatch[1]}g` : "N/A",
         fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
-      }
+      },
+      ingredients: [],
+      steps: []
     };
   } catch (error) {
     console.error("Error parsing meal details:", error);
@@ -44,7 +46,9 @@ const parseMealDetails = (text: string) => {
         protein: "N/A",
         carbs: "N/A",
         fat: "N/A"
-      }
+      },
+      ingredients: [],
+      steps: []
     };
   }
 };
@@ -118,18 +122,19 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     
     STRICT REQUIREMENTS:
     1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
-    2. Focus on ${userPrefs.cuisineStyle || 'traditional'} ${cuisineContext} dishes ONLY
+    2. Focus EXCLUSIVELY on ${userPrefs.cuisineStyle || 'traditional'} ${cuisineContext} dishes
     3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     5. Each meal MUST be possible to make with ONLY the provided ingredients
     6. Include approximate nutritional information for each meal
     7. ONLY suggest REAL, AUTHENTIC, and TRADITIONAL meals from ${cuisineContext}
-    8. Format MUST be exactly as shown below for proper parsing:
+    8. NO FUSION or EXPERIMENTAL dishes - stick to well-known traditional recipes
+    9. Format MUST be exactly as shown below for proper parsing:
     
     **Sunday:**
-    - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Breakfast: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Lunch: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    - Dinner: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     
     [Repeat for Monday through Saturday]`;
 

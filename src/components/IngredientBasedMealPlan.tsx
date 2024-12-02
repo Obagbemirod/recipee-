@@ -42,9 +42,12 @@ const IngredientBasedMealPlan = ({ mealPlan, readOnly = false }: MealPlanProps) 
     }
   };
 
-  if (!mealPlan) {
-    console.error("No meal plan data provided");
-    return null;
+  if (!mealPlan || !Object.keys(mealPlan).length) {
+    return (
+      <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 text-center">
+        <p className="text-muted-foreground">No meal plan data available</p>
+      </div>
+    );
   }
 
   return (
