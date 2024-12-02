@@ -43,12 +43,19 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
+    // Ensure PaystackPop is available
+    if (typeof window.PaystackPop === 'undefined') {
+      console.error('Paystack not loaded');
+      toast.error("Payment system not available. Please refresh the page and try again.");
+      return;
+    }
+
     const config: PaystackConfig = {
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: Number(plan.price) * 100, // Paystack expects amount in kobo
-      publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      amount: Math.round(Number(plan.price) * 100), // Convert to kobo and ensure it's a whole number
       ref: `${user.id}-${Date.now()}`,
-      onSuccess: async function(reference) {
+      callback: async function(response) {
         try {
           const { error } = await supabase
             .from('subscriptions')
@@ -58,12 +65,12 @@ export const handlePaymentFlow = async (
               start_date: new Date().toISOString(),
               end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
               status: 'active',
-              payment_reference: reference
+              payment_reference: response.reference
             });
 
           if (error) throw error;
           
-          onSuccess(reference);
+          onSuccess(response.reference);
           navigate("/onboarding");
         } catch (error: any) {
           console.error('Subscription activation error:', error);
