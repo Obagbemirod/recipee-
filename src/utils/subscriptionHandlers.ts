@@ -35,29 +35,28 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
-interface FlutterwaveConfig {
-  public_key: string;
-  tx_ref: string;
+interface PaystackConfig {
+  key: string;
+  email: string;
   amount: number;
   currency: string;
-  payment_options: string;
-  customer: {
-    email: string;
-    phone_number: string;
-    name: string;
-  };
-  customizations: {
-    title: string;
-    description: string;
-    logo: string;
-  };
+  ref: string;
   callback: (response: any) => void;
-  onclose: () => void;
+  onClose: () => void;
+  metadata: {
+    custom_fields: Array<{
+      display_name: string;
+      variable_name: string;
+      value: string;
+    }>;
+  };
 }
 
 declare global {
   interface Window {
-    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
+    PaystackPop: {
+      setup: (config: PaystackConfig) => { openIframe: () => void };
+    };
     jumbleberry: any;
   }
 }
@@ -69,24 +68,23 @@ export const handlePaymentFlow = async (
   navigate: (path: string) => void
 ) => {
   try {
-    const flutterwaveConfig: FlutterwaveConfig = {
-      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-      tx_ref: `${user.id}-${Date.now()}`,
-      amount: Number(plan.price),
+    const config: PaystackConfig = {
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      email: user.email,
+      amount: Number(plan.price) * 100, // Paystack expects amount in kobo
       currency: "USD",
-      payment_options: "card",
-      customer: {
-        email: user.email,
-        phone_number: user.phone || "",
-        name: user.user_metadata?.full_name || user.email,
-      },
-      customizations: {
-        title: "Recipee Subscription",
-        description: `${plan.name} Plan Subscription`,
-        logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
+      ref: `${user.id}-${Date.now()}`,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Plan Name",
+            variable_name: "plan_name",
+            value: plan.name
+          }
+        ]
       },
       callback: async function(response: any) {
-        if (response.status === "successful") {
+        if (response.status === 'success') {
           try {
             const { error } = await supabase
               .from('subscriptions')
@@ -96,7 +94,7 @@ export const handlePaymentFlow = async (
                 start_date: new Date().toISOString(),
                 end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                 status: 'active',
-                payment_reference: response.transaction_id
+                payment_reference: response.reference
               });
 
             if (error) throw error;
@@ -104,13 +102,13 @@ export const handlePaymentFlow = async (
             // Track successful purchase with Jumbleberry
             if (window.jumbleberry) {
               window.jumbleberry("track", "Purchase", {
-                transaction_id: response.transaction_id,
+                transaction_id: response.reference,
                 order_value: plan.price
               });
             }
             
-            onSuccess(response.transaction_id);
-            navigate("/success?transaction_id=" + response.transaction_id + "&order_value=" + plan.price);
+            onSuccess(response.reference);
+            navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
           } catch (error: any) {
             console.error('Subscription activation error:', error);
             toast.error("Failed to activate subscription. Please contact support.");
@@ -119,15 +117,16 @@ export const handlePaymentFlow = async (
           toast.error("Payment failed. Please try again or contact support.");
         }
       },
-      onclose: function() {
+      onClose: function() {
         // Handle modal close
-      },
+      }
     };
 
-    if (typeof window.FlutterwaveCheckout === 'function') {
-      window.FlutterwaveCheckout(flutterwaveConfig);
+    if (typeof window.PaystackPop?.setup === 'function') {
+      const handler = window.PaystackPop.setup(config);
+      handler.openIframe();
     } else {
-      console.error('FlutterwaveCheckout is not available');
+      console.error('PaystackPop is not available');
       toast.error("Payment system is not available. Please try again later.");
     }
   } catch (error) {
