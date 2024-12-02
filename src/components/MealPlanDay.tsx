@@ -54,10 +54,10 @@ export const MealPlanDay = ({ day, meals, onUpdate, readOnly = false }: MealPlan
 
         <CollapsibleContent className="mt-4">
           <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {Object.entries(meals).map(([mealType, meal]) => (
+            {meals && Object.entries(meals).map(([mealType, meal]) => (
+              <div key={mealType} className="space-y-2">
+                <h3 className="font-medium capitalize text-secondary">{mealType}</h3>
                 <MealCard
-                  key={mealType}
                   meal={meal}
                   title={mealType}
                   readOnly={readOnly}
@@ -68,8 +68,8 @@ export const MealPlanDay = ({ day, meals, onUpdate, readOnly = false }: MealPlan
                     }
                   }}
                 />
-              ))}
-            </div>
+              </div>
+            ))}
 
             {!readOnly && (
               <div className="flex justify-end">

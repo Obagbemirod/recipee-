@@ -21,7 +21,7 @@ interface MealCardProps {
 
 export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(meal.name);
+  const [editedName, setEditedName] = useState(meal?.name || '');
 
   const handleSave = () => {
     if (!editedName.trim()) {
@@ -34,9 +34,17 @@ export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardPr
   };
 
   const handleCancel = () => {
-    setEditedName(meal.name);
+    setEditedName(meal?.name || '');
     setIsEditing(false);
   };
+
+  if (!meal) {
+    return (
+      <Card className="p-4">
+        <p className="text-sm text-muted-foreground">No meal data available</p>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-4 space-y-4">
@@ -53,27 +61,29 @@ export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardPr
               <div className="p-4">
                 <h4 className="font-medium mb-2">Nutritional Information</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>Calories: {meal.nutrition.calories}</div>
-                  <div>Protein: {meal.nutrition.protein}</div>
-                  <div>Carbs: {meal.nutrition.carbs}</div>
-                  <div>Fat: {meal.nutrition.fat}</div>
+                  <div>Calories: {meal.nutrition?.calories || 'N/A'}</div>
+                  <div>Protein: {meal.nutrition?.protein || 'N/A'}</div>
+                  <div>Carbs: {meal.nutrition?.carbs || 'N/A'}</div>
+                  <div>Fat: {meal.nutrition?.fat || 'N/A'}</div>
                 </div>
               </div>
             </DialogContent>
           </Dialog>
-          <CookingGuide recipe={{
-            name: meal.name,
-            ingredients: meal.ingredients,
-            instructions: meal.steps.map(step => ({
-              step: step.step,
-              description: step.instruction,
-              time: step.time || "N/A"
-            })),
-            equipment: [],
-            totalTime: "30-45 mins",
-            difficulty: "Medium",
-            servings: 2
-          }} />
+          {meal.ingredients && meal.steps && (
+            <CookingGuide recipe={{
+              name: meal.name || '',
+              ingredients: meal.ingredients || [],
+              instructions: meal.steps.map(step => ({
+                step: step.step,
+                description: step.instruction,
+                time: step.time || "N/A"
+              })),
+              equipment: [],
+              totalTime: "30-45 mins",
+              difficulty: "Medium",
+              servings: 2
+            }} />
+          )}
         </div>
       </div>
 
@@ -111,7 +121,7 @@ export const MealCard = ({ meal, title, onUpdate, readOnly = false }: MealCardPr
           </>
         ) : (
           <>
-            <p className="flex-1 text-sm">{meal.name}</p>
+            <p className="flex-1 text-sm">{meal.name || 'Unnamed Meal'}</p>
             {!readOnly && (
               <Button
                 variant="ghost"
