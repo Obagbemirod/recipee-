@@ -21,7 +21,7 @@ export const plans = [
     price: 5.4, // 89% discount
     discount: 44,
     features: [
-      "Image, video, and text inputs",
+      "Image, video, audio, and text inputs",
       "Update Your ingredient List once per week",
       "Generate one complete meal plan per week",
       "Get Nutritional Content of Meals",
@@ -41,7 +41,7 @@ export const plans = [
     discount: 40,
     features: [
       "All Basic features plus:",
-      "Audio input support",
+      "Image, Video, Audio and text input",
       "Unlimited ingredient updates",
       "Unlimited Weekly Meal Planning",
       "Advanced notifications for all meals",
