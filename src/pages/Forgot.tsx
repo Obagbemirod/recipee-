@@ -25,9 +25,7 @@ const Forgot = () => {
             Enter your New Password and follow the instructions to reset your password...
           </p>
           <Form>
-{/*           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6"> */}
             <FormField
-{/*               control={form.control} */}
               name="password"
               render={({ field }) => (
                 <FormItem>
@@ -51,7 +49,6 @@ const Forgot = () => {
             >
               Back to Login
             </Button>
-{/*           </form> */}
         </Form>
         </div>
       </div>
