@@ -2,10 +2,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from 'react-router-dom'; 
 
 const AffiliateProgram = () => {
-  const navigate = useNavigate(); 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden fixed-mobile">
       <Header />
@@ -69,10 +67,8 @@ const AffiliateProgram = () => {
                 <Button
                   type="button"
                    variant="link"
-                  size="lg" className="w-full md:w-auto"
-                   onClick={() => {                       
-                        navigate('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2')
-                      }}
+                  size="lg" className="w-full md:w-auto"                 
+                  onClick={() => window.open('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2', '_blank')}
                   >
                   Apply Now
                 </Button>
