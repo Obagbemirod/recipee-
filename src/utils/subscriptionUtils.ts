@@ -4,6 +4,9 @@ export type SubscriptionFeatures = {
   photoRecipes: boolean;
   savedItems: boolean;
   mealPlanning: boolean;
+  quickLinks: boolean;
+  imageInputs: boolean;
+  textInputs: boolean;
 };
 
 export type SubscriptionPlan = 'basic' | 'premium' | '24_hour_trial' | null;
@@ -17,28 +20,30 @@ export const checkFeatureAccess = (plan: SubscriptionPlan, feature: keyof Subscr
       recipeGeneration: false,
       photoRecipes: false,
       savedItems: true,
-      mealPlanning: true
+      mealPlanning: true,
+      quickLinks: true,
+      imageInputs: true,
+      textInputs: true
     },
     'premium': {
       uploadIngredients: true,
       recipeGeneration: true,
       photoRecipes: true,
       savedItems: true,
-      mealPlanning: true
+      mealPlanning: true,
+      quickLinks: true,
+      imageInputs: true,
+      textInputs: true
     },
     '24_hour_trial': {
       uploadIngredients: true,
       recipeGeneration: true,
       photoRecipes: true,
       savedItems: true,
-      mealPlanning: true
-    },
-    'null': {
-      uploadIngredients: false,
-      recipeGeneration: false,
-      photoRecipes: false,
-      savedItems: false,
-      mealPlanning: false
+      mealPlanning: true,
+      quickLinks: true,
+      imageInputs: true,
+      textInputs: true
     }
   };
 

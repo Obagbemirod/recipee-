@@ -9,6 +9,7 @@ import { useFeatureAccess } from '@/components/home/FeatureAccess';
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect } from 'react';
 import { supabase } from "@/lib/supabase";
+import { checkFeatureAccess, type SubscriptionFeatures } from "@/utils/subscriptionUtils";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
@@ -32,15 +33,44 @@ const Home = () => {
   };
 
   const handleFeatureClick = (path: string) => {
-    if (isTrialExpired && plan === "24_hour_trial") {
+    if (plan === "24_hour_trial" && isTrialExpired) {
       toast.error("Your trial has expired. Please upgrade to continue using premium features.");
-      navigate("/pricing");
+      navigate("/?scrollTo=pricing");
+      return;
+    }
+
+    const canAccessFeature = (feature: keyof SubscriptionFeatures): boolean => {
+      return checkFeatureAccess(plan, feature);
+    };
+
+    const getFeatureKey = (path: string): keyof SubscriptionFeatures => {
+      switch (path) {
+        case "/upload-ingredients":
+          return "uploadIngredients";
+        case "/generate-meal-plan":
+          return "mealPlanning";
+        case "/generate-recipes":
+          return "photoRecipes";
+        case "/saved-items":
+          return "savedItems";
+        default:
+          return "quickLinks";
+      }
+    };
+
+    if (!canAccessFeature(getFeatureKey(path))) {
+      toast.error("This feature is not available in your current plan. Please upgrade to access it.");
+      navigate("/?scrollTo=pricing");
       return;
     }
     
     if (checkAccess()) {
       navigate(path);
     }
+  };
+
+  const isFeatureEnabled = (feature: keyof SubscriptionFeatures): boolean => {
+    return checkFeatureAccess(plan, feature);
   };
 
   return (
@@ -84,10 +114,9 @@ const Home = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 gap-4">
-              {/* Quick Actions content */}
               <div 
                 onClick={() => handleFeatureClick("/upload-ingredients")}
-                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 ${isFeatureEnabled('uploadIngredients') ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
               >
                 <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-secondary">
                   <Camera className="h-5 w-5 text-primary" />
@@ -115,7 +144,7 @@ const Home = () => {
 
               <div 
                 onClick={() => handleFeatureClick("/generate-meal-plan")}
-                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 ${isFeatureEnabled('mealPlanning') ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
               >
                 <div className="flex flex-col items-center gap-3">
                   <ChefHat className="h-6 w-6 text-primary" />
@@ -130,7 +159,7 @@ const Home = () => {
 
               <div 
                 onClick={() => handleFeatureClick("/generate-recipes")}
-                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 ${isFeatureEnabled('photoRecipes') ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
               >
                 <div className="flex items-center justify-center gap-2">
                   <ImageIcon className="h-6 w-6 text-primary" />
