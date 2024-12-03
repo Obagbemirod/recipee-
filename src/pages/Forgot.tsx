@@ -1,7 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Forgot = () => {
+  const navigate = useNavigate();
+  
+  const onSubmit = async () => {
+    console.log("This is the forgot password page")
+  }
 
 
   return (
@@ -12,6 +24,34 @@ const Forgot = () => {
           <p className="text-muted-foreground mt-2">
             Enter your New Password and follow the instructions to reset your password...
           </p>
+          <Form>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full">
+              Send Reset Instructions
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              className="w-full"
+              onClick={() => navigate("/auth")}
+            >
+              Back to Login
+            </Button>
+          </form>
+        </Form>
         </div>
       </div>
     </div>
