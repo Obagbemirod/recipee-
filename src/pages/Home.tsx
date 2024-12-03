@@ -54,7 +54,14 @@ const Home = () => {
       return;
     }
     
-    // For all other cases, check access
+    // For all other cases (no plan or expired trial), check access
+    if (!plan || (plan === "24_hour_trial" && isTrialExpired)) {
+      if (path === "/generate-meal-plan" || path === "/generate-recipes") {
+        toast.error("This feature requires a Premium subscription. Please upgrade to access.");
+        return;
+      }
+    }
+    
     if (checkAccess()) {
       navigate(path);
     }
