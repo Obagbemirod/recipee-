@@ -25,20 +25,20 @@ const Forgot = () => {
             Enter your New Password and follow the instructions to reset your password...
           </p>
          
-                    <Input placeholder="Enter your New Password" />
-                     <Input placeholder="Confirm your New Password" />
+                    <input placeholder="Enter your New Password" />
+                     <input placeholder="Confirm your New Password" />
                 
-            <Button type="submit" className="w-full">
+            <button type="submit" className="w-full">
               Send Reset Instructions
             </Button>
-            <Button
+            <button
               type="button"
               variant="link"
               className="w-full"
               onClick={() => navigate("/auth")}
             >
               Back to Login
-            </Button>
+            </button>
     
         </div>
       </div>
