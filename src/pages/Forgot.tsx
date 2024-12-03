@@ -25,15 +25,16 @@ const Forgot = () => {
             Enter your New Password and follow the instructions to reset your password...
           </p>
           <Form>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+{/*           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6"> */}
             <FormField
-              control={form.control}
-              name="email"
+{/*               control={form.control} */}
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your email" {...field} />
+                    <Input placeholder="Enter your New Password" />
+                     <Input placeholder="Confirm your New Password" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -50,7 +51,7 @@ const Forgot = () => {
             >
               Back to Login
             </Button>
-          </form>
+{/*           </form> */}
         </Form>
         </div>
       </div>
