@@ -41,7 +41,7 @@ const Forgot = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold">Change Password</h2>
           <p className="text-muted-foreground mt-2">
-            Enter your New Password and follow the instructions to reset your password.
+            Enter your New Password and follow the instructions to reset your password...
           </p>
         </div>
 
