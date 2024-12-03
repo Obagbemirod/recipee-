@@ -24,21 +24,18 @@ const Forgot = () => {
           <p className="text-muted-foreground mt-2">
             Enter your New Password and follow the instructions to reset your password...
           </p>
+          <div class="mb-6">
+    <label for="large-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Large input</label>
+    <input type="text" id="large-input" className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+</div>
          
-                    <input placeholder="Enter your New Password" />
-                     <input placeholder="Confirm your New Password" />
+{/*                     <input placeholder="Enter your New Password" />
+                     <input placeholder="Confirm your New Password" /> */}
                 
             <button type="submit" className="w-full">
               Send Reset Instructions
-            </Button>
-            <button
-              type="button"
-              variant="link"
-              className="w-full"
-              onClick={() => navigate("/auth")}
-            >
-              Back to Login
             </button>
+         
     
         </div>
       </div>
