@@ -48,7 +48,7 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
       }
 
       // Update the password in Supabase
-      const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+      const { error: updateError } = await supabase.auth.updateUserById(user.id, {
         password,
       });
 
