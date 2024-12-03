@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from 'react-router-dom'; 
 
 const AffiliateProgram = () => {
   return (
@@ -64,7 +65,15 @@ const AffiliateProgram = () => {
               </Card>
 
               <div className="text-center">
-                <Button size="lg" className="w-full md:w-auto">
+                <Button
+                  type="button"
+                   variant="link"
+                  size="lg" className="w-full md:w-auto"
+                   onClick={() => {
+                        const navigate = useNavigate(); // Get useNavigate instance within the onClick handler
+                        navigate('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2'); // Navigate to external URL
+                      }}
+                  >
                   Apply Now
                 </Button>
               </div>
