@@ -12,7 +12,7 @@ const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
-const ForgotPassword = () => {
+const Forgot = () => {
   const navigate = useNavigate();
   
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
@@ -79,4 +79,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default Forgot;
