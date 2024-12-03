@@ -39,10 +39,6 @@ const Home = () => {
       return;
     }
 
-    const canAccessFeature = (feature: keyof SubscriptionFeatures): boolean => {
-      return checkFeatureAccess(plan, feature);
-    };
-
     const getFeatureKey = (path: string): keyof SubscriptionFeatures => {
       switch (path) {
         case "/upload-ingredients":
@@ -56,6 +52,10 @@ const Home = () => {
         default:
           return "quickLinks";
       }
+    };
+
+    const canAccessFeature = (feature: keyof SubscriptionFeatures): boolean => {
+      return checkFeatureAccess(plan, feature);
     };
 
     const featureKey = getFeatureKey(path);
