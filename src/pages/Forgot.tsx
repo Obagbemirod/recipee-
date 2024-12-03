@@ -1,18 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+
 
 const Forgot = () => {
- 
-  const onSubmit = async () => {
-    console.log("This is the forgot page")
-  }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
