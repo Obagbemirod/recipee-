@@ -39,9 +39,9 @@ const ForgotPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Reset Password</h2>
+          <h2 className="text-2xl font-bold">Change Password</h2>
           <p className="text-muted-foreground mt-2">
-            Enter your email address and we'll send you instructions to reset your password.
+            Enter your New Password and follow the instructions to reset your password.
           </p>
         </div>
 
@@ -52,9 +52,10 @@ const ForgotPassword = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your email" {...field} />
+                    <Input placeholder="Enter your new password" {...field} />
+                    <Input placeholder="Confirm your new password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
