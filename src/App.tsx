@@ -28,7 +28,7 @@ const ProtectedRoute = ({ children, feature }: { children: React.ReactNode, feat
   
   if (feature && !checkFeatureAccess(plan, feature)) {
     toast.error("This feature requires a Premium subscription. Please upgrade to access.");
-    return <Navigate to="/marketplace" replace />;
+    return <Navigate to="/home" replace />;
   }
   
   return children;
@@ -48,7 +48,7 @@ const App = () => {
             <Route 
               path="/generate-meal-plan" 
               element={
-                <ProtectedRoute feature="mealPlanning">
+                <ProtectedRoute feature="recipeGeneration">
                   <GenerateMealPlan />
                 </ProtectedRoute>
               } 

@@ -1,22 +1,23 @@
-interface PaystackConfig {
-  key: string;
-  email: string;
+interface FlutterwaveConfig {
+  public_key: string;
+  tx_ref: string;
   amount: number;
   currency: string;
-  ref: string;
-  callback: (response: any) => void;
-  onClose: () => void;
-  metadata: {
-    custom_fields: Array<{
-      display_name: string;
-      variable_name: string;
-      value: string;
-    }>;
+  payment_options: string;
+  customer: {
+    email: string;
+    phone_number: string;
+    name: string;
   };
+  customizations: {
+    title: string;
+    description: string;
+    logo: string;
+  };
+  callback: (response: any) => void;
+  onclose: () => void;
 }
 
 interface Window {
-  PaystackPop: {
-    setup: (config: PaystackConfig) => { openIframe: () => void };
-  };
+  FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
 }

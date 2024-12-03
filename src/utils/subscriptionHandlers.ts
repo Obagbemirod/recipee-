@@ -35,136 +35,104 @@ export const handleTrialActivation = async (userId: string) => {
   }
 };
 
-interface PaystackConfig {
-  key: string;
-  email: string;
+interface FlutterwaveConfig {
+  public_key: string;
+  tx_ref: string;
   amount: number;
   currency: string;
-  ref: string;
-  callback: (response: any) => void;
-  onClose: () => void;
-  metadata: {
-    custom_fields: Array<{
-      display_name: string;
-      variable_name: string;
-      value: string;
-    }>;
+  payment_options: string;
+  customer: {
+    email: string;
+    phone_number: string;
+    name: string;
   };
+  customizations: {
+    title: string;
+    description: string;
+    logo: string;
+  };
+  callback: (response: any) => void;
+  onclose: () => void;
 }
 
 declare global {
   interface Window {
-    PaystackPop: {
-      setup: (config: PaystackConfig) => { openIframe: () => void };
-    };
+    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
     jumbleberry: any;
   }
 }
-
-const waitForPaystack = (): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    if (typeof window.PaystackPop !== 'undefined') {
-      resolve();
-      return;
-    }
-
-    let attempts = 0;
-    const maxAttempts = 20;
-    const interval = setInterval(() => {
-      attempts++;
-      if (typeof window.PaystackPop !== 'undefined') {
-        clearInterval(interval);
-        resolve();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(interval);
-        reject(new Error('Paystack failed to load'));
-      }
-    }, 500);
-  });
-};
 
 export const handlePaymentFlow = async (
   user: any,
   plan: any,
   onSuccess: (transactionId: string) => void,
   navigate: (path: string) => void
-): Promise<void> => {
+) => {
   try {
-    await waitForPaystack();
+    const flutterwaveConfig: FlutterwaveConfig = {
+      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+      tx_ref: `${user.id}-${Date.now()}`,
+      amount: Number(plan.price),
+      currency: "USD",
+      payment_options: "card",
+      customer: {
+        email: user.email,
+        phone_number: user.phone || "",
+        name: user.user_metadata?.full_name || user.email,
+      },
+      customizations: {
+        title: "Recipee Subscription",
+        description: `${plan.name} Plan Subscription`,
+        logo: "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
+      },
+      callback: async function(response: any) {
+        if (response.status === "successful") {
+          try {
+            const { error } = await supabase
+              .from('subscriptions')
+              .insert({
+                user_id: user.id,
+                plan_id: plan.planId,
+                start_date: new Date().toISOString(),
+                end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'active',
+                payment_reference: response.transaction_id
+              });
 
-    if (!window.PaystackPop || typeof window.PaystackPop.setup !== 'function') {
-      throw new Error('Paystack SDK not properly initialized');
-    }
-
-    const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-    if (!paystackKey) {
-      throw new Error('Paystack public key not found');
-    }
-
-    function handlePaymentCallback(response: any) {
-      if (response.status === 'success') {
-        supabase
-          .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_id: plan.planId,
-            start_date: new Date().toISOString(),
-            end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active',
-            payment_reference: response.reference
-          })
-          .then(({ error }) => {
-            if (error) {
-              console.error('Subscription activation error:', error);
-              toast.error("Failed to activate subscription. Please contact support.");
-              return;
-            }
+            if (error) throw error;
             
+            // Track successful purchase with Jumbleberry
             if (window.jumbleberry) {
               window.jumbleberry("track", "Purchase", {
-                transaction_id: response.reference,
+                transaction_id: response.transaction_id,
                 order_value: plan.price
               });
             }
             
-            onSuccess(response.reference);
-            navigate("/success?transaction_id=" + response.reference + "&order_value=" + plan.price);
-          });
-      } else {
-        toast.error("Payment failed. Please try again or contact support.");
-      }
-    }
-
-    const config: PaystackConfig = {
-      key: paystackKey,
-      email: user.email,
-      amount: Math.round(Number(plan.price) * 100), // Convert to kobo/cents
-      currency: "USD",
-      ref: `${user.id}-${Date.now()}`,
-      metadata: {
-        custom_fields: [
-          {
-            display_name: "Plan Name",
-            variable_name: "plan_name",
-            value: plan.name
+            onSuccess(response.transaction_id);
+            navigate("/success?transaction_id=" + response.transaction_id + "&order_value=" + plan.price);
+          } catch (error: any) {
+            console.error('Subscription activation error:', error);
+            toast.error("Failed to activate subscription. Please contact support.");
           }
-        ]
+        } else {
+          toast.error("Payment failed. Please try again or contact support.");
+        }
       },
-      callback: handlePaymentCallback,
-      onClose: function() {
-        toast.error("Payment cancelled. Please try again when you're ready.");
-      }
+      onclose: function() {
+        // Handle modal close
+      },
     };
 
-    const handler = window.PaystackPop.setup(config);
-    handler.openIframe();
+    if (typeof window.FlutterwaveCheckout === 'function') {
+      window.FlutterwaveCheckout(flutterwaveConfig);
+    } else {
+      console.error('FlutterwaveCheckout is not available');
+      toast.error("Payment system is not available. Please try again later.");
+    }
   } catch (error) {
     console.error('Payment initialization error:', error);
-    if (error instanceof Error) {
-      toast.error(`Payment initialization failed: ${error.message}`);
-    } else {
-      toast.error("Unable to initialize payment. Please try again later.");
-    }
+    toast.error("Unable to initialize payment. Please try again.");
   }
 };
 

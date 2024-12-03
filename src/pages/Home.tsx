@@ -32,11 +32,6 @@ const Home = () => {
   };
 
   const handleFeatureClick = (path: string) => {
-    if (plan === 'premium' || (plan === '24_hour_trial' && !isTrialExpired)) {
-      navigate(path);
-      return;
-    }
-    
     if (isTrialExpired && plan === "24_hour_trial") {
       toast.error("Your trial has expired. Please upgrade to continue using premium features.");
       navigate("/pricing");
@@ -89,6 +84,7 @@ const Home = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 gap-4">
+              {/* Quick Actions content */}
               <div 
                 onClick={() => handleFeatureClick("/upload-ingredients")}
                 className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
@@ -146,7 +142,7 @@ const Home = () => {
         </motion.div>
       </div>
       
-      {plan !== 'premium' && <SubscriptionPrompt />}
+      <SubscriptionPrompt />
     </div>
   );
 };

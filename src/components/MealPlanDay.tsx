@@ -23,32 +23,28 @@ export const MealPlanDay = ({ day, meals, onUpdate, readOnly = false }: MealPlan
     const mealTypes = Object.keys(meals);
     const mealValues = Object.values(meals);
     
-    // Only shuffle if we have all three meal types
-    if (mealTypes.length === 3) {
-      for (let i = mealValues.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [mealValues[i], mealValues[j]] = [mealValues[j], mealValues[i]];
-      }
-      
-      const shuffledMeals = mealTypes.reduce((acc, type, index) => {
-        acc[type] = mealValues[index];
-        return acc;
-      }, {} as Meal);
-      
-      onUpdate(day, shuffledMeals);
-      toast.success(`Meals shuffled for ${day}!`);
-    } else {
-      toast.error("Cannot shuffle incomplete meal plan");
+    for (let i = mealValues.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [mealValues[i], mealValues[j]] = [mealValues[j], mealValues[i]];
     }
+    
+    const shuffledMeals = mealTypes.reduce((acc, type, index) => {
+      acc[type] = mealValues[index];
+      return acc;
+    }, {} as Meal);
+    
+    onUpdate(day, shuffledMeals);
+    toast.success(`Meals shuffled for ${day}!`);
   };
 
   return (
     <Card className="p-4">
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+      <Collapsible open={isExpanded}>
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
             className="w-full flex items-center justify-between"
           >
             <span className="text-lg font-semibold capitalize">{day}</span>
