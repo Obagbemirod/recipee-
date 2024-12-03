@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom'; 
 
 const AffiliateProgram = () => {
+  const navigate = useNavigate(); 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden fixed-mobile">
       <Header />
@@ -69,9 +70,8 @@ const AffiliateProgram = () => {
                   type="button"
                    variant="link"
                   size="lg" className="w-full md:w-auto"
-                   onClick={() => {
-                        const navigate = useNavigate(); // Get useNavigate instance within the onClick handler
-                        navigate('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2'); // Navigate to external URL
+                   onClick={() => {                       
+                        navigate('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2')
                       }}
                   >
                   Apply Now
