@@ -24,20 +24,10 @@ const Forgot = () => {
           <p className="text-muted-foreground mt-2">
             Enter your New Password and follow the instructions to reset your password...
           </p>
-          <Form>
-            <FormField
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
+         
                     <Input placeholder="Enter your New Password" />
                      <Input placeholder="Confirm your New Password" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                
             <Button type="submit" className="w-full">
               Send Reset Instructions
             </Button>
@@ -49,7 +39,7 @@ const Forgot = () => {
             >
               Back to Login
             </Button>
-        </Form>
+    
         </div>
       </div>
     </div>
