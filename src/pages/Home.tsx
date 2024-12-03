@@ -32,12 +32,29 @@ const Home = () => {
   };
 
   const handleFeatureClick = (path: string) => {
-    if (isTrialExpired && plan === "24_hour_trial") {
-      toast.error("Your trial has expired. Please upgrade to continue using premium features.");
-      navigate("/pricing");
+    // Premium users get unrestricted access
+    if (plan === "premium") {
+      navigate(path);
       return;
     }
     
+    // Trial users can access if trial is not expired
+    if (plan === "24_hour_trial" && !isTrialExpired) {
+      navigate(path);
+      return;
+    }
+    
+    // Basic users are restricted from certain features
+    if (plan === "basic") {
+      if (path === "/generate-meal-plan" || path === "/generate-recipes") {
+        toast.error("This feature requires a Premium subscription. Please upgrade to access.");
+        return;
+      }
+      navigate(path);
+      return;
+    }
+    
+    // For all other cases, check access
     if (checkAccess()) {
       navigate(path);
     }
@@ -84,7 +101,6 @@ const Home = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 gap-4">
-              {/* Quick Actions content */}
               <div 
                 onClick={() => handleFeatureClick("/upload-ingredients")}
                 className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
@@ -115,7 +131,7 @@ const Home = () => {
 
               <div 
                 onClick={() => handleFeatureClick("/generate-meal-plan")}
-                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${plan !== 'premium' && plan !== '24_hour_trial' ? 'opacity-75' : ''}`}
               >
                 <div className="flex flex-col items-center gap-3">
                   <ChefHat className="h-6 w-6 text-primary" />
@@ -130,7 +146,7 @@ const Home = () => {
 
               <div 
                 onClick={() => handleFeatureClick("/generate-recipes")}
-                className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${plan !== 'premium' && plan !== '24_hour_trial' ? 'opacity-75' : ''}`}
               >
                 <div className="flex items-center justify-center gap-2">
                   <ImageIcon className="h-6 w-6 text-primary" />
