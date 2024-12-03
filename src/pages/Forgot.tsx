@@ -7,13 +7,55 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-const Forgot = () => {
-  const navigate = useNavigate();
+const updatePasswordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+type UpdatePasswordFormProps = {
+  onUpdateSuccess?: () => void;
+};
+
+const Forgot = ({
+  onUpdateSuccess,
+}: UpdatePasswordFormProps) => {
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const form = useForm<z.infer<typeof updatePasswordSchema>>({
+    resolver: zodResolver(updatePasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
   
-  const onSubmit = async () => {
-    console.log("This is the forgot password page")
-  }
+   const handleSubmit = async (values: z.infer<typeof updatePasswordSchema>) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: values.password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setSuccessMessage("Your password has been updated successfully.");
+      setErrorMessage("");
+      onUpdateSuccess?.();
+    } catch (error: any) {
+      setSuccessMessage("");
+      setErrorMessage(error.message || "An error occurred while updating your password.");
+    }
+  };
 
 
   return (
@@ -24,19 +66,53 @@ const Forgot = () => {
           <p className="text-muted-foreground mt-2">
             Enter your New Password and follow the instructions to reset your password...
           </p>
-          <div class="mb-6">
-             <label for="large-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New Password</label>
-             <input type="text" id="large-input" className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-          </div>
-          <div class="mb-6">
-           <label for="large-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm New Password</label>
-            <input type="text" id="large-input" className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-          </div>
-
-                
-            <button type="submit" className="w-full">
-              Send Reset Instructions
-            </button>
+        <Form {...form}>
+         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Enter your new password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm New Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Confirm your new password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="w-full">
+            Update Password
+          </Button>
+        </form>
+      </Form>
+      {successMessage && (
+        <p className="mt-4 text-green-600">{successMessage}</p>
+      )}
+      {errorMessage && (
+        <p className="mt-4 text-red-600">{errorMessage}</p>
+      )}
          
     
         </div>
