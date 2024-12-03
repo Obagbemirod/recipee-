@@ -29,7 +29,7 @@ const ForgotPassword = () => {
       if (error) throw error;
 
       toast.success("Password reset instructions have been sent to your email");
-      navigate("/forgot");
+      navigate("/forgotPassword");
     } catch (error: any) {
       toast.error(error.message || "Failed to send reset password email");
     }
