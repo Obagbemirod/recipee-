@@ -8,32 +8,35 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
+// const forgotPasswordSchema = z.object({
+//   email: z.string().email("Please enter a valid email address"),
+// });
 
 const Forgot = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   
-  const form = useForm<z.infer<typeof forgotPasswordSchema>>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: "" },
-  });
+  // const form = useForm<z.infer<typeof forgotPasswordSchema>>({
+  //   resolver: zodResolver(forgotPasswordSchema),
+  //   defaultValues: { email: "" },
+  // });
 
-  const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
-      });
+  // const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
+  //   try {
+  //     const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+  //       redirectTo: `${window.location.origin}/auth?reset=true`,
+  //     });
 
-      if (error) throw error;
+  //     if (error) throw error;
 
-      toast.success("Password reset instructions have been sent to your email");
-      navigate("/auth");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send reset password email");
-    }
-  };
+  //     toast.success("Password reset instructions have been sent to your email");
+  //     navigate("/auth");
+  //   } catch (error: any) {
+  //     toast.error(error.message || "Failed to send reset password email");
+  //   }
+  // };
+  const onSubmit = async () => {
+    console.log("This is the forgot page")
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
