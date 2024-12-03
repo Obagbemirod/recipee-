@@ -58,7 +58,8 @@ const Home = () => {
       }
     };
 
-    if (!canAccessFeature(getFeatureKey(path))) {
+    const featureKey = getFeatureKey(path);
+    if (!canAccessFeature(featureKey)) {
       toast.error("This feature is not available in your current plan. Please upgrade to access it.");
       navigate("/?scrollTo=pricing");
       return;

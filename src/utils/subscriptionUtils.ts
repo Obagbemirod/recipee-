@@ -20,7 +20,7 @@ export const checkFeatureAccess = (plan: SubscriptionPlan, feature: keyof Subscr
       recipeGeneration: false,
       photoRecipes: false,
       savedItems: true,
-      mealPlanning: true,
+      mealPlanning: false,
       quickLinks: true,
       imageInputs: true,
       textInputs: true
