@@ -17,7 +17,7 @@ export const checkFeatureAccess = (plan: SubscriptionPlan, feature: keyof Subscr
       recipeGeneration: false,
       photoRecipes: false,
       savedItems: true,
-      mealPlanning: true
+      mealPlanning: false
     },
     'premium': {
       uploadIngredients: true,

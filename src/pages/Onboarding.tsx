@@ -9,6 +9,7 @@ import { DietaryPreferences } from "@/components/onboarding/DietaryPreferences";
 import { AllergiesSection } from "@/components/onboarding/AllergiesSection";
 import { CulturalPreferences } from "@/components/onboarding/CulturalPreferences";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 const onboardingSchema = z.object({
   dietaryPreference: z.string(),
@@ -35,6 +36,18 @@ const Onboarding = () => {
 
   const onSubmit = async (values: z.infer<typeof onboardingSchema>) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Please sign in to continue.",
+        });
+        navigate("/auth");
+        return;
+      }
+
       const preferences = {
         ...values,
         lastUpdated: new Date().toISOString(),
@@ -46,11 +59,24 @@ const Onboarding = () => {
       localStorage.setItem("userCountry", values.country);
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          dietary_preference: values.dietaryPreference,
+          allergies: values.allergies,
+          country: values.country,
+          cuisine_style: values.cuisineStyle,
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
       
       toast({
         title: "Preferences saved!",
         description: "Your profile has been set up successfully.",
       });
+
       navigate("/home");
     } catch (error) {
       toast({
