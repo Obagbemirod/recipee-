@@ -42,9 +42,9 @@ const TRIAL_FEATURES: SubscriptionFeatures = {
 
 const BASIC_FEATURES: SubscriptionFeatures = {
   imageInputs: true,
-  videoInputs: false,
+  videoInputs: true,
   textInputs: true,
-  audioInputs: false,
+  audioInputs: true,
   mealPlansPerWeek: 1,
   recipeGeneration: false,
   nutritionalContent: true,
@@ -87,7 +87,15 @@ export const PLAN_FEATURES: Record<Exclude<SubscriptionPlan, null>, Subscription
 };
 
 export const checkFeatureAccess = (userPlan: SubscriptionPlan, feature: keyof SubscriptionFeatures): boolean => {
-  if (!userPlan || !PLAN_FEATURES[userPlan]) return false;
+  if (!userPlan) return false;
+  
+  // Special handling for basic plan restrictions
+  if (userPlan === 'basic') {
+    if (feature === 'recipeMasterchef' || feature === 'recipeGeneration') {
+      return false;
+    }
+  }
+  
   return !!PLAN_FEATURES[userPlan]![feature];
 };
 

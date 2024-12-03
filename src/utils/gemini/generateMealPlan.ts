@@ -36,7 +36,8 @@ const parseMealDetails = (text: string) => {
 };
 
 const parseMarkdownToMealPlan = (markdown: string) => {
-  const days: Record<string, any> = {};
+  const days = {};
+  const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
   const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
 
@@ -47,19 +48,27 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   sections.shift();
 
   for (let i = 0; i < sections.length; i += 2) {
-    const day = sections[i];
+    const day = sections[i].toLowerCase();
     const content = sections[i + 1];
-    const meals: Record<string, any> = {};
+    const meals = {};
 
     while ((matches = mealRegex.exec(content)) !== null) {
       const [, mealType, mealText] = matches;
       meals[mealType.toLowerCase()] = parseMealDetails(mealText);
     }
 
-    days[day.toLowerCase()] = meals;
+    days[day] = meals;
   }
 
-  return days;
+  // Reorder days starting from Sunday
+  const orderedDays = {};
+  dayOrder.forEach(day => {
+    if (days[day]) {
+      orderedDays[day] = days[day];
+    }
+  });
+
+  return orderedDays;
 };
 
 export const generateMealPlan = async (additionalPreferences: string[] = []) => {
@@ -76,23 +85,28 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     }
 
     const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
+    const country = localStorage.getItem('userCountry') || userPrefs.country || 'local';
+    const cuisine = localStorage.getItem('userCuisine') || userPrefs.cuisineStyle || 'traditional';
     
-    const prompt = `Generate a 7-day meal plan with breakfast, lunch, and dinner for each day using ONLY these ingredients: ${ingredientsList}.
+    const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day using these ingredients: ${ingredientsList}.
     
     STRICT RULES:
     1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
-    2. Focus on ${userPrefs.cuisineStyle || 'traditional'} cuisine from ${userPrefs.country || 'local'} region
+    2. Focus on ${cuisine} cuisine specifically from ${country} region
     3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     5. Each meal MUST be possible to make with ONLY the provided ingredients
-    6. If not enough ingredients for a complete meal plan, return fewer meals rather than suggesting unavailable ingredients
-    7. Include calories and nutritional information
+    6. Generate ONLY REAL and AUTHENTIC ${cuisine} dishes from ${country}
+    7. Include accurate calories and nutritional information for each meal
+    8. Format each meal exactly as shown below
     
     Format each meal as:
-    Day:
+    **Sunday:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-    - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)`;
+    - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+    
+    [Continue for Monday through Saturday in the same format]`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
