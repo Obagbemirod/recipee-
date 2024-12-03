@@ -38,8 +38,8 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
       // Verify if the email exists in your database
       const { data: user, error: fetchError } = await supabase
         .from("user_auth_status")
-        .select("email")
-        .eq("email", email)
+        .select("*")
+        .eq("email", values.email)
         .single();
 
       if (fetchError || !user) {
