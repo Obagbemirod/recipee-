@@ -32,36 +32,37 @@ const Home = () => {
   };
 
   const handleFeatureClick = (path: string) => {
-    // Premium users get unrestricted access
+    // Premium users get unrestricted access to all features
     if (plan === "premium") {
       navigate(path);
       return;
     }
-    
-    // Trial users can access if trial is not expired
+
+    // Trial users get full access if trial is not expired
     if (plan === "24_hour_trial" && !isTrialExpired) {
       navigate(path);
       return;
     }
-    
-    // Basic users are restricted from certain features
+
+    // Basic users can only access specific features
     if (plan === "basic") {
+      if (path === "/upload-ingredients" || path.startsWith("/saved-items")) {
+        navigate(path);
+        return;
+      }
+      
       if (path === "/generate-meal-plan" || path === "/generate-recipes") {
         toast.error("This feature requires a Premium subscription. Please upgrade to access.");
         return;
       }
-      navigate(path);
+    }
+
+    // Trial expired or no plan
+    if (!plan || (plan === "24_hour_trial" && isTrialExpired)) {
+      toast.error("Please subscribe to access this feature.");
       return;
     }
-    
-    // For all other cases (no plan or expired trial), check access
-    if (!plan || (plan === "24_hour_trial" && isTrialExpired)) {
-      if (path === "/generate-meal-plan" || path === "/generate-recipes") {
-        toast.error("This feature requires a Premium subscription. Please upgrade to access.");
-        return;
-      }
-    }
-    
+
     if (checkAccess()) {
       navigate(path);
     }
@@ -138,7 +139,7 @@ const Home = () => {
 
               <div 
                 onClick={() => handleFeatureClick("/generate-meal-plan")}
-                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${plan !== 'premium' && plan !== '24_hour_trial' ? 'opacity-75' : ''}`}
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${(!plan || (plan === 'basic')) ? 'opacity-75' : ''}`}
               >
                 <div className="flex flex-col items-center gap-3">
                   <ChefHat className="h-6 w-6 text-primary" />
@@ -153,7 +154,7 @@ const Home = () => {
 
               <div 
                 onClick={() => handleFeatureClick("/generate-recipes")}
-                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${plan !== 'premium' && plan !== '24_hour_trial' ? 'opacity-75' : ''}`}
+                className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${(!plan || (plan === 'basic')) ? 'opacity-75' : ''}`}
               >
                 <div className="flex items-center justify-center gap-2">
                   <ImageIcon className="h-6 w-6 text-primary" />

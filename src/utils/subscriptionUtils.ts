@@ -18,6 +18,8 @@ export interface SubscriptionFeatures {
   recipeMasterchef: boolean;
   recipeMonetization: boolean;
   offlineAccess: 'limited' | 'extended' | 'none';
+  savedItems: boolean;
+  uploadIngredients: boolean;
 }
 
 const TRIAL_FEATURES: SubscriptionFeatures = {
@@ -37,7 +39,9 @@ const TRIAL_FEATURES: SubscriptionFeatures = {
   marketplaceAccess: 'full',
   recipeMasterchef: true,
   recipeMonetization: true,
-  offlineAccess: 'extended'
+  offlineAccess: 'extended',
+  savedItems: true,
+  uploadIngredients: true
 };
 
 const BASIC_FEATURES: SubscriptionFeatures = {
@@ -45,7 +49,7 @@ const BASIC_FEATURES: SubscriptionFeatures = {
   videoInputs: true,
   textInputs: true,
   audioInputs: true,
-  mealPlansPerWeek: 1,
+  mealPlansPerWeek: 0,
   recipeGeneration: false,
   nutritionalContent: true,
   cookingGuide: true,
@@ -57,7 +61,9 @@ const BASIC_FEATURES: SubscriptionFeatures = {
   marketplaceAccess: 'limited',
   recipeMasterchef: false,
   recipeMonetization: false,
-  offlineAccess: 'limited'
+  offlineAccess: 'limited',
+  savedItems: true,
+  uploadIngredients: true
 };
 
 const PREMIUM_FEATURES: SubscriptionFeatures = {
@@ -77,7 +83,9 @@ const PREMIUM_FEATURES: SubscriptionFeatures = {
   marketplaceAccess: 'full',
   recipeMasterchef: true,
   recipeMonetization: true,
-  offlineAccess: 'extended'
+  offlineAccess: 'extended',
+  savedItems: true,
+  uploadIngredients: true
 };
 
 export const PLAN_FEATURES: Record<Exclude<SubscriptionPlan, null>, SubscriptionFeatures> = {
@@ -88,14 +96,6 @@ export const PLAN_FEATURES: Record<Exclude<SubscriptionPlan, null>, Subscription
 
 export const checkFeatureAccess = (userPlan: SubscriptionPlan, feature: keyof SubscriptionFeatures): boolean => {
   if (!userPlan) return false;
-  
-  // Special handling for basic plan restrictions
-  if (userPlan === 'basic') {
-    if (feature === 'recipeMasterchef' || feature === 'recipeGeneration') {
-      return false;
-    }
-  }
-  
   return !!PLAN_FEATURES[userPlan]![feature];
 };
 
