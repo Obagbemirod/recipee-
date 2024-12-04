@@ -9,72 +9,72 @@ export const useSubscription = () => {
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [lastMealPlanGenerated, setLastMealPlanGenerated] = useState<Date | null>(null);
 
-  useEffect(() => {
-    const checkSubscription = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          setPlan(null);
-          setIsLoading(false);
-          return;
-        }
+  const checkSubscription = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
 
-        const { data: subscription, error } = await supabase
+      if (!user) {
+        setPlan(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .gt('end_date', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('last_meal_plan_generated')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile?.last_meal_plan_generated) {
+        setLastMealPlanGenerated(new Date(profile.last_meal_plan_generated));
+      }
+
+      if (subscription) {
+        setPlan(subscription.plan_id as SubscriptionPlan);
+        setIsTrialExpired(
+          subscription.plan_id === '24_hour_trial' &&
+          new Date(subscription.end_date) <= new Date()
+        );
+      } else {
+        setPlan(null);
+        const { data: trialSub } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .eq('status', 'active')
-          .gt('end_date', new Date().toISOString())
-          .order('created_at', { ascending: false })
-          .limit(1)
+          .eq('plan_id', '24_hour_trial')
           .maybeSingle();
 
-        if (error) throw error;
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('last_meal_plan_generated')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (profile?.last_meal_plan_generated) {
-          setLastMealPlanGenerated(new Date(profile.last_meal_plan_generated));
-        }
-
-        if (subscription) {
-          setPlan(subscription.plan_id as SubscriptionPlan);
-          setIsTrialExpired(
-            subscription.plan_id === '24_hour_trial' && 
-            new Date(subscription.end_date) <= new Date()
-          );
-        } else {
-          setPlan(null);
-          const { data: trialSub } = await supabase
-            .from('subscriptions')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('plan_id', '24_hour_trial')
-            .maybeSingle();
-
-          setIsTrialExpired(!!trialSub);
-        }
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-        setPlan(null);
-      } finally {
-        setIsLoading(false);
+        setIsTrialExpired(!!trialSub);
       }
-    };
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      setPlan(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     checkSubscription();
-    
+
     const channel = supabase
       .channel('subscription_updates')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'subscriptions' 
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'subscriptions'
       }, () => {
         checkSubscription();
       })
@@ -88,16 +88,16 @@ export const useSubscription = () => {
   const canGenerateMealPlan = () => {
     if (plan === 'premium') return true;
     if (!lastMealPlanGenerated) return true;
-    
+
     const nextAllowedDate = addDays(lastMealPlanGenerated, 7);
     return isAfter(new Date(), nextAllowedDate);
   };
 
-  return { 
-    plan, 
-    isLoading, 
+  return {
+    plan,
+    isLoading,
     isTrialExpired,
     canGenerateMealPlan,
-    lastMealPlanGenerated 
+    lastMealPlanGenerated
   };
 };

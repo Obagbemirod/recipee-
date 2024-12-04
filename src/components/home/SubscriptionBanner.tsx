@@ -1,9 +1,10 @@
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { Crown } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export const SubscriptionBanner = () => {
-  const { plan, isTrialExpired } = useSubscription();
+  const { plan, isTrialExpired } = useAuth();
 
   if (!plan) return null;
 

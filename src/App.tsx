@@ -21,60 +21,63 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Forgot from "./pages/Forgot";
 import AboutUs from "./pages/AboutUs";
 import Success from "./pages/Success";
+import AuthProvider, { useAuth } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, feature }: { children: React.ReactNode, feature?: keyof SubscriptionFeatures }) => {
-  const { plan } = useSubscription();
-  
+  const { plan } = useAuth();
+
   if (feature && !checkFeatureAccess(plan, feature)) {
     toast.error("This feature requires a Premium subscription. Please upgrade to access.");
     return <Navigate to="/home" replace />;
   }
-  
+
   return children;
 };
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TooltipProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/forgot" element={<Forgot />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <TooltipProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/forgot" element={<Forgot />} />
             <Route path="/upload-ingredients" element={<UploadIngredients />} />
-            <Route 
-              path="/generate-meal-plan" 
-              element={
-                <ProtectedRoute feature="recipeGeneration">
-                  <GenerateMealPlan />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/generate-recipes" 
-              element={
-                <ProtectedRoute feature="recipeGeneration">
-                  <GenerateRecipes />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/saved-items" element={<SavedItems />} />
-            <Route path="/affiliate-program" element={<AffiliateProgram />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/success" element={<Success />} />
-          </Routes>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </BrowserRouter>
+              <Route
+                path="/generate-meal-plan"
+                element={
+                  <ProtectedRoute feature="recipeGeneration">
+                    <GenerateMealPlan />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/generate-recipes"
+                element={
+                  <ProtectedRoute feature="recipeGeneration">
+                    <GenerateRecipes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/saved-items" element={<SavedItems />} />
+              <Route path="/affiliate-program" element={<AffiliateProgram />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/success" element={<Success />} />
+            </Routes>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

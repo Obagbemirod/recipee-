@@ -12,6 +12,7 @@ import { User, Settings, LogOut, Crown } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SubscriptionBanner } from "./SubscriptionBanner";
+import { useAuth } from "@/context/AuthContext";
 
 interface HomeHeaderProps {
   onLogout: () => Promise<void>;
@@ -19,7 +20,7 @@ interface HomeHeaderProps {
 
 export const HomeHeader = ({ onLogout }: HomeHeaderProps) => {
   const navigate = useNavigate();
-  const { plan, isTrialExpired } = useSubscription();
+  const { plan, isTrialExpired } = useAuth();
 
   const handleUpgrade = () => {
     navigate("/?scrollTo=pricing");

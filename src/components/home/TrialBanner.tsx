@@ -4,9 +4,10 @@ import { Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export const TrialBanner = () => {
-  const { plan, isTrialExpired } = useSubscription();
+  const { plan, isTrialExpired } = useAuth();
   const navigate = useNavigate();
 
   if (!plan || plan !== "24_hour_trial") return null;

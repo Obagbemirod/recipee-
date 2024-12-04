@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { SubscriptionDialog } from '../subscription/SubscriptionDialog';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 export const useFeatureAccess = () => {
-  const { plan, isTrialExpired } = useSubscription();
+  const { plan, isTrialExpired } = useAuth();
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const navigate = useNavigate();
 

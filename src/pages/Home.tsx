@@ -9,10 +9,11 @@ import { useFeatureAccess } from '@/components/home/FeatureAccess';
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect } from 'react';
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
-  const { plan, isTrialExpired } = useSubscription();
+  const { plan, isTrialExpired } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {

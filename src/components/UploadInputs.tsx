@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Camera, FileText } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { checkFeatureAccess } from "@/utils/subscriptionUtils";
+import { useAuth } from "@/context/AuthContext";
 
 export const UploadInputs = ({ onSelectInput }: { onSelectInput: (type: string) => void }) => {
-  const { plan } = useSubscription();
+  const { plan } = useAuth();
 
   const canUseImage = checkFeatureAccess(plan, 'imageInputs');
   const canUseText = checkFeatureAccess(plan, 'textInputs');
