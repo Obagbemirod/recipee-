@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import SavedItems from "./pages/SavedItems";
 import AffiliateProgram from "./pages/AffiliateProgram";
 import ForgotPassword from "./pages/ForgotPassword";
+import Forgot from "./pages/Forgot";
 import AboutUs from "./pages/AboutUs";
 import Success from "./pages/Success";
 
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/forgot" element={<Forgot />} />
             <Route path="/upload-ingredients" element={<UploadIngredients />} />
             <Route 
               path="/generate-meal-plan" 

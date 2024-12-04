@@ -64,7 +64,12 @@ const AffiliateProgram = () => {
               </Card>
 
               <div className="text-center">
-                <Button size="lg" className="w-full md:w-auto">
+                <Button
+                  type="button"
+                   variant="link"
+                  size="lg" className="w-full md:w-auto"                 
+                  onClick={() => window.open('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2', '_blank')}
+                  >
                   Apply Now
                 </Button>
               </div>
