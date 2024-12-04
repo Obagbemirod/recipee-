@@ -88,19 +88,23 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const country = localStorage.getItem('userCountry') || userPrefs.country || 'local';
     const cuisine = localStorage.getItem('userCuisine') || userPrefs.cuisineStyle || 'traditional';
     
-    const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day using these ingredients: ${ingredientsList}.
+    const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
     
-    STRICT RULES:
-    1. ONLY use the provided ingredients. Do not suggest meals that require ingredients not in the list.
-    2. Focus on ${cuisine} cuisine specifically from ${country} region
-    3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
-    4. Avoid allergens: ${userPrefs.allergies?.join(', ') || 'none'}
-    5. Each meal MUST be possible to make with ONLY the provided ingredients
-    6. Generate ONLY REAL and AUTHENTIC ${cuisine} dishes from ${country}
-    7. Include accurate calories and nutritional information for each meal
-    8. Format each meal exactly as shown below
+    STRICT REQUIREMENTS:
+    1. ONLY use these ingredients: ${ingredientsList}
+    2. Focus EXCLUSIVELY on ${cuisine} cuisine from ${country}
+    3. Follow these additional preferences: ${additionalPreferences.join('. ')}
+    4. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
+    5. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     
-    Format each meal as:
+    CRITICAL RULES:
+    1. NEVER suggest meals that require ingredients not in the provided list
+    2. ONLY generate authentic ${cuisine} dishes from ${country}
+    3. Each meal MUST be possible to make with ONLY the provided ingredients
+    4. Include accurate nutritional information for each meal
+    5. Respect ALL user preferences and restrictions strictly
+    
+    Format each meal exactly as:
     **Sunday:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
