@@ -15,6 +15,7 @@ const navLinks = [
   { text: "Contact", href: "/contact" },
   { text: "Privacy Policy", href: "/privacy" },
   { text: "Terms of Service", href: "/terms" },
+  { text: "Refund Policy", href: "/refund-policy" },
   { text: "Become an Affiliate", href: "/affiliate-program" },
 ];
 

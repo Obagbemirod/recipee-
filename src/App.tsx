@@ -21,6 +21,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Forgot from "./pages/Forgot";
 import AboutUs from "./pages/AboutUs";
 import Success from "./pages/Success";
+import Contact from "./pages/Contact";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
+import RefundPolicy from "./pages/RefundPolicy";
 import AuthProvider, { useAuth } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
@@ -48,7 +52,7 @@ const App = () => {
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/home" element={<Home />} />
               <Route path="/forgot" element={<Forgot />} />
-            <Route path="/upload-ingredients" element={<UploadIngredients />} />
+              <Route path="/upload-ingredients" element={<UploadIngredients />} />
               <Route
                 path="/generate-meal-plan"
                 element={
@@ -72,6 +76,10 @@ const App = () => {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/success" element={<Success />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
             </Routes>
             <Toaster />
             <Sonner />
