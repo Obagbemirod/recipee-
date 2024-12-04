@@ -19,8 +19,10 @@ const parseMealDetails = (text: string) => {
   const carbsMatch = text.match(/Carbs: (\d+)g/);
   const fatMatch = text.match(/Fat: (\d+)g/);
 
+  const name = text.split('(')[0].trim();
+
   return {
-    name: text.split('(')[0].trim(),
+    name,
     nutrition: {
       calories: caloriesMatch ? `${caloriesMatch[1]} kcal` : "N/A",
       protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
@@ -28,7 +30,7 @@ const parseMealDetails = (text: string) => {
       fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
     },
     ingredients: [
-      { item: "Ingredients will be added", amount: "as needed" }
+      { item: "Ingredients will be provided", amount: "as needed" }
     ],
     steps: [
       { step: 1, instruction: "Detailed cooking instructions will be provided", time: "TBD" }
@@ -39,14 +41,14 @@ const parseMealDetails = (text: string) => {
 const parseMarkdownToMealPlan = (markdown: string) => {
   const days = {};
   const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
+  const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/gi;
   const mealRegex = /- (Breakfast|Lunch|Dinner): ([^\n]+)/g;
 
   let currentDay = "";
   let matches;
 
   const sections = markdown.split(dayRegex);
-  sections.shift();
+  sections.shift(); // Remove the text before the first day
 
   for (let i = 0; i < sections.length; i += 2) {
     const day = sections[i].toLowerCase();
@@ -58,7 +60,9 @@ const parseMarkdownToMealPlan = (markdown: string) => {
       meals[mealType.toLowerCase()] = parseMealDetails(mealText);
     }
 
-    days[day] = meals;
+    if (Object.keys(meals).length > 0) {
+      days[day] = meals;
+    }
   }
 
   // Reorder days starting from Sunday
@@ -123,7 +127,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
     7. DO NOT suggest fusion dishes or international adaptations
     8. Use authentic ${countryData.label} cooking methods and spices
     
-    Format each meal exactly as:
+    Format each meal EXACTLY as:
     **Sunday:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
@@ -144,9 +148,24 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
     
     try {
       const mealPlan = parseMarkdownToMealPlan(text);
+      
+      // Validate that we have all 7 days with 3 meals each
+      const expectedDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const expectedMeals = ['breakfast', 'lunch', 'dinner'];
+      
+      const isValid = expectedDays.every(day => {
+        const dayMeals = mealPlan[day];
+        return dayMeals && expectedMeals.every(meal => dayMeals[meal] && dayMeals[meal].name);
+      });
+
+      if (!isValid) {
+        console.error('Invalid meal plan structure:', mealPlan);
+        throw new Error('Generated meal plan is incomplete');
+      }
+
       return mealPlan;
     } catch (parseError) {
-      console.error('Failed to parse meal plan response:', parseError);
+      console.error('Failed to parse meal plan response:', parseError, text);
       toast.error("Failed to generate meal plan. Please try again.");
       return null;
     }
