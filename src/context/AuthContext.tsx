@@ -109,7 +109,8 @@ const AuthProvider = ({ children }) => {
         isLoading,
         isTrialExpired,
         canGenerateMealPlan,
-        lastMealPlanGenerated
+        lastMealPlanGenerated,
+        checkSubscription
     }
 
     return (

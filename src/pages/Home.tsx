@@ -13,9 +13,9 @@ import { useAuth } from "@/context/AuthContext";
 
 const Home = () => {
   const { checkAccess, SubscriptionPrompt } = useFeatureAccess();
-  const { plan, isTrialExpired } = useAuth();
+  const { plan, isTrialExpired, checkSubscription } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -51,7 +51,7 @@ const Home = () => {
         navigate(path);
         return;
       }
-      
+
       if (path === "/generate-meal-plan" || path === "/generate-recipes") {
         toast.error("This feature requires a Premium subscription. Please upgrade to access.");
         return;
@@ -69,21 +69,26 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    // check subscription on render
+    checkSubscription()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="relative">
-        <img 
+        <img
           src="/lovable-uploads/ba7a4cdd-cf16-4080-8dd1-ed11214c2520.png"
-          alt="Person cooking in kitchen" 
+          alt="Person cooking in kitchen"
           className="w-full h-[50vh] object-cover"
         />
         <div className="absolute inset-0 bg-black/40">
           <div className="container mx-auto px-4 h-full">
             <div className="h-full flex flex-col py-4">
               <HomeHeader onLogout={handleLogout} />
-              
+
               <div className="flex-1 flex items-center justify-center">
-                <motion.h1 
+                <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-3xl md:text-4xl font-bold text-white text-center max-w-md"
@@ -110,7 +115,7 @@ const Home = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 gap-4">
-              <div 
+              <div
                 onClick={() => handleFeatureClick("/upload-ingredients")}
                 className="bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer"
               >
@@ -138,7 +143,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <div 
+              <div
                 onClick={() => handleFeatureClick("/generate-meal-plan")}
                 className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${(!plan || (plan === 'basic')) ? 'opacity-75' : ''}`}
               >
@@ -153,7 +158,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <div 
+              <div
                 onClick={() => handleFeatureClick("/generate-recipes")}
                 className={`bg-white rounded-lg shadow-md p-6 border border-primary hover:border-primary/80 transition-all duration-300 cursor-pointer ${(!plan || (plan === 'basic')) ? 'opacity-75' : ''}`}
               >
@@ -166,7 +171,7 @@ const Home = () => {
           </div>
         </motion.div>
       </div>
-      
+
       <SubscriptionPrompt />
     </div>
   );
