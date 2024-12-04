@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toast } from "sonner";
+import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
 
 const getGeminiAPI = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -85,24 +86,37 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
     }
 
     const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
-    const country = localStorage.getItem('userCountry') || userPrefs.country || 'local';
-    const cuisine = localStorage.getItem('userCuisine') || userPrefs.cuisineStyle || 'traditional';
+    const selectedCuisine = additionalPreferences.find(pref => pref.includes('Generate meals specific to'))?.split(' cuisine')[0].split('specific to ')[1];
     
+    if (!selectedCuisine) {
+      toast.error("Please select a cuisine");
+      return null;
+    }
+
+    const countryData = COUNTRIES_AND_CUISINES.find(c => c.cuisine === selectedCuisine);
+    if (!countryData) {
+      toast.error("Invalid cuisine selected");
+      return null;
+    }
+
     const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
     
     STRICT REQUIREMENTS:
     1. ${requireIngredients ? `ONLY use these ingredients: ${ingredientsList}` : 'Use ingredients commonly found in this cuisine'}
-    2. Focus EXCLUSIVELY on ${cuisine} cuisine from ${country}
-    3. Follow these additional preferences: ${additionalPreferences.join('. ')}
+    2. Focus EXCLUSIVELY on ${selectedCuisine} from ${countryData.label}
+    3. Follow these additional preferences: ${additionalPreferences.filter(pref => !pref.includes('Generate meals specific to')).join('. ')}
     4. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     5. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     
     CRITICAL RULES:
     1. ${requireIngredients ? 'NEVER suggest meals that require ingredients not in the provided list' : 'Suggest meals using common ingredients from this cuisine'}
-    2. ONLY generate authentic ${cuisine} dishes from ${country}
+    2. ONLY generate authentic ${selectedCuisine} dishes from ${countryData.label}. DO NOT mix with other cuisines.
     3. ${requireIngredients ? 'Each meal MUST be possible to make with ONLY the provided ingredients' : 'Each meal should use ingredients commonly available in local markets'}
     4. Include accurate nutritional information for each meal
     5. Respect ALL user preferences and restrictions strictly
+    6. EVERY meal MUST be a traditional ${selectedCuisine} dish
+    7. DO NOT suggest fusion dishes or international adaptations
+    8. Use authentic ${countryData.label} cooking methods and spices
     
     Format each meal exactly as:
     **Sunday:**
