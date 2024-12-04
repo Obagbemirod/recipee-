@@ -50,7 +50,8 @@ const GenerateMealPlan = () => {
         `Strictly adhere to ${values.cuisine} cooking methods and ingredients`,
       ].filter(Boolean);
 
-      const plan = await generateMealPlan(preferences);
+      // Generate meal plan without requiring ingredients
+      const plan = await generateMealPlan(preferences, false); // Pass false to indicate no ingredients required
       if (plan) {
         setMealPlan({ ...plan, name: values.planName });
         toast.success("Meal plan generated successfully!");

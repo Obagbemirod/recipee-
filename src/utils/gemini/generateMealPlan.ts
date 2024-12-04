@@ -71,7 +71,7 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   return orderedDays;
 };
 
-export const generateMealPlan = async (additionalPreferences: string[] = []) => {
+export const generateMealPlan = async (additionalPreferences: string[] = [], requireIngredients: boolean = true) => {
   try {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
@@ -79,7 +79,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
     const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
     
-    if (!userIngredients.length) {
+    if (requireIngredients && !userIngredients.length) {
       toast.error("Please provide ingredients first");
       return null;
     }
@@ -91,16 +91,16 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
     
     STRICT REQUIREMENTS:
-    1. ONLY use these ingredients: ${ingredientsList}
+    1. ${requireIngredients ? `ONLY use these ingredients: ${ingredientsList}` : 'Use ingredients commonly found in this cuisine'}
     2. Focus EXCLUSIVELY on ${cuisine} cuisine from ${country}
     3. Follow these additional preferences: ${additionalPreferences.join('. ')}
     4. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     5. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     
     CRITICAL RULES:
-    1. NEVER suggest meals that require ingredients not in the provided list
+    1. ${requireIngredients ? 'NEVER suggest meals that require ingredients not in the provided list' : 'Suggest meals using common ingredients from this cuisine'}
     2. ONLY generate authentic ${cuisine} dishes from ${country}
-    3. Each meal MUST be possible to make with ONLY the provided ingredients
+    3. ${requireIngredients ? 'Each meal MUST be possible to make with ONLY the provided ingredients' : 'Each meal should use ingredients commonly available in local markets'}
     4. Include accurate nutritional information for each meal
     5. Respect ALL user preferences and restrictions strictly
     
