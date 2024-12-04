@@ -30,20 +30,38 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
 
   const processAudioData = async (audioBlob: Blob) => {
     try {
-      // For now, we'll use a mock response since the Speech-to-Text API is not available
-      const mockTranscript = "tomatoes onions garlic and pepper";
+      // Convert audio blob to base64
+      const reader = new FileReader();
+      const audioBase64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]); // Remove data URL prefix
+        };
+        reader.readAsDataURL(audioBlob);
+      });
+      const audioBase64 = await audioBase64Promise;
       
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-      const prompt = `Given this spoken text about ingredients: "${mockTranscript}", 
-        identify all food ingredients mentioned. Return ONLY a JSON array of objects with 'name' and 'confidence' 
-        properties, where confidence is a number between 0 and 1 indicating how confident you are that this is a food ingredient.
-        Example format: [{"name": "tomato", "confidence": 0.95}]`;
+      const prompt = `You are a culinary expert. Listen to this audio recording and identify ONLY the food ingredients mentioned.
+        Rules:
+        1. ONLY list ingredients that are explicitly mentioned
+        2. DO NOT add any ingredients that weren't mentioned
+        3. DO NOT make assumptions about related or common ingredients
+        4. Return ONLY a JSON array of objects with 'name' and 'confidence' properties
+        5. Confidence should be 1.0 only if the ingredient was very clearly mentioned
+        
+        Example format: [{"name": "tomato", "confidence": 0.95}]
+        
+        If no ingredients are mentioned, return an empty array: []`;
 
-      const result = await model.generateContent(prompt);
-      const response_text = await result.response.text();
+      const result = await model.generateContent([
+        { text: prompt },
+        { inlineData: { mimeType: "audio/webm", data: audioBase64 } }
+      ]);
       
+      const response_text = await result.response.text();
       const cleanedResponse = response_text.replace(/```json\n|\n```/g, '').trim();
       const ingredients = JSON.parse(cleanedResponse);
 
