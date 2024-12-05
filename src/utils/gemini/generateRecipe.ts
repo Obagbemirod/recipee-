@@ -51,24 +51,33 @@ export const generateRecipeFromImage = async (ingredients: string): Promise<any>
     try {
       const recipe = JSON.parse(text);
       console.log("Parsed recipe:", recipe);
+      
+      // Validate required properties
+      if (!recipe || !recipe.ingredients || !recipe.instructions || !recipe.equipment) {
+        throw new Error("Invalid recipe format received from API");
+      }
+      
       return {
-        name: recipe.name,
-        ingredients: recipe.ingredients,
-        instructions: recipe.instructions,
-        equipment: recipe.equipment,
-        totalTime: recipe.totalTime,
-        difficulty: recipe.difficulty,
-        servings: recipe.servings,
-        origin: recipe.origin
+        name: recipe.name || "Unknown Recipe",
+        ingredients: recipe.ingredients || [],
+        instructions: recipe.instructions || [],
+        equipment: recipe.equipment || [],
+        totalTime: recipe.totalTime || "Unknown",
+        difficulty: recipe.difficulty || "Medium",
+        servings: recipe.servings || 2,
+        origin: recipe.origin || {
+          country: "Unknown",
+          significance: "Information not available"
+        }
       };
     } catch (parseError) {
       console.error("Error parsing recipe JSON:", parseError);
       toast.error("Failed to parse recipe response");
-      return null;
+      throw new Error("Failed to parse recipe response");
     }
   } catch (error) {
     console.error("Error generating recipe:", error);
     toast.error("Failed to generate recipe");
-    return null;
+    throw error;
   }
 };
