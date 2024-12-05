@@ -45,21 +45,17 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
       setSelectedImage(base64String);
       
-      // Get user's country and cuisine preferences from localStorage
+      // Get user's country from localStorage for context-aware identification
       const userCountry = localStorage.getItem('userCountry') || 'nigeria';
       const userCuisine = localStorage.getItem('userCuisine') || '';
       
-      // Get recipe from image with context
-      const recipe = await generateRecipeFromImage(base64String);
+      const recipe = await generateRecipeFromImage(base64String, userCountry, userCuisine);
       
-      // Normalize ingredient names based on user's country
+      // Normalize ingredient names based on user's country and cuisine
       const ingredients = recipe.ingredients.map(ing => ({
         name: normalizeIngredient(ing.item, userCountry),
         confidence: ing.confidence || 1.0
       }));
-
-      // Store ingredients in localStorage for meal plan generation
-      localStorage.setItem('recognizedIngredients', JSON.stringify(ingredients));
 
       onIngredientsIdentified(ingredients);
       toast.success("Recipe ingredients identified successfully!");
