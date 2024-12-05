@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
 import { parseMarkdownToMealPlan } from "./mealPlanParser";
 import { WeeklyMealPlan } from "@/types/mealPlan";
+import { MealDetails } from "@/types/meal";
 
 const getGeminiAPI = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -17,6 +18,7 @@ const getGeminiAPI = () => {
 
 export const generateMealPlan = async (additionalPreferences: string[] = [], requireIngredients: boolean = true): Promise<WeeklyMealPlan | null> => {
   try {
+    console.log("Starting meal plan generation...");
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
@@ -38,7 +40,6 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
       return null;
     }
 
-    // Extract the cuisine value
     const cuisineMatch = selectedCuisinePreference.match(/specific to (.+?) cuisine|from (.+?)$/);
     const selectedCuisineValue = cuisineMatch ? (cuisineMatch[1] || cuisineMatch[2]) : null;
     
@@ -47,7 +48,6 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
       return null;
     }
 
-    // Find the country data
     const countryData = COUNTRIES_AND_CUISINES.find(c => 
       c.value.toLowerCase() === selectedCuisineValue.toLowerCase() ||
       c.label.toLowerCase() === selectedCuisineValue.toLowerCase()
@@ -97,7 +97,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
 
     const response = await result.response;
     const text = response.text().trim();
-    console.log("Received response from Gemini API");
+    console.log("Received response from Gemini API:", text);
     
     const mealPlan = parseMarkdownToMealPlan(text);
     if (!mealPlan) {

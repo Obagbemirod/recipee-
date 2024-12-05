@@ -1,101 +1,74 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toast } from "sonner";
 
-const getGeminiAPI = () => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  
-  if (!apiKey) {
-    toast.error("Gemini API key is not set");
-    throw new Error("Invalid or missing Gemini API key");
-  }
-  
-  return new GoogleGenerativeAI(apiKey);
-};
-
-export const generateRecipeFromImage = async (input: string, userCountry?: string, userCuisine?: string) => {
+export const generateRecipeFromImage = async (ingredients: string): Promise<any> => {
   try {
-    const genAI = getGeminiAPI();
-    const countryContext = userCountry || 'nigeria';
-    const cuisineContext = userCuisine ? `with focus on ${userCuisine} cuisine` : '';
-    
-    const prompt = `You are a culinary expert specializing in ${countryContext}n cuisine ${cuisineContext}.
-    Analyze this input and generate a recipe. IMPORTANT GUIDELINES:
-    
-    1. If this is an image of a traditional dish, ALWAYS use its local/traditional name (e.g. "Jollof Rice" not "Spicy Rice")
-    2. Focus on identifying ingredients and dishes specific to ${countryContext}n cuisine
-    3. Use local terminology for ingredients where applicable
-    
-    Return the response in this exact JSON format:
+    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
+
+    const prompt = `Analyze these ingredients and generate a detailed recipe:
+    Ingredients: ${ingredients}
+
+    Please provide:
+    1. The name of the dish
+    2. Country/region of origin and cultural significance
+    3. Detailed list of ingredients with amounts
+    4. Step-by-step cooking instructions with timing
+    5. Required equipment
+    6. Total cooking time
+    7. Difficulty level
+    8. Number of servings
+
+    Format the response exactly as follows:
     {
-      "name": "Traditional Recipe Name",
+      "name": "Dish Name",
+      "origin": {
+        "country": "Country Name",
+        "region": "Region Name (if applicable)",
+        "significance": "Brief cultural significance"
+      },
       "ingredients": [
-        {"item": "local ingredient name", "amount": "approximate amount", "confidence": number}
+        {"item": "ingredient1", "amount": "amount1"},
+        {"item": "ingredient2", "amount": "amount2"}
       ],
       "instructions": [
-        {"step": 1, "description": "detailed instruction", "time": "estimated time"}
+        {"step": 1, "description": "instruction1", "time": "time1"},
+        {"step": 2, "description": "instruction2", "time": "time2"}
       ],
-      "equipment": ["required items"],
-      "totalTime": "total cooking time",
-      "difficulty": "easy/medium/hard",
+      "equipment": ["item1", "item2"],
+      "totalTime": "X hours Y minutes",
+      "difficulty": "Easy/Medium/Hard",
       "servings": number
     }`;
 
-    let result;
-    
-    if (input.startsWith('data:image')) {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const base64Data = input.split('base64,')[1];
-      result = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: prompt },
-              {
-                inlineData: {
-                  mimeType: "image/jpeg",
-                  data: base64Data
-                }
-              }
-            ]
-          }
-        ]
-      });
-    } else {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      result = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt + "\n\nIngredients: " + input }]
-          }
-        ]
-      });
-    }
-
+    console.log("Sending recipe generation prompt to Gemini");
+    const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().trim();
+    const text = response.text();
+    
+    console.log("Received recipe response:", text);
     
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? jsonMatch[0] : text;
-      const recipe = JSON.parse(jsonStr);
-      
+      const recipe = JSON.parse(text);
+      console.log("Parsed recipe:", recipe);
       return {
-        name: recipe.name || "Custom Recipe",
-        ingredients: recipe.ingredients || [],
-        instructions: recipe.instructions || [],
-        equipment: recipe.equipment || [],
-        totalTime: recipe.totalTime || "30 minutes",
-        difficulty: recipe.difficulty || "medium",
-        servings: recipe.servings || 4
+        name: recipe.name,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions,
+        equipment: recipe.equipment,
+        totalTime: recipe.totalTime,
+        difficulty: recipe.difficulty,
+        servings: recipe.servings,
+        origin: recipe.origin
       };
     } catch (parseError) {
-      console.error('Failed to parse recipe response:', text);
-      throw new Error("Failed to parse the recipe");
+      console.error("Error parsing recipe JSON:", parseError);
+      toast.error("Failed to parse recipe response");
+      return null;
     }
-  } catch (error: any) {
-    console.error('Error generating recipe:', error);
-    throw error;
+  } catch (error) {
+    console.error("Error generating recipe:", error);
+    toast.error("Failed to generate recipe");
+    return null;
   }
 };
