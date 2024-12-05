@@ -51,13 +51,21 @@ export const generateRecipeFromImage = async (input: string) => {
       console.log("Processing image input...");
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-vision" });
       const base64Data = input.split('base64,')[1];
-      result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64Data } }] }]
-      });
+      result = await model.generateContent([
+        {
+          inlineData: { 
+            data: base64Data,
+            mimeType: "image/jpeg"
+          }
+        },
+        { text: prompt }
+      ]);
     } else {
       console.log("Processing text input...");
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-      result = await model.generateContent([{ role: "user", parts: [{ text: `${prompt}\n\nIngredients: ${input}` }] }]);
+      result = await model.generateContent([
+        { text: `${prompt}\n\nIngredients: ${input}` }
+      ]);
     }
 
     const response = await result.response;
