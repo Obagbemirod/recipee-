@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Clock, ChefHat, Utensils, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, ChefHat, Utensils, ChevronDown, ChevronUp, Globe } from "lucide-react";
 import { useState } from "react";
 import {
   Collapsible,
@@ -13,12 +13,18 @@ import { toast } from "sonner";
 
 interface Recipe {
   name: string;
-  ingredients: { item: string; amount: string }[];
-  instructions: { step: number; description: string; time: string }[];
+  origin?: {
+    country: string;
+    region: string;
+    culturalContext: string;
+  };
+  ingredients: { item: string; amount: string; notes?: string }[];
+  instructions: { step: number; description: string; time: string; technique?: string }[];
   equipment: string[];
   totalTime: string;
   difficulty: string;
   servings: number;
+  authenticity?: string;
 }
 
 interface CookingGuideProps {
@@ -27,6 +33,7 @@ interface CookingGuideProps {
 
 export const CookingGuide = ({ recipe }: CookingGuideProps) => {
   const [openSections, setOpenSections] = useState({
+    origin: false,
     ingredients: false,
     equipment: false,
     instructions: false,
@@ -87,8 +94,42 @@ export const CookingGuide = ({ recipe }: CookingGuideProps) => {
                   <Utensils className="w-4 h-4" />
                   <span>Serves {recipe.servings}</span>
                 </div>
+                {recipe.origin && (
+                  <div className="flex items-center gap-1">
+                    <Globe className="w-4 h-4" />
+                    <span>{recipe.origin.country}</span>
+                  </div>
+                )}
               </div>
             </div>
+
+            {recipe.origin && (
+              <Collapsible>
+                <CollapsibleTrigger
+                  onClick={() => toggleSection('origin')}
+                  className="flex items-center justify-between w-full text-lg font-semibold text-secondary py-2"
+                >
+                  <span>Cultural Origin & Context</span>
+                  {openSections.origin ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  <div className="space-y-2 text-muted-foreground">
+                    <p><strong>Country:</strong> {recipe.origin.country}</p>
+                    {recipe.origin.region && (
+                      <p><strong>Region:</strong> {recipe.origin.region}</p>
+                    )}
+                    <p><strong>Cultural Context:</strong> {recipe.origin.culturalContext}</p>
+                    {recipe.authenticity && (
+                      <p><strong>Authenticity Note:</strong> {recipe.authenticity}</p>
+                    )}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
 
             <Collapsible>
               <CollapsibleTrigger
@@ -107,6 +148,9 @@ export const CookingGuide = ({ recipe }: CookingGuideProps) => {
                   {recipe.ingredients.map((ingredient, index) => (
                     <li key={index} className="text-muted-foreground">
                       {ingredient.amount} {ingredient.item}
+                      {ingredient.notes && (
+                        <span className="text-sm italic ml-2">({ingredient.notes})</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -154,7 +198,12 @@ export const CookingGuide = ({ recipe }: CookingGuideProps) => {
                     {recipe.instructions.map((instruction) => (
                       <li key={instruction.step} className="border-l-2 border-primary pl-4 ml-4">
                         <div className="font-medium text-secondary">Step {instruction.step}</div>
-                        <div className="text-sm text-muted-foreground mb-1">Time: {instruction.time}</div>
+                        <div className="text-sm text-muted-foreground mb-1">
+                          Time: {instruction.time}
+                          {instruction.technique && (
+                            <span className="ml-2">Technique: {instruction.technique}</span>
+                          )}
+                        </div>
                         <p className="text-muted-foreground">{instruction.description}</p>
                       </li>
                     ))}
