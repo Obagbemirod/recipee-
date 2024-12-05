@@ -26,31 +26,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import RefundPolicy from "./pages/RefundPolicy";
 import AuthProvider, { useAuth } from "./context/AuthContext";
-import { useEffect, useRef } from "react";
-
-
-const clearAllData = async () => {
-  // Clear localStorage
-  localStorage.clear();
-
-  // Clear sessionStorage
-  sessionStorage.clear();
-
-  // Clear cookies
-  document.cookie.split(";").forEach((cookie) => {
-    const eqPos = cookie.indexOf("=");
-    const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-  });
-
-  // Clear cache storage
-  if ("caches" in window) {
-    const cacheKeys = await caches.keys();
-    for (const key of cacheKeys) {
-      await caches.delete(key);
-    }
-  }
-};
 
 const queryClient = new QueryClient();
 
@@ -66,11 +41,6 @@ const ProtectedRoute = ({ children, feature }: { children: React.ReactNode, feat
 };
 
 const App = () => {
-   useEffect(() => {
-    // Clear storage and cookies on page load
-    clearAllData();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

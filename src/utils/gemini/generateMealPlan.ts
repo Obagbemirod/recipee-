@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toast } from "sonner";
-import { COUNTRIES_AND_CUISINES } from "@/data/countriesAndCuisines";
 
 const getGeminiAPI = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -72,7 +71,7 @@ const parseMarkdownToMealPlan = (markdown: string) => {
   return orderedDays;
 };
 
-export const generateMealPlan = async (additionalPreferences: string[] = [], requireIngredients: boolean = true) => {
+export const generateMealPlan = async (additionalPreferences: string[] = []) => {
   try {
     const genAI = getGeminiAPI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
@@ -80,48 +79,30 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
     const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
     const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
     
-    if (requireIngredients && !userIngredients.length) {
+    if (!userIngredients.length) {
       toast.error("Please provide ingredients first");
       return null;
     }
 
     const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
-    const selectedCuisinePreference = additionalPreferences.find(pref => pref.includes('Generate meals specific to'));
+    const country = localStorage.getItem('userCountry') || userPrefs.country || 'local';
+    const cuisine = localStorage.getItem('userCuisine') || userPrefs.cuisineStyle || 'traditional';
     
-    if (!selectedCuisinePreference) {
-      toast.error("Please select a cuisine");
-      return null;
-    }
-
-    // Extract the cuisine value from the preference string
-    const selectedCuisineValue = selectedCuisinePreference.split('specific to ')[1].split(' cuisine')[0];
-    
-    // Find the country data using the value instead of the cuisine name
-    const countryData = COUNTRIES_AND_CUISINES.find(c => c.value === selectedCuisineValue);
-    
-    if (!countryData) {
-      toast.error("Invalid cuisine selected");
-      return null;
-    }
-
     const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
     
     STRICT REQUIREMENTS:
-    1. ${requireIngredients ? `ONLY use these ingredients: ${ingredientsList}` : 'Use ingredients commonly found in this cuisine'}
-    2. Focus EXCLUSIVELY on ${countryData.cuisine} from ${countryData.label}
-    3. Follow these additional preferences: ${additionalPreferences.filter(pref => !pref.includes('Generate meals specific to')).join('. ')}
+    1. ONLY use these ingredients: ${ingredientsList}
+    2. Focus EXCLUSIVELY on ${cuisine} cuisine from ${country}
+    3. Follow these additional preferences: ${additionalPreferences.join('. ')}
     4. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     5. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     
     CRITICAL RULES:
-    1. ${requireIngredients ? 'NEVER suggest meals that require ingredients not in the provided list' : 'Suggest meals using common ingredients from this cuisine'}
-    2. ONLY generate authentic ${countryData.cuisine} dishes from ${countryData.label}. DO NOT mix with other cuisines.
-    3. ${requireIngredients ? 'Each meal MUST be possible to make with ONLY the provided ingredients' : 'Each meal should use ingredients commonly available in local markets'}
+    1. NEVER suggest meals that require ingredients not in the provided list
+    2. ONLY generate authentic ${cuisine} dishes from ${country}
+    3. Each meal MUST be possible to make with ONLY the provided ingredients
     4. Include accurate nutritional information for each meal
     5. Respect ALL user preferences and restrictions strictly
-    6. EVERY meal MUST be a traditional ${countryData.cuisine} dish
-    7. DO NOT suggest fusion dishes or international adaptations
-    8. Use authentic ${countryData.label} cooking methods and spices
     
     Format each meal exactly as:
     **Sunday:**
