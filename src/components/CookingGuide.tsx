@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Clock, ChefHat, Utensils, ChevronDown, ChevronUp, Globe } from "lucide-react";
+import { Clock, ChefHat, Utensils, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import {
   Collapsible,
@@ -19,11 +19,6 @@ interface Recipe {
   totalTime: string;
   difficulty: string;
   servings: number;
-  origin?: {
-    country: string;
-    region?: string;
-    significance?: string;
-  };
 }
 
 interface CookingGuideProps {
@@ -92,18 +87,7 @@ export const CookingGuide = ({ recipe }: CookingGuideProps) => {
                   <Utensils className="w-4 h-4" />
                   <span>Serves {recipe.servings}</span>
                 </div>
-                {recipe.origin && (
-                  <div className="flex items-center gap-1">
-                    <Globe className="w-4 h-4" />
-                    <span>{recipe.origin.country}{recipe.origin.region ? `, ${recipe.origin.region}` : ''}</span>
-                  </div>
-                )}
               </div>
-              {recipe.origin?.significance && (
-                <p className="mt-2 text-sm text-muted-foreground italic">
-                  {recipe.origin.significance}
-                </p>
-              )}
             </div>
 
             <Collapsible>
