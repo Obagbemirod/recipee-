@@ -14,7 +14,6 @@ const getGeminiAPI = () => {
 };
 
 const parseMealDetails = (text: string) => {
-  console.log("Parsing meal details:", text);
   const caloriesMatch = text.match(/Calories: (\d+)/);
   const proteinMatch = text.match(/Protein: (\d+)g/);
   const carbsMatch = text.match(/Carbs: (\d+)g/);
@@ -38,7 +37,6 @@ const parseMealDetails = (text: string) => {
 };
 
 const parseMarkdownToMealPlan = (markdown: string) => {
-  console.log("Parsing markdown to meal plan:", markdown);
   const days = {};
   const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const dayRegex = /\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\*\*/g;
@@ -71,7 +69,6 @@ const parseMarkdownToMealPlan = (markdown: string) => {
     }
   });
 
-  console.log("Parsed meal plan:", orderedDays);
   return orderedDays;
 };
 
@@ -96,7 +93,10 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
       return null;
     }
 
+    // Extract the cuisine value from the preference string
     const selectedCuisineValue = selectedCuisinePreference.split('specific to ')[1].split(' cuisine')[0];
+    
+    // Find the country data using the value instead of the cuisine name
     const countryData = COUNTRIES_AND_CUISINES.find(c => c.value === selectedCuisineValue);
     
     if (!countryData) {
@@ -113,15 +113,23 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
     4. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
     5. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     
-    Format each meal EXACTLY as:
+    CRITICAL RULES:
+    1. ${requireIngredients ? 'NEVER suggest meals that require ingredients not in the provided list' : 'Suggest meals using common ingredients from this cuisine'}
+    2. ONLY generate authentic ${countryData.cuisine} dishes from ${countryData.label}. DO NOT mix with other cuisines.
+    3. ${requireIngredients ? 'Each meal MUST be possible to make with ONLY the provided ingredients' : 'Each meal should use ingredients commonly available in local markets'}
+    4. Include accurate nutritional information for each meal
+    5. Respect ALL user preferences and restrictions strictly
+    6. EVERY meal MUST be a traditional ${countryData.cuisine} dish
+    7. DO NOT suggest fusion dishes or international adaptations
+    8. Use authentic ${countryData.label} cooking methods and spices
+    
+    Format each meal exactly as:
     **Sunday:**
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     
     [Continue for Monday through Saturday in the same format]`;
-
-    console.log("Sending prompt to Gemini:", prompt);
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -133,11 +141,9 @@ export const generateMealPlan = async (additionalPreferences: string[] = [], req
 
     const response = await result.response;
     const text = response.text().trim();
-    console.log("Received response from Gemini:", text);
     
     try {
       const mealPlan = parseMarkdownToMealPlan(text);
-      console.log("Final meal plan:", mealPlan);
       return mealPlan;
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
