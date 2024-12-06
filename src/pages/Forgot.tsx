@@ -43,7 +43,7 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
         .single();
 
       if (fetchError || !user) {
-        alert("The email address is not associated with any account.");
+        alert("The email address is not associated with any account.", fetchError);
         return;
       }
 
@@ -55,14 +55,14 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
 
       if (updateError) {
         console.error("Error updating password:", updateError.message);
-        alert("Failed to update the password. Please try again later.");
+        alert("Failed to update the password. Please try again later.", updateError);
         return;
       }
 
       alert("Password updated successfully! You can now log in with your new password.");
     } catch (error) {
       console.error("Unexpected error:", error);
-      alert("An unexpected error occurred. Please try again.");
+      alert("An unexpected error occurred. Please try again.", error);
     }
   };
  
