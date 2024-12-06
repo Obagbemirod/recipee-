@@ -40,7 +40,32 @@ const ProtectedRoute = ({ children, feature }: { children: React.ReactNode, feat
   return children;
 };
 
+
+// Function to clear browser storage
+const clearBrowserStorage = () => {
+  // Clear localStorage
+  localStorage.clear();
+  console.log("localStorage cleared.");
+
+  // Clear sessionStorage
+  sessionStorage.clear();
+  console.log("sessionStorage cleared.");
+
+  // Clear cookies
+  document.cookie.split(";").forEach((cookie) => {
+    const name = cookie.split("=")[0].trim();
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+  });
+  console.log("Cookies cleared.");
+};
+
 const App = () => {
+  
+   // Clear storage when the app loads
+  useEffect(() => {
+    clearBrowserStorage();
+  }, []);
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
