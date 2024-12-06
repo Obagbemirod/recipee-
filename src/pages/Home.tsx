@@ -150,7 +150,7 @@ const Home = () => {
                 <div className="flex flex-col items-center gap-3">
                   <ChefHat className="h-6 w-6 text-primary" />
                   <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-2">Random Recipe Generator by Recipee MasterChef</h3>
+                    <h3 className="text-lg font-semibold mb-2">Recipee MasterChef</h3>
                     <p className="text-sm text-muted-foreground">
                       Discover culinary surprises with our Random Meal Plan Generator, where each click unveils weekly unique and exciting dishes to try.
                     </p>
