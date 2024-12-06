@@ -27,7 +27,7 @@ const parseMealDetails = (text: string) => {
       fat: fatMatch ? `${fatMatch[1]}g` : "N/A"
     },
     ingredients: [
-      { item: "Ingredients will be added", amount: "as needed" }
+      { item: "Ingredients will be provided", amount: "as needed" }
     ],
     steps: [
       { step: 1, instruction: "Detailed cooking instructions will be provided", time: "TBD" }
@@ -79,7 +79,9 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
     const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
     
-    if (!userIngredients.length) {
+    // Check if ingredients exist in localStorage
+    if (!userIngredients || userIngredients.length === 0) {
+      console.error("No ingredients found in localStorage");
       toast.error("Please provide ingredients first");
       return null;
     }
@@ -88,6 +90,13 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const country = localStorage.getItem('userCountry') || userPrefs.country || 'local';
     const cuisine = localStorage.getItem('userCuisine') || userPrefs.cuisineStyle || 'traditional';
     
+    console.log("Generating meal plan with:", {
+      ingredients: ingredientsList,
+      country,
+      cuisine,
+      preferences: additionalPreferences
+    });
+
     const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
     
     STRICT REQUIREMENTS:
@@ -123,8 +132,11 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const response = await result.response;
     const text = response.text().trim();
     
+    console.log("Generated meal plan response:", text);
+    
     try {
       const mealPlan = parseMarkdownToMealPlan(text);
+      console.log("Parsed meal plan:", mealPlan);
       return mealPlan;
     } catch (parseError) {
       console.error('Failed to parse meal plan response:', parseError);
