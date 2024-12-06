@@ -16,29 +16,37 @@ export const generateRecipeFromImage = async (input: string, userCountry?: strin
   try {
     const genAI = getGeminiAPI();
     
-    const prompt = `You are a global culinary expert with deep knowledge of cuisines worldwide.
-    Analyze this input and identify the exact dish/recipe shown. IMPORTANT GUIDELINES:
-    
-    1. ONLY identify ingredients and items that are CLEARLY VISIBLE in the image
-    2. If this is a known dish, identify its authentic name and origin
-    3. Do not make assumptions about ingredients that cannot be seen
-    4. Focus on accurate, global identification without regional bias
-    5. If uncertain about any ingredient, exclude it rather than guess
-    
-    Return the response in this exact JSON format:
+    const prompt = `You are a global culinary expert with deep knowledge of world cuisines. Based on the image provided, analyze the visible ingredients and identify the dish or recipe. Follow these strict guidelines:
+
+    ### Key Instructions:
+    1. **Only identify visible ingredients**: Focus solely on ingredients or items that are clearly visible in the image.
+    2. **Identify the authentic dish name**: If the dish is a well-known recipe, provide its official name along with its origin, if possible.
+    3. **Exclude unidentifiable ingredients**: If you cannot definitively identify an ingredient from the image, do not include it.
+    4. **No assumptions**: Do not assume any ingredients that cannot be directly seen in the image.
+    5. **Global perspective**: Make the identification without bias toward any specific regional cuisine unless the dish has a clear regional identity.
+
+    Return the analysis in the following **exact JSON format**:
+
     {
-      "name": "Authentic Recipe Name (with origin if known)",
+      "name": "Authentic Recipe Name (include origin if known)",
       "ingredients": [
         {"item": "ingredient name", "amount": "approximate amount", "confidence": number}
       ],
       "instructions": [
         {"step": 1, "description": "detailed instruction", "time": "estimated time"}
       ],
-      "equipment": ["required items"],
-      "totalTime": "total cooking time",
+      "equipment": ["required equipment"],
+      "totalTime": "total estimated cooking time",
       "difficulty": "easy/medium/hard",
       "servings": number
-    }`;
+    }
+
+    ### Additional Notes:
+    - **Confidence** should be rated on a scale of 0 to 1. For example, if you are very sure about an ingredient, the confidence should be close to 1; if unsure, the confidence should be closer to 0.
+    - **Ingredient Amount**: Provide an approximate amount for each visible ingredient (e.g., "1 onion", "200 grams of chicken").
+    - **Instructions**: Write clear and detailed steps for preparing the dish based on the ingredients shown in the image.
+    - **Total Time**: Estimate the total cooking time based on the visible steps and ingredients.
+    - **Difficulty**: Classify the difficulty level of the recipe based on the ingredients and steps.`;
 
     let result;
     

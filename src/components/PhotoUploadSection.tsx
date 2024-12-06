@@ -35,7 +35,7 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
 
     try {
       setLocalIsUploading(true);
-      
+
       const base64String = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
@@ -44,13 +44,13 @@ export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: Pho
       });
 
       setSelectedImage(base64String);
-      
+
       // Get user's country from localStorage for context-aware identification
       const userCountry = localStorage.getItem('userCountry') || 'nigeria';
       const userCuisine = localStorage.getItem('userCuisine') || '';
-      
+
       const recipe = await generateRecipeFromImage(base64String, userCountry, userCuisine);
-      
+
       // Normalize ingredient names based on user's country and cuisine
       const ingredients = recipe.ingredients.map(ing => ({
         name: normalizeIngredient(ing.item, userCountry),
