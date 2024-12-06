@@ -44,25 +44,17 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-      const prompt = `You are a culinary expert tasked with listening to an audio recording and identifying **only** the food ingredients explicitly mentioned.
-
-      ### Rules:
-      1. **Only list explicitly mentioned ingredients**: Include only the ingredients that are **clearly** and **explicitly** mentioned in the audio.
-      2. **Do not add assumed or related ingredients**: Do not include any ingredients that were not directly mentioned, even if they are commonly associated with the dish.
-      3. **Do not make assumptions**: If there is uncertainty or the ingredient is unclear, do not include it.
-      4. **Confidence level**: For each ingredient, assign a **confidence** level between 0 and 1:
-        - **1.0**: If the ingredient was very clearly mentioned.
-        - **Less than 1.0**: If the ingredient was mentioned but not with high clarity (e.g., inaudible, vague, or uncertain).
-      5. **Return format**: Provide a JSON array of objects with two properties:
-        - "name": The name of the ingredient as mentioned in the audio.
-        - "confidence": The confidence level, where 1.0 represents very clear mention.
-
-        ### Example format:
-
-      [
-        { "name": "tomato", "confidence": 0.95 },
-        { "name": "chicken", "confidence": 1.0 }
-      ]`;
+      const prompt = `You are a culinary expert. Listen to this audio recording and identify ONLY the food ingredients mentioned.
+      Rules:
+      1. ONLY list ingredients that are explicitly mentioned
+      2. DO NOT add any ingredients that weren't mentioned
+      3. DO NOT make assumptions about related or common ingredients
+      4. Return ONLY a JSON array of objects with 'name' and 'confidence' properties
+      5. Confidence should be 1.0 only if the ingredient was very clearly mentioned
+      
+      Example format: [{"name": "tomato", "confidence": 0.95}]
+      
+      If no ingredients are mentioned, return an empty array: []`;
 
       const result = await model.generateContent([
         { text: prompt },
