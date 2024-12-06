@@ -40,29 +40,29 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
         reader.readAsDataURL(audioBlob);
       });
       const audioBase64 = await audioBase64Promise;
-
+      
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
       const prompt = `You are a culinary expert. Listen to this audio recording and identify ONLY the food ingredients mentioned.
-      Rules:
-      1. ONLY list ingredients that are explicitly mentioned
-      2. DO NOT add any ingredients that weren't mentioned
-      3. DO NOT make assumptions about related or common ingredients
-      4. Return ONLY a JSON array of objects with 'name' and 'confidence' properties
-      5. Confidence should be 1.0 only if the ingredient was very clearly mentioned
-      
-      Example format: [{"name": "tomato", "confidence": 0.95}]
-      
-      If no ingredients are mentioned, return an empty array: []`;
+        Rules:
+        1. ONLY list ingredients that are explicitly mentioned
+        2. DO NOT add any ingredients that weren't mentioned
+        3. DO NOT make assumptions about related or common ingredients
+        4. Return ONLY a JSON array of objects with 'name' and 'confidence' properties
+        5. Confidence should be 1.0 only if the ingredient was very clearly mentioned
+        
+        Example format: [{"name": "tomato", "confidence": 0.95}]
+        
+        If no ingredients are mentioned, return an empty array: []`;
 
       const result = await model.generateContent([
         { text: prompt },
         { inlineData: { mimeType: "audio/webm", data: audioBase64 } }
       ]);
-
+      
       const response_text = await result.response.text();
-      const cleanedResponse = response_text.replace(/```json\n |\n```/g, '').trim();
+      const cleanedResponse = response_text.replace(/```json\n|\n```/g, '').trim();
       const ingredients = JSON.parse(cleanedResponse);
 
       if (ingredients.length === 0) {
@@ -125,12 +125,12 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-
+    
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
-
+    
     setIsRecording(false);
   };
 
@@ -152,10 +152,10 @@ export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: 
       <div className="flex flex-col items-center justify-center h-64">
         <Button
           onClick={handleRecording}
-          className={`rounded - full p - 8 ${isRecording ? 'bg-red-500 hover:bg-red-600' : ''} `}
+          className={`rounded-full p-8 ${isRecording ? 'bg-red-500 hover:bg-red-600' : ''}`}
           disabled={isUploading}
         >
-          <Mic className={`h - 12 w - 12 ${isRecording ? 'animate-pulse' : ''} `} />
+          <Mic className={`h-12 w-12 ${isRecording ? 'animate-pulse' : ''}`} />
         </Button>
         <p className="mt-4 text-gray-500">
           {isRecording ? 'Recording... Click to stop' : 'Click to start recording'}
