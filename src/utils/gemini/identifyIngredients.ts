@@ -19,13 +19,15 @@ export const identifyIngredients = async (input: string) => {
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const userCountry = localStorage.getItem('userCountry') || 'nigeria';
     
-    const prompt = `As a culinary expert in ${userCountry}n cuisine, analyze the following input and identify food ingredients. 
-    IMPORTANT:
-    1. Use local/traditional names for ingredients where applicable
-    2. Be specific about varieties common in ${userCountry}n cuisine
-    3. Identify ingredients with high confidence only
+    const prompt = `As a culinary expert, analyze the provided image/video and identify ONLY the food ingredients that are CLEARLY VISIBLE.
+    
+    CRITICAL RULES:
+    1. ONLY list ingredients that are actually visible in the input
+    2. DO NOT make assumptions about ingredients that cannot be seen
+    3. DO NOT add ingredients based on what "might" be included
+    4. If uncertain about an ingredient, DO NOT include it
+    5. Focus on accurate identification without any guesswork
     
     Return ONLY a JSON array of ingredient names, nothing else. 
     Example format: ["ingredient1", "ingredient2"]

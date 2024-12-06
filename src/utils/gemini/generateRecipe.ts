@@ -15,21 +15,21 @@ const getGeminiAPI = () => {
 export const generateRecipeFromImage = async (input: string, userCountry?: string, userCuisine?: string) => {
   try {
     const genAI = getGeminiAPI();
-    const countryContext = userCountry || 'nigeria';
-    const cuisineContext = userCuisine ? `with focus on ${userCuisine} cuisine` : '';
     
-    const prompt = `You are a culinary expert specializing in ${countryContext}n cuisine ${cuisineContext}.
-    Analyze this input and generate a recipe. IMPORTANT GUIDELINES:
+    const prompt = `You are a global culinary expert with deep knowledge of cuisines worldwide.
+    Analyze this input and identify the exact dish/recipe shown. IMPORTANT GUIDELINES:
     
-    1. If this is an image of a traditional dish, ALWAYS use its local/traditional name (e.g. "Jollof Rice" not "Spicy Rice")
-    2. Focus on identifying ingredients and dishes specific to ${countryContext}n cuisine
-    3. Use local terminology for ingredients where applicable
+    1. ONLY identify ingredients and items that are CLEARLY VISIBLE in the image
+    2. If this is a known dish, identify its authentic name and origin
+    3. Do not make assumptions about ingredients that cannot be seen
+    4. Focus on accurate, global identification without regional bias
+    5. If uncertain about any ingredient, exclude it rather than guess
     
     Return the response in this exact JSON format:
     {
-      "name": "Traditional Recipe Name",
+      "name": "Authentic Recipe Name (with origin if known)",
       "ingredients": [
-        {"item": "local ingredient name", "amount": "approximate amount", "confidence": number}
+        {"item": "ingredient name", "amount": "approximate amount", "confidence": number}
       ],
       "instructions": [
         {"step": 1, "description": "detailed instruction", "time": "estimated time"}

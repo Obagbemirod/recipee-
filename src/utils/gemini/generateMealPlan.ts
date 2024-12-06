@@ -13,13 +13,16 @@ const getGeminiAPI = () => {
 };
 
 const parseMealDetails = (text: string) => {
-  const caloriesMatch = text.match(/Calories: (\d+)/);
-  const proteinMatch = text.match(/Protein: (\d+)g/);
-  const carbsMatch = text.match(/Carbs: (\d+)g/);
-  const fatMatch = text.match(/Fat: (\d+)g/);
+  // Remove asterisks from the meal name
+  const cleanedText = text.replace(/\*/g, '');
+  
+  const caloriesMatch = cleanedText.match(/Calories: (\d+)/);
+  const proteinMatch = cleanedText.match(/Protein: (\d+)g/);
+  const carbsMatch = cleanedText.match(/Carbs: (\d+)g/);
+  const fatMatch = cleanedText.match(/Fat: (\d+)g/);
 
   return {
-    name: text.split('(')[0].trim(),
+    name: cleanedText.split('(')[0].trim(),
     nutrition: {
       calories: caloriesMatch ? `${caloriesMatch[1]} kcal` : "N/A",
       protein: proteinMatch ? `${proteinMatch[1]}g` : "N/A",
@@ -102,7 +105,7 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     5. NO made-up or fusion dishes - only authentic ${cuisine} cuisine
     
     Format each meal exactly as:
-    **Sunday:**
+    Sunday:
     - Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
     - Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
