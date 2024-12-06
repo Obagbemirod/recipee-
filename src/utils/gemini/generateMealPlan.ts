@@ -77,21 +77,10 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
     const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
-    const userIngredients = JSON.parse(localStorage.getItem('recognizedIngredients') || '[]');
-    
-    // Check if ingredients exist in localStorage
-    if (!userIngredients || userIngredients.length === 0) {
-      console.error("No ingredients found in localStorage");
-      toast.error("Please provide ingredients first");
-      return null;
-    }
-
-    const ingredientsList = userIngredients.map((i: any) => i.name).join(', ');
     const country = localStorage.getItem('userCountry') || userPrefs.country || 'local';
     const cuisine = localStorage.getItem('userCuisine') || userPrefs.cuisineStyle || 'traditional';
     
     console.log("Generating meal plan with:", {
-      ingredients: ingredientsList,
       country,
       cuisine,
       preferences: additionalPreferences
@@ -100,18 +89,17 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
     const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
     
     STRICT REQUIREMENTS:
-    1. ONLY use these ingredients: ${ingredientsList}
-    2. Focus EXCLUSIVELY on ${cuisine} cuisine from ${country}
-    3. Follow these additional preferences: ${additionalPreferences.join('. ')}
-    4. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
-    5. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
+    1. Focus EXCLUSIVELY on ${cuisine} cuisine from ${country}
+    2. Follow these additional preferences: ${additionalPreferences.join('. ')}
+    3. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
+    4. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
     
     CRITICAL RULES:
-    1. NEVER suggest meals that require ingredients not in the provided list
-    2. ONLY generate authentic ${cuisine} dishes from ${country}
-    3. Each meal MUST be possible to make with ONLY the provided ingredients
-    4. Include accurate nutritional information for each meal
-    5. Respect ALL user preferences and restrictions strictly
+    1. ONLY generate authentic ${cuisine} dishes from ${country}
+    2. Each meal MUST be a real, traditional dish from ${country}
+    3. Include accurate nutritional information for each meal
+    4. Respect ALL user preferences and restrictions strictly
+    5. NO made-up or fusion dishes - only authentic ${cuisine} cuisine
     
     Format each meal exactly as:
     **Sunday:**
