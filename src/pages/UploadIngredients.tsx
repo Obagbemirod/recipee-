@@ -16,6 +16,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { normalizeIngredient } from "@/utils/ingredientMapping";
 import { CuisineSelector } from "@/components/meal-plan/CuisineSelector";
 import { useForm, FormProvider } from "react-hook-form";
+import { supabase } from "@/lib/supabase";
 
 interface Ingredient {
   name: string;
@@ -42,6 +43,62 @@ const UploadIngredients = () => {
     { id: 'audio', icon: Mic, label: 'Audio', component: AudioRecordingSection },
     { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
   ];
+
+  const handleMealPlanGeneration = async () => {
+    if (!mealPlanName.trim()) {
+      toast.error("Please enter a meal plan name");
+      return;
+    }
+
+    if (recognizedIngredients.length === 0) {
+      toast.error("Please add some ingredients first");
+      return;
+    }
+
+    setIsGeneratingMealPlan(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please log in to generate meal plans");
+        return;
+      }
+
+      const selectedCuisine = methods.getValues('cuisine');
+      const userPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+      const userDiet = userPrefs.dietaryPreference || 'none';
+      const allergies = userPrefs.allergies || [];
+      
+      const ingredientsList = recognizedIngredients.map(ing => normalizeIngredient(ing.name)).join(", ");
+      const preferences = [
+        `Generate meals using these ingredients: ${ingredientsList}`,
+        `Focus on authentic ${selectedCuisine} cuisine`,
+        `Consider dietary preference: ${userDiet}`,
+        `Avoid these allergens: ${allergies.join(', ')}`,
+        'Include nutritional information and cooking steps for each meal',
+        'Generate realistic and traditional dishes only'
+      ];
+      
+      const plan = await generateMealPlan(preferences);
+      
+      if (plan && Object.keys(plan).length > 0) {
+        // Record the meal plan generation
+        await supabase.from('meal_plan_generations').insert({
+          user_id: user.id,
+          plan_id: mealPlanName
+        });
+
+        setMealPlan({ ...plan, name: mealPlanName });
+        toast.success("Meal plan generated successfully!");
+      } else {
+        throw new Error("Failed to generate a valid meal plan");
+      }
+    } catch (error: any) {
+      console.error("Error generating meal plan:", error);
+      toast.error(error.message || "Failed to generate meal plan. Please try again.");
+    } finally {
+      setIsGeneratingMealPlan(false);
+    }
+  };
 
   return (
     <div 
@@ -109,40 +166,7 @@ const UploadIngredients = () => {
               setRecognizedIngredients(prev => prev.filter((_, i) => i !== index));
             }}
             isGenerating={isGeneratingMealPlan}
-            onConfirm={async () => {
-              if (!mealPlanName.trim()) {
-                toast.error("Please enter a meal plan name");
-                return;
-              }
-
-              if (recognizedIngredients.length === 0) {
-                toast.error("Please add some ingredients first");
-                return;
-              }
-
-              setIsGeneratingMealPlan(true);
-              try {
-                const selectedCuisine = methods.getValues('cuisine');
-                const userDiet = localStorage.getItem('dietaryPreference') || 'none';
-                
-                const ingredientsList = recognizedIngredients.map(ing => ing.name).join(", ");
-                const preferences = [
-                  `Generate meals using these ingredients: ${ingredientsList}.`,
-                  `ONLY generate traditional ${selectedCuisine} dishes and local delicacies.`,
-                  `Consider dietary preference: ${userDiet}.`,
-                  'Include only dishes that are commonly prepared in this region.'
-                ];
-                
-                const plan = await generateMealPlan(preferences);
-                setMealPlan({ ...plan, name: mealPlanName });
-                toast.success("Meal plan generated successfully!");
-              } catch (error) {
-                console.error("Error generating meal plan:", error);
-                toast.error("Failed to generate meal plan. Please try again.");
-              } finally {
-                setIsGeneratingMealPlan(false);
-              }
-            }}
+            onConfirm={handleMealPlanGeneration}
           />
 
           {mealPlan && <IngredientBasedMealPlan mealPlan={mealPlan} />}
