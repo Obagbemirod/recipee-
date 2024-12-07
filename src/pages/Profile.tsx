@@ -86,6 +86,13 @@ const Profile = () => {
       console.log("Authenticated userid:", user.id);
       console.log("Form values submitted:", values);
 
+      // read all rows
+       const { data: udata, error } = await supabase
+        .from('profiles') // Replace with your Supabase table name
+        .select('*');
+      
+      const usedata = udata.id;
+      console.log("udata", udata);
 
        // Attempt to update the user's data in Supabase
       const { data, error } = await supabase
@@ -99,7 +106,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', myId)
+        .eq('id', usedata)
         .select('*');
 
         if (error) {
