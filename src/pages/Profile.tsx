@@ -74,10 +74,10 @@ const Profile = () => {
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
 
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-         throw new Error("User not authenticated");
-      }         
+      // const { data: { user }, error: userError } = await supabase.auth.getUser();
+      // if (userError || !user) {
+      //    throw new Error("User not authenticated");
+      // }         
        const myId = user.id; // Extract the profile ID
        console.log("Fetched Profile ID:", myId);
 
