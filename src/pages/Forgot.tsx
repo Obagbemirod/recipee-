@@ -43,7 +43,7 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
         .single();
 
       if (fetchError || !user) {
-        alert("The email address is not associated with any account.", fetchError);
+        alert("The email address is not associated with any account.");
         return;
       }
 
@@ -55,22 +55,17 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
 
       if (updateError) {
         console.error("Error updating password:", updateError.message);
-        alert("Failed to update the password. Please try again later.", updateError);
+        alert("Failed to update the password. Please try again later.");
         return;
       }
 
       alert("Password updated successfully! You can now log in with your new password.");
     } catch (error) {
       console.error("Unexpected error:", error);
-      alert("An unexpected error occurred. Please try again.", error);
+      alert("An unexpected error occurred. Please try again.");
     }
   };
  
-
-  
- 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
@@ -125,9 +120,6 @@ const handleSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
         </Button>
       </form>
     </Form>
-
-         
-    
         </div>
       </div>
     </div>
