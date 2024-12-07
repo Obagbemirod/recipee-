@@ -14,6 +14,7 @@ import { useRef, useEffect } from "react";
 import { ArrowLeft, ShoppingBag, BookMarked } from "lucide-react";
 import { CulturalPreferences } from "@/components/onboarding/CulturalPreferences";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/lib/supabase";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -72,6 +73,25 @@ const Profile = () => {
       localStorage.setItem("userCountry", values.country);
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
+
+      const user = supabase.auth.user(); // Get the authenticated user
+      const userId = user?.id;
+
+
+       // Attempt to update the user's data in Supabase
+      const { data, error } = await supabase
+        .from('profiles') // Replace with your Supabase table name
+        .update({
+          name: values.name,
+          email: values.email,
+          dietary_preference: values.dietaryPreference,
+          allergies: values.allergies,
+          country: values.country,
+          cuisine_style: values.cuisineStyle,
+          // photo: values.photo || null, // Optional field
+        })
+        .eq('id', 'userId'); // Replace 'user-id' with the authenticated user's ID
+
       
       toast({
         title: "Profile updated!",
