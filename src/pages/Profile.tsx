@@ -109,6 +109,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
+        .eq('id', data.id)
         .select('*');
 
         if (error) {
