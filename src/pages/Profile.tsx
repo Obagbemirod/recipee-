@@ -77,25 +77,24 @@ const Profile = () => {
       // const { data: { user }, error: userError } = await supabase.auth.getUser();
       // if (userError || !user) {
       //    throw new Error("User not authenticated");
-      // }
-      // Step 1: Fetch the profile ID
-      // const { data: profileData, error: fetchError } = await supabase
-      //   .from('profiles')
-      //   .select('id')
-      //   .maybeSingle(); // Use maybeSingle to safely handle a single record
-  
-      // if (fetchError || !profileData) {
-      //   console.error("Error fetching profile ID:", fetchError);
-      //   throw new Error("Failed to fetch profile ID");
-      // }
-
-       const myEmail = values.email; // Extract the profile ID
-       // console.log("Fetched Profile ID:", myProfileId);
+      // }         
+       // const myId = user.id; // Extract the profile ID
+       // console.log("Fetched Profile ID:", myId);
 
        // Log user and form values for debugging
       // console.log("Authenticated user:", user);
-      console.log("Form values submitted:", values);
+      // console.log("Authenticated userid:", user.id);
+      // console.log("Form values submitted:", values);
 
+      // read all rows
+       const { data: udata, error: HandleError } = await supabase
+        .from('profiles') // Replace with your Supabase table name
+        .select('*');
+      if (HandleError) {
+        console.log("This is the error", HandleError);
+      }
+      const usedata = udata.id;
+      console.log("udata", udata);
 
        // Attempt to update the user's data in Supabase
       const { data, error } = await supabase
@@ -109,7 +108,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', data.id)
+        .eq('id', usedata)
         .select('*');
 
         if (error) {
