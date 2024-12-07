@@ -79,18 +79,18 @@ const Profile = () => {
       //    throw new Error("User not authenticated");
       // }
       // Step 1: Fetch the profile ID
-      const { data: profileData, error: fetchError } = await supabase
-        .from('profiles')
-        .select('id')
-        .maybeSingle(); // Use maybeSingle to safely handle a single record
+      // const { data: profileData, error: fetchError } = await supabase
+      //   .from('profiles')
+      //   .select('id')
+      //   .maybeSingle(); // Use maybeSingle to safely handle a single record
   
-      if (fetchError || !profileData) {
-        console.error("Error fetching profile ID:", fetchError);
-        throw new Error("Failed to fetch profile ID");
-      }
+      // if (fetchError || !profileData) {
+      //   console.error("Error fetching profile ID:", fetchError);
+      //   throw new Error("Failed to fetch profile ID");
+      // }
 
-       const myProfileId = profileData.id; // Extract the profile ID
-       console.log("Fetched Profile ID:", myProfileId);
+       const myEmail = values.email; // Extract the profile ID
+       // console.log("Fetched Profile ID:", myProfileId);
 
        // Log user and form values for debugging
       // console.log("Authenticated user:", user);
@@ -109,7 +109,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', myProfileId)
+        .eq('email', myEmail)
         .select('*');
 
         if (error) {
