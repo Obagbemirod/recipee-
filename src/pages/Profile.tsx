@@ -109,7 +109,6 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('email', myEmail)
         .select('*');
 
         if (error) {
