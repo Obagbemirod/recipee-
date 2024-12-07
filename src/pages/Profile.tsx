@@ -82,15 +82,21 @@ const Profile = () => {
       const { data, error } = await supabase
         .from('profiles') // Replace with your Supabase table name
         .update({
-          name: values.name,
+          full_name: values.name,
           email: values.email,
           dietary_preference: values.dietaryPreference,
           allergies: values.allergies,
           country: values.country,
           cuisine_style: values.cuisineStyle,
-          // photo: values.photo || null, // Optional field
+          avatar_url: values.photo || null, // Optional field
         })
         .eq('id', 'userId'); // Replace 'user-id' with the authenticated user's ID
+        .select()
+
+        if (error) {
+          console.log("This Update error", error);
+          return;
+        }
 
       
       toast({
@@ -103,6 +109,7 @@ const Profile = () => {
         title: "Error",
         description: "Failed to update profile. Please try again.",
       });
+      console.log("Update Error", error)
     }
   };
 
