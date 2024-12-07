@@ -74,26 +74,16 @@ const Profile = () => {
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
 
-      // const { data: { user }, error: userError } = await supabase.auth.getUser();
-      // if (userError || !user) {
-      //    throw new Error("User not authenticated");
-      // }
-      // Step 1: Fetch the profile ID
-      // const { data: profileData, error: fetchError } = await supabase
-      //   .from('profiles')
-      //   .select('id')
-      //   .maybeSingle(); // Use maybeSingle to safely handle a single record
-  
-      // if (fetchError || !profileData) {
-      //   console.error("Error fetching profile ID:", fetchError);
-      //   throw new Error("Failed to fetch profile ID");
-      // }
-
-       const myEmail = values.email; // Extract the profile ID
-       // console.log("Fetched Profile ID:", myProfileId);
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+         throw new Error("User not authenticated");
+      }         
+       const myId = user.id; // Extract the profile ID
+       console.log("Fetched Profile ID:", myId);
 
        // Log user and form values for debugging
-      // console.log("Authenticated user:", user);
+      console.log("Authenticated user:", user);
+      console.log("Authenticated userid:", user.id);
       console.log("Form values submitted:", values);
 
 
@@ -109,7 +99,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', data.id)
+        .eq('id', myId)
         .select('*');
 
         if (error) {
