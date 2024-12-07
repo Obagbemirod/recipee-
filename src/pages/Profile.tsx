@@ -90,8 +90,8 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', 'userId'); // Replace 'user-id' with the authenticated user's ID
-        .select()
+        .eq('id', 'userId')
+        .select();
 
         if (error) {
           console.log("This Update error", error);
