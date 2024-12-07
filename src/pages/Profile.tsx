@@ -74,7 +74,8 @@ const Profile = () => {
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
 
-      const user = supabase.auth.user(); // Get the authenticated user
+      const {data: {user} } = await supabase.auth.getUser();
+
       const userId = user?.id;
 
 
