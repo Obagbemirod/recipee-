@@ -16,6 +16,34 @@ export const preventScreenCapture = () => {
     e.preventDefault();
     return false;
   });
+
+  // Prevent selecting text
+  document.addEventListener('selectstart', (e) => {
+    e.preventDefault();
+    return false;
+  });
+
+  // Add CSS to prevent selection and dragging
+  const style = document.createElement('style');
+  style.textContent = `
+    * {
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
+      -webkit-touch-callout: none !important;
+    }
+    
+    img, video {
+      pointer-events: none !important;
+      -webkit-user-drag: none !important;
+      -khtml-user-drag: none !important;
+      -moz-user-drag: none !important;
+      -o-user-drag: none !important;
+      user-drag: none !important;
+    }
+  `;
+  document.head.appendChild(style);
 };
 
 export const checkOfflineAccess = () => {

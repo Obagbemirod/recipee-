@@ -6,11 +6,26 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "orientation": "portrait",
+  "categories": ["food", "lifestyle", "cooking"],
   "icons": [
     {
       "src": "/lovable-uploads/05699ffd-835b-45ce-9597-5e523e4bdf98.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Generate Recipe",
+      "url": "/generate-recipes",
+      "description": "Generate a new recipe"
+    },
+    {
+      "name": "Meal Plan",
+      "url": "/generate-meal-plan",
+      "description": "Create a meal plan"
     }
   ]
 }
