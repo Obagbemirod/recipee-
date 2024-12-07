@@ -78,13 +78,13 @@ const Profile = () => {
       // if (userError || !user) {
       //    throw new Error("User not authenticated");
       // }         
-       const myId = user.id; // Extract the profile ID
-       console.log("Fetched Profile ID:", myId);
+       // const myId = user.id; // Extract the profile ID
+       // console.log("Fetched Profile ID:", myId);
 
        // Log user and form values for debugging
-      console.log("Authenticated user:", user);
-      console.log("Authenticated userid:", user.id);
-      console.log("Form values submitted:", values);
+      // console.log("Authenticated user:", user);
+      // console.log("Authenticated userid:", user.id);
+      // console.log("Form values submitted:", values);
 
       // read all rows
        const { data: udata, error: HandleError } = await supabase
