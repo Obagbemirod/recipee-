@@ -75,8 +75,16 @@ const Profile = () => {
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
 
       const {data: {user}, } = await supabase.auth.getUser();
+      if (userError || !user) {
+            throw new Error("User not authenticated");
+          }
+      
 
-      const userId = user?.id;
+      const userId = user.id;
+
+       // Log user and form values for debugging
+      console.log("Authenticated user:", user);
+      console.log("Form values submitted:", values);
 
 
        // Attempt to update the user's data in Supabase
@@ -95,11 +103,13 @@ const Profile = () => {
         .select();
 
         if (error) {
+          console.error("Supabase update error:", error);
+          throw new Error("Failed to update profile");
           console.log("This Update error", error);
           return;
         }
 
-      
+      console.log("Update response:", data);
       toast({
         title: "Profile updated!",
         description: "Your changes have been saved successfully.",
