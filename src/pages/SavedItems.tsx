@@ -27,12 +27,39 @@ const SavedItems = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [savedRecipes, setSavedRecipes] = useState(
-    JSON.parse(localStorage.getItem('savedRecipes') || '[]')
-  );
-  const [savedMealPlans, setSavedMealPlans] = useState(
-    JSON.parse(localStorage.getItem('savedMealPlans') || '[]')
-  );
+  // Load saved items from localStorage with error handling
+  const loadSavedItems = (key: string) => {
+    try {
+      const items = localStorage.getItem(key);
+      return items ? JSON.parse(items) : [];
+    } catch (error) {
+      console.error(`Error loading ${key}:`, error);
+      toast.error(`Error loading saved ${key}`);
+      return [];
+    }
+  };
+
+  const [savedRecipes, setSavedRecipes] = useState(() => loadSavedItems('savedRecipes'));
+  const [savedMealPlans, setSavedMealPlans] = useState(() => loadSavedItems('savedMealPlans'));
+
+  // Update localStorage whenever saved items change
+  useEffect(() => {
+    try {
+      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+    } catch (error) {
+      console.error('Error saving recipes:', error);
+      toast.error("Error saving recipes to local storage");
+    }
+  }, [savedRecipes]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('savedMealPlans', JSON.stringify(savedMealPlans));
+    } catch (error) {
+      console.error('Error saving meal plans:', error);
+      toast.error("Error saving meal plans to local storage");
+    }
+  }, [savedMealPlans]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -50,16 +77,15 @@ const SavedItems = () => {
     try {
       if (deleteType === 'recipe') {
         const updatedRecipes = savedRecipes.filter((recipe: any) => recipe.id !== deleteItemId);
-        localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
         setSavedRecipes(updatedRecipes);
         toast.success("Recipe deleted successfully");
       } else {
         const updatedMealPlans = savedMealPlans.filter((plan: any) => plan.id !== deleteItemId);
-        localStorage.setItem('savedMealPlans', JSON.stringify(updatedMealPlans));
         setSavedMealPlans(updatedMealPlans);
         toast.success("Meal plan deleted successfully");
       }
     } catch (error) {
+      console.error('Error deleting item:', error);
       toast.error("Failed to delete item");
     }
 
