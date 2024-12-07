@@ -87,10 +87,12 @@ const Profile = () => {
       console.log("Form values submitted:", values);
 
       // read all rows
-       const { data: udata, error } = await supabase
+       const { data: udata, error: HandleError } = await supabase
         .from('profiles') // Replace with your Supabase table name
         .select('*');
-      
+      if (HandleError) {
+        console.log("This is the error", HandleError);
+      }
       const usedata = udata.id;
       console.log("udata", udata);
 
