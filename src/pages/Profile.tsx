@@ -74,7 +74,7 @@ const Profile = () => {
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
 
-      const {data: {user} } = await supabase.auth.getUser();
+      const {data: {user}, } = await supabase.auth.getUser();
 
       const userId = user?.id;
 
@@ -91,7 +91,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', 'userId')
+        .eq('id', userId)
         .select();
 
         if (error) {
