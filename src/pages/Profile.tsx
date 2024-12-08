@@ -78,7 +78,7 @@ const Profile = () => {
       if (userError || !user) {
          throw new Error("User not authenticated");
       }         
-      const myId = user.UID; // Extract the profile ID
+      const myId = user.id; // Extract the profile ID
       console.log("Fetched Profile ID:", myId);
 
        // Log user and form values for debugging
