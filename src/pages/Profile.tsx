@@ -55,7 +55,7 @@ const Profile = () => {
         // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("full_name, email, country, cuisine_style")
+          .select("full_name, email, country, cuisine_style, avatar_url")
           .eq("id", user.id)
           .single();
 
@@ -67,6 +67,7 @@ const Profile = () => {
           email: profileData.email || "",
           country: profileData.country || "",
           cuisineStyle: profileData.cuisine_style || "",
+          photo: profileData.avatar_url || "",
         });
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -111,13 +112,33 @@ const Profile = () => {
         .from("profile-images")
         .getPublicUrl(fileName);
 
+      // if (publicUrlData?.publicUrl) {
+      //   form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL      
+      //   toast({
+      //     title: "Photo updated",
+      //     description: "Your profile photo has been updated successfully.",
+      //   });
+      // };
       if (publicUrlData?.publicUrl) {
-        form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL      
+        const { data: user } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        // Update the user's profile with the new image URL
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ avatar_url: publicUrlData.publicUrl })
+          .eq("id", user.id);
+
+        if (updateError) throw new Error("Failed to update profile with image URL");
+
         toast({
           title: "Photo updated",
           description: "Your profile photo has been updated successfully.",
         });
-      };
+
+        form.setValue("photo", publicUrlData.publicUrl); // Update the form with the new photo URL
+      }
+
     } catch (error) {
       console.error("Error uploading photo:", error);
       toast({
@@ -241,7 +262,8 @@ const Profile = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-4 mb-8">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarImage src={form.watch("photo") || "/placeholder.svg"} />
+{/*                   <AvatarImage src="/placeholder.svg" /> */}
                   <AvatarFallback>UN</AvatarFallback>
                 </Avatar>
                 <input
