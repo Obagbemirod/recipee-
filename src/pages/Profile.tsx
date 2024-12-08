@@ -35,15 +35,51 @@ const Profile = () => {
     resolver: zodResolver(profileSchema),
   });
 
+  // useEffect(() => {
+  //   // Load saved preferences
+  //   const savedPrefs = JSON.parse(localStorage.getItem("userPreferences") || "{}");
+  //   form.reset({
+  //     ...savedPrefs,
+  //     name: localStorage.getItem("userName") || "",
+  //     email: localStorage.getItem("userEmail") || "",
+  //   });
+  // }, [form]);
+  // Fetch and populate user data
   useEffect(() => {
-    // Load saved preferences
-    const savedPrefs = JSON.parse(localStorage.getItem("userPreferences") || "{}");
-    form.reset({
-      ...savedPrefs,
-      name: localStorage.getItem("userName") || "",
-      email: localStorage.getItem("userEmail") || "",
-    });
-  }, [form]);
+    const fetchProfileData = async () => {
+      try {
+        // Get the authenticated user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) throw new Error("User not authenticated");
+
+        // Fetch profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("full_name, email, country, cuisine_style")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError || !profileData) throw new Error("Failed to fetch profile data");
+
+        // Populate the form fields with fetched data
+        form.reset({
+          name: profileData.full_name || "",
+          email: profileData.email || "",
+          country: profileData.country || "",
+          cuisineStyle: profileData.cuisine_style || "",
+        });
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile data. Please try again later.",
+        });
+      }
+    };
+
+    fetchProfileData();
+  }, [form, toast]);
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
