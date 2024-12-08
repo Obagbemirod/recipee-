@@ -113,11 +113,12 @@ const Profile = () => {
 
       // if (publicUrlData?.publicUrl) {
       //   form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL
-        toast({
-          title: "Photo updated",
-          description: "Your profile photo has been updated successfully.",
-        });
-      }
+      // }
+      toast({
+        title: "Photo updated",
+        description: "Your profile photo has been updated successfully.",
+      });
+      
     } catch (error) {
       console.error("Error uploading photo:", error);
       toast({
