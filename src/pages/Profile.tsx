@@ -115,9 +115,9 @@ const Profile = () => {
         if (!user) throw new Error("User not authenticated");
         console.log("this is auth", user);
         console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
-        console.log("this is authid", user.id);
-        console.log("this is AuthUUID", user.UUID);
-        console.log("this is AuthUUid", user.uuid);
+        // console.log("this is authid", user.id);
+        // console.log("this is AuthUUID", user.UUID);
+        // console.log("this is AuthUUid", user.uuid);
 
         // Update the user's profile with the new image URL
         const { data: puser, error: updateError } = await supabase
