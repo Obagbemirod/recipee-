@@ -124,10 +124,10 @@ const Profile = () => {
         if (!user) throw new Error("User not authenticated");
 
         // Update the user's profile with the new image URL
-        const { error: updateError } = await supabase
+        const { data: puser, error: updateError } = await supabase
           .from("profiles")
           .update({ avatar_url: publicUrlData.publicUrl })
-          .eq("id", user.id);
+          .eq("id", puser.id);
 
         if (updateError) throw new Error("Failed to update profile with image URL");
 
