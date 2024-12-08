@@ -39,10 +39,13 @@ const UploadIngredients = () => {
 
   const inputOptions = [
     { id: 'photo', icon: Camera, label: 'Photo', component: PhotoUploadSection },
-    { id: 'video', icon: Video, label: 'Video', component: VideoUploadSection },
+    // { id: 'video', icon: Video, label: 'Video', component: VideoUploadSection },
     { id: 'audio', icon: Mic, label: 'Audio', component: AudioRecordingSection },
-    { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
   ];
+
+  const basicOptions = [
+    { id: 'text', icon: Type, label: 'Text', component: TextInputSection }
+  ]
 
   const handleMealPlanGeneration = async () => {
     if (!mealPlanName.trim()) {
@@ -134,6 +137,33 @@ const UploadIngredients = () => {
           
           <div className="grid grid-cols-2 gap-4 mb-6">
             {inputOptions.map(({ id, icon: Icon, label, component: Component }) => (
+              <Dialog key={id} open={activeInput === id} onOpenChange={(open) => setActiveInput(open ? id : null)}>
+                <Button
+                  variant="outline"
+                  className="w-full h-24 flex flex-col items-center justify-center gap-2 border-2 border-primary/20 hover:border-primary transition-colors"
+                  onClick={() => setActiveInput(id)}
+                >
+                  <Icon className="h-8 w-8 text-primary" />
+                  <span>{label}</span>
+                </Button>
+                <DialogContent className="dialog-content">
+                  {activeInput === id && (
+                    <div className="p-4">
+                      <Component
+                        isUploading={isUploading}
+                        onIngredientsIdentified={(ingredients: Ingredient[]) => {
+                          setRecognizedIngredients(prev => [...prev, ...ingredients]);
+                          setActiveInput(null);
+                        }}
+                      />
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-4 mb-6">
+            {basicOptions.map(({ id, icon: Icon, label, component: Component }) => (
               <Dialog key={id} open={activeInput === id} onOpenChange={(open) => setActiveInput(open ? id : null)}>
                 <Button
                   variant="outline"

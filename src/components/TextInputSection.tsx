@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 interface TextInputSectionProps {
+  isUploading: boolean;
   onIngredientsIdentified: (ingredients: { name: string; confidence: number }[]) => void;
 }
 
