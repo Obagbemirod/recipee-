@@ -118,9 +118,10 @@ const Profile = () => {
         const { data: puser, error: updateError } = await supabase
           .from("profiles")
           .update({ avatar_url: publicUrlData.publicUrl })
-          .eq("id", puser.id);
+          .eq("id", user.id);
 
         if (updateError) throw new Error("Failed to update profile with image URL");
+        console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
 
         toast({
           title: "Photo updated",
