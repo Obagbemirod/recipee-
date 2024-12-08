@@ -74,27 +74,21 @@ const Profile = () => {
       localStorage.setItem("cuisineStyle", values.cuisineStyle);
       localStorage.setItem("allergies", JSON.stringify(values.allergies));
 
-      // const { data: { user }, error: userError } = await supabase.auth.getUser();
-      // if (userError || !user) {
-      //    throw new Error("User not authenticated");
-      // }         
-       // const myId = user.id; // Extract the profile ID
-       // console.log("Fetched Profile ID:", myId);
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+         throw new Error("User not authenticated");
+      }         
+      const myId = user.UID; // Extract the profile ID
+      console.log("Fetched Profile ID:", myId);
 
        // Log user and form values for debugging
-      // console.log("Authenticated user:", user);
-      // console.log("Authenticated userid:", user.id);
-      // console.log("Form values submitted:", values);
-
-      // read all rows
-       const { data: udata, error: HandleError } = await supabase
-        .from('profiles') // Replace with your Supabase table name
-        .select('*');
-      if (HandleError) {
+      console.log("Authenticated user:", user);
+      console.log("Authenticated userid:", user.UID);
+      console.log("Form values submitted:", values);
+  
+      if (userError) {
         console.log("This is the error", HandleError);
       }
-      const usedata = udata.id;
-      console.log("udata", udata);
 
        // Attempt to update the user's data in Supabase
       const { data, error } = await supabase
@@ -108,7 +102,7 @@ const Profile = () => {
           cuisine_style: values.cuisineStyle,
           avatar_url: values.photo || null, // Optional field
         })
-        .eq('id', usedata)
+        .eq('id', myId)
         .select('*');
 
         if (error) {
