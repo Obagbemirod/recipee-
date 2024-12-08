@@ -81,15 +81,52 @@ const Profile = () => {
     fetchProfileData();
   }, [form, toast]);
 
-  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+  // const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     toast({
+  //       title: "Photo updated",
+  //       description: "Your profile photo has been updated successfully.",
+  //     });
+  //   }
+  // };
+  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (file) {
+    try {
+      // Upload the file to Supabase Storage
+      const fileName = `${Date.now()}_${file.name}`;
+      const { data, error } = await supabase.storage
+        .from("profile_images") // Replace with your storage bucket name
+        .upload(fileName, file);
+
+      if (error) {
+        throw new Error("Failed to upload image");
+      }
+
+      // Get the public URL of the uploaded image
+      const { data: publicUrlData } = supabase.storage
+        .from("profile-images")
+        .getPublicUrl(fileName);
+
+      if (publicUrlData?.publicUrl) {
+        form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL
+        toast({
+          title: "Photo updated",
+          description: "Your profile photo has been updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading photo:", error);
       toast({
-        title: "Photo updated",
-        description: "Your profile photo has been updated successfully.",
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update photo. Please try again.",
       });
     }
-  };
+  }
+};
+
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
