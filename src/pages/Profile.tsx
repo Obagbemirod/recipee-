@@ -117,7 +117,7 @@ const Profile = () => {
         console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
         console.log("this is authid", user.id);
         console.log("this is authUUID", user.UUID);
-        console.log("this is authid", user.uuid);
+        console.log("this is authUUid", user.uuid);
 
         // Update the user's profile with the new image URL
         const { data: puser, error: updateError } = await supabase
