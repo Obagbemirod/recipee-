@@ -111,7 +111,7 @@ const Profile = () => {
       //   });
       // };
       if (publicUrlData?.publicUrl) {
-        const { data: user } = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
         console.log("this is auth", user);
         console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
