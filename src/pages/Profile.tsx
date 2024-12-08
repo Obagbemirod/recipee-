@@ -81,16 +81,7 @@ const Profile = () => {
 
     fetchProfileData();
   }, [form, toast]);
-
-  // const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     toast({
-  //       title: "Photo updated",
-  //       description: "Your profile photo has been updated successfully.",
-  //     });
-  //   }
-  // };
+  
   const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   console.log("this is the file", file);
@@ -108,7 +99,7 @@ const Profile = () => {
       }
 
       // Get the public URL of the uploaded image
-      const { data: publicUrlData } = supabase.storage
+      const { data: publicUrlData } = await supabase.storage
         .from("profile-images")
         .getPublicUrl(fileName);
 
