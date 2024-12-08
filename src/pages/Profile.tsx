@@ -113,15 +113,18 @@ const Profile = () => {
       if (publicUrlData?.publicUrl) {
         const { data: user } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
+        console.log("this is auth", user);
+        console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
 
         // Update the user's profile with the new image URL
         const { data: puser, error: updateError } = await supabase
           .from("profiles")
           .update({ avatar_url: publicUrlData.publicUrl })
           .eq("id", user.id);
-
-        if (updateError) throw new Error("Failed to update profile with image URL");
+        
         console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
+        if (updateError) throw new Error("Failed to update profile with image URL");
+     
 
         toast({
           title: "Photo updated",
