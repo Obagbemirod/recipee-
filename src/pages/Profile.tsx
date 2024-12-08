@@ -107,18 +107,17 @@ const Profile = () => {
       }
 
       // Get the public URL of the uploaded image
-      // const { data: publicUrlData } = supabase.storage
-      //   .from("profile-images")
-      //   .getPublicUrl(fileName);
+      const { data: publicUrlData } = supabase.storage
+        .from("profile-images")
+        .getPublicUrl(fileName);
 
-      // if (publicUrlData?.publicUrl) {
-      //   form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL
-      // }
-      toast({
-        title: "Photo updated",
-        description: "Your profile photo has been updated successfully.",
-      });
-      
+      if (publicUrlData?.publicUrl) {
+        form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL      
+        toast({
+          title: "Photo updated",
+          description: "Your profile photo has been updated successfully.",
+        });
+      };
     } catch (error) {
       console.error("Error uploading photo:", error);
       toast({
