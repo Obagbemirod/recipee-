@@ -100,7 +100,7 @@ const Profile = () => {
 
       // Get the public URL of the uploaded image
       const { data: publicUrlData } = await supabase.storage
-        .from("profile-images")
+        .from("profile_images")
         .getPublicUrl(fileName);
 
       // if (publicUrlData?.publicUrl) {
