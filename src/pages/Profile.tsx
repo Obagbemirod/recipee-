@@ -92,14 +92,16 @@ const Profile = () => {
   // };
   const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
+  console.log("this is the file", file);
   if (file) {
     try {
       // Upload the file to Supabase Storage
       const fileName = `${Date.now()}_${file.name}`;
+      console.log("this is the filename", fileName);
       const { data, error } = await supabase.storage
         .from("profile_images") // Replace with your storage bucket name
         .upload(fileName, file);
-
+      console.log("this is the data", data);
       if (error) {
         throw new Error("Failed to upload image");
       }
