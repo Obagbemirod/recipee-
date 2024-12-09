@@ -91,7 +91,6 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
-          is_admin: boolean | null
           last_meal_plan_generated: string | null
           Myid: string | null
           notification_preferences: Json | null
@@ -108,7 +107,6 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
-          is_admin?: boolean | null
           last_meal_plan_generated?: string | null
           Myid?: string | null
           notification_preferences?: Json | null
@@ -125,7 +123,6 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
-          is_admin?: boolean | null
           last_meal_plan_generated?: string | null
           Myid?: string | null
           notification_preferences?: Json | null
