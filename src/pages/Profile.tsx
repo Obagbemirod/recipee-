@@ -8,13 +8,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { DietaryPreferences } from "@/components/onboarding/DietaryPreferences";
 import { AllergiesSection } from "@/components/onboarding/AllergiesSection";
 import { Link, useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { ArrowLeft, ShoppingBag, BookMarked } from "lucide-react";
 import { CulturalPreferences } from "@/components/onboarding/CulturalPreferences";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
+import { PhotoUploadSection } from "@/components/profile/PhotoUploadSection";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,31 +28,18 @@ const profileSchema = z.object({
 
 const Profile = () => {
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   });
 
-  // useEffect(() => {
-  //   // Load saved preferences
-  //   const savedPrefs = JSON.parse(localStorage.getItem("userPreferences") || "{}");
-  //   form.reset({
-  //     ...savedPrefs,
-  //     name: localStorage.getItem("userName") || "",
-  //     email: localStorage.getItem("userEmail") || "",
-  //   });
-  // }, [form]);
-  // Fetch and populate user data
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // Get the authenticated user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) throw new Error("User not authenticated");
 
-        // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("full_name, email, country, cuisine_style, avatar_url")
@@ -61,7 +48,6 @@ const Profile = () => {
 
         if (profileError || !profileData) throw new Error("Failed to fetch profile data");
 
-        // Populate the form fields with fetched data
         form.reset({
           name: profileData.full_name || "",
           email: profileData.email || "",
@@ -81,112 +67,16 @@ const Profile = () => {
 
     fetchProfileData();
   }, [form, toast]);
-  
-  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  console.log("this is the file", file);
-  if (file) {
-    try {
-      // Upload the file to Supabase Storage
-      const fileName = `${Date.now()}_${file.name}`;
-      console.log("this is the filename", fileName);
-      const { data, error } = await supabase.storage
-        .from("profile_images") // Replace with your storage bucket name
-        .upload(fileName, file);
-      console.log("this is the data", data);
-      if (error) {
-        throw new Error("Failed to upload image");
-      }
-
-      // Get the public URL of the uploaded image
-      const { data: publicUrlData } = await supabase.storage
-        .from("profile_images")
-        .getPublicUrl(fileName);
-
-      // if (publicUrlData?.publicUrl) {
-      //   form.setValue("photo", publicUrlData.publicUrl); // Update form with the new photo URL      
-      //   toast({
-      //     title: "Photo updated",
-      //     description: "Your profile photo has been updated successfully.",
-      //   });
-      // };
-      if (publicUrlData?.publicUrl) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-        console.log("this is auth", user);
-        console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
-        console.log("this is authid", user.id);
-        console.log("this is AuthUUID", user.UUID);
-        console.log("this is AuthUUid", user.uuid);
-
-        // Update the user's profile with the new image URL
-        const { data: puser, error: updateError } = await supabase
-          .from("profiles")
-          .update({ avatar_url: publicUrlData.publicUrl })
-          .eq("id", user.id);
-        
-        console.log("publicUrlData?.publicUrl", publicUrlData?.publicUrl);
-        if (updateError) throw new Error("Failed to update profile with image URL");
-     
-
-        toast({
-          title: "Photo updated",
-          description: "Your profile photo has been updated successfully.",
-        });
-
-        form.setValue("photo", publicUrlData.publicUrl); // Update the form with the new photo URL
-      }
-
-    } catch (error) {
-      console.error("Error uploading photo:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update photo. Please try again.",
-      });
-    }
-  }
-};
-
-
-  const handlePhotoClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     try {
-      // Save updated preferences with timestamp
-      const updatedPreferences = {
-        ...values,
-        lastUpdated: new Date().toISOString(),
-        source: 'profile'
-      };
-      
-      localStorage.setItem("userPreferences", JSON.stringify(updatedPreferences));
-      localStorage.setItem("dietaryPreference", values.dietaryPreference);
-      localStorage.setItem("userCountry", values.country);
-      localStorage.setItem("cuisineStyle", values.cuisineStyle);
-      localStorage.setItem("allergies", JSON.stringify(values.allergies));
-
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
-         throw new Error("User not authenticated");
-      }         
-      const myId = user.id; // Extract the profile ID
-      console.log("Fetched Profile ID:", myId);
-
-       // Log user and form values for debugging
-      console.log("Authenticated user:", user);
-      console.log("Authenticated userid:", user.UID);
-      console.log("Form values submitted:", values);
-  
-      if (userError) {
-        console.log("This is the error", HandleError);
+        throw new Error("User not authenticated");
       }
 
-       // Attempt to update the user's data in Supabase
-      const { data, error } = await supabase
-        .from('profiles') // Replace with your Supabase table name
+      const { error } = await supabase
+        .from('profiles')
         .update({
           full_name: values.name,
           email: values.email,
@@ -194,30 +84,25 @@ const Profile = () => {
           allergies: values.allergies,
           country: values.country,
           cuisine_style: values.cuisineStyle,
-          avatar_url: values.photo || null, // Optional field
+          avatar_url: values.photo || null,
         })
-        .eq('id', myId)
-        .select('*');
+        .eq('id', user.id);
 
-        if (error) {
-          console.error("Supabase update error:", error);
-          throw new Error("Failed to update profile");
-          console.log("This Update error", error);
-          return;
-        }
+      if (error) {
+        throw error;
+      }
 
-      console.log("Update response:", data);
       toast({
         title: "Profile updated!",
         description: "Your changes have been saved successfully.",
       });
     } catch (error) {
+      console.error("Update Error:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to update profile. Please try again.",
       });
-      console.log("Update Error", error)
     }
   };
 
@@ -258,23 +143,10 @@ const Profile = () => {
               <CardTitle>Profile Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center space-x-4 mb-8">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={form.watch("photo") || "/placeholder.svg"} />
-{/*                   <AvatarImage src="/placeholder.svg" /> */}
-                  <AvatarFallback>UN</AvatarFallback>
-                </Avatar>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                />
-                <Button variant="outline" onClick={handlePhotoClick}>
-                  Change Photo
-                </Button>
-              </div>
+              <PhotoUploadSection 
+                currentPhotoUrl={form.watch("photo")} 
+                setValue={form.setValue}
+              />
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

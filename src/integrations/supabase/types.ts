@@ -66,6 +66,21 @@ export type Database = {
         }
         Relationships: []
       }
+      profile: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           allergies: string[] | null
@@ -73,11 +88,15 @@ export type Database = {
           country: string | null
           cuisine_style: string | null
           dietary_preference: string | null
+          email: string | null
           full_name: string | null
           id: string
           last_meal_plan_generated: string | null
+          Myid: string | null
           notification_preferences: Json | null
           updated_at: string | null
+          UUI: string | null
+          UUID: string | null
         }
         Insert: {
           allergies?: string[] | null
@@ -85,11 +104,15 @@ export type Database = {
           country?: string | null
           cuisine_style?: string | null
           dietary_preference?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
           last_meal_plan_generated?: string | null
+          Myid?: string | null
           notification_preferences?: Json | null
           updated_at?: string | null
+          UUI?: string | null
+          UUID?: string | null
         }
         Update: {
           allergies?: string[] | null
@@ -97,13 +120,25 @@ export type Database = {
           country?: string | null
           cuisine_style?: string | null
           dietary_preference?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           last_meal_plan_generated?: string | null
+          Myid?: string | null
           notification_preferences?: Json | null
           updated_at?: string | null
+          UUI?: string | null
+          UUID?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_Myid_fkey1"
+            columns: ["Myid"]
+            isOneToOne: true
+            referencedRelation: "user_auth_status"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
@@ -153,7 +188,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           email: string
-          id?: string
+          id: string
           last_attempt?: string | null
           login_attempts?: number | null
           updated_at?: string | null
@@ -166,7 +201,15 @@ export type Database = {
           login_attempts?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_auth_status_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_auth_status"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
