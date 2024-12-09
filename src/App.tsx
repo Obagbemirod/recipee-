@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { PricingSection } from "./components/PricingSection";
-import { Home } from "./pages/Home";
-import { AdminDashboard } from "./pages/AdminDashboard"; // Import the AdminDashboard
+import Home from "./pages/Home"; // Updated import
+import AdminDashboard from "./pages/AdminDashboard"; // Updated import
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/pricing" element={<PricingSection />} />
-        <Route path="/admin" element={<AdminDashboard />} /> {/* Add the admin route */}
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
