@@ -10,6 +10,8 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 interface Recipe {
   name: string;
@@ -23,14 +25,17 @@ interface Recipe {
 
 interface CookingGuideProps {
   recipe: Recipe;
+  imageUrl?: string;
 }
 
-export const CookingGuide = ({ recipe }: CookingGuideProps) => {
+export const CookingGuide = ({ recipe, imageUrl }: CookingGuideProps) => {
   const [openSections, setOpenSections] = useState({
     ingredients: false,
     equipment: false,
     instructions: false,
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const { user } = useAuth();
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections(prev => ({
@@ -39,21 +44,70 @@ export const CookingGuide = ({ recipe }: CookingGuideProps) => {
     }));
   };
 
-  const handleSaveRecipe = () => {
-    try {
-      const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-      const isAlreadySaved = savedRecipes.some((saved: Recipe) => saved.name === recipe.name);
-      
-      if (!isAlreadySaved) {
-        savedRecipes.push(recipe);
-        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-        toast.success("Recipe saved successfully!");
-      } else {
-        toast.error("Recipe already saved!");
-      }
-    } catch (error) {
-      toast.error("Failed to save recipe");
+  const handleSaveRecipe = async () => {
+    if (!user) {
+      toast.error("Please login to save recipes");
+      return;
     }
+
+    setIsSaving(true);
+    try {
+      // First, if we have an image, let's save it to storage
+      let finalImageUrl = imageUrl;
+      if (imageUrl && imageUrl.startsWith('data:')) {
+        const base64Data = imageUrl.split(',')[1];
+        const fileName = `${Date.now()}_recipe.jpg`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('recipe_images')
+          .upload(fileName, decode(base64Data), {
+            contentType: 'image/jpeg',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('recipe_images')
+          .getPublicUrl(fileName);
+          
+        finalImageUrl = publicUrl;
+      }
+
+      // Now save the recipe data
+      const { error } = await supabase
+        .from('saved_recipes')
+        .insert({
+          user_id: user.id,
+          name: recipe.name,
+          image_url: finalImageUrl,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          equipment: recipe.equipment,
+          total_time: recipe.totalTime,
+          difficulty: recipe.difficulty,
+          servings: recipe.servings
+        });
+
+      if (error) throw error;
+      
+      toast.success("Recipe saved successfully!");
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      toast.error("Failed to save recipe");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Helper function to decode base64
+  const decode = (base64: string) => {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
   };
 
   return (
@@ -166,8 +220,8 @@ export const CookingGuide = ({ recipe }: CookingGuideProps) => {
         </Card>
 
         <DialogFooter>
-          <Button onClick={handleSaveRecipe}>
-            Save Recipe
+          <Button onClick={handleSaveRecipe} disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Recipe'}
           </Button>
         </DialogFooter>
       </DialogContent>
