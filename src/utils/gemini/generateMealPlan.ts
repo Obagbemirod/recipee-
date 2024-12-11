@@ -91,34 +91,34 @@ export const generateMealPlan = async (additionalPreferences: string[] = []) => 
 
     const prompt = `Generate a 7-day meal plan (Sunday to Saturday) with breakfast, lunch, and dinner for each day.
 
-STRICT CUISINE REQUIREMENTS:
+STRICT AUTHENTICITY REQUIREMENTS:
 1. ONLY generate authentic ${cuisine} dishes that are SPECIFICALLY from ${country}
-2. Every single meal MUST be a real, traditional dish from ${country}
-3. DO NOT include any fusion dishes or non-${country} dishes
+2. Every meal MUST be a real, traditional, and well-known dish from ${country}
+3. DO NOT include any fusion dishes, modern interpretations, or non-${country} dishes
 4. If a meal isn't traditionally from ${country}, DO NOT include it
-5. Ensure each meal reflects authentic ${country} cooking methods and ingredients
+5. Each meal must be verifiably part of ${country}'s culinary tradition
+6. Use only ingredients that are commonly available and traditionally used in ${country}
+7. Follow authentic ${country} cooking methods and techniques
+8. Maintain traditional meal composition and portion sizes specific to ${country}
+9. Include traditional breakfast items that are actually eaten in ${country}
+10. Respect traditional meal times and customs of ${country}
 
 USER PREFERENCES:
-1. Consider these specific preferences: ${additionalPreferences.join('. ')}
-2. Follow dietary preference: ${userPrefs.dietaryPreference || 'no specific preference'}
-3. Avoid these allergens: ${userPrefs.allergies?.join(', ') || 'none'}
+${additionalPreferences.map(pref => `- ${pref}`).join('\n')}
+Dietary Preference: ${userPrefs.dietaryPreference || 'no specific preference'}
+Allergens to Avoid: ${userPrefs.allergies?.join(', ') || 'none'}
 
-AUTHENTICITY RULES:
-1. Each meal MUST be verifiably from ${country}'s culinary tradition
-2. Include traditional breakfast items specific to ${country}
-3. Lunch and dinner should reflect actual meal times and customs of ${country}
-4. Use ingredient combinations that are authentic to ${country}'s cuisine
-5. Maintain traditional portion sizes and meal compositions of ${country}
-
-Format each meal exactly as:
+RESPONSE FORMAT REQUIREMENTS:
+Format each meal exactly as follows:
 Sunday:
-- Breakfast: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-- Lunch: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
-- Dinner: Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+- Breakfast: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+- Lunch: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
+- Dinner: Traditional Meal Name (Calories: X, Protein: Xg, Carbs: Xg, Fat: Xg)
 
 [Continue for Monday through Saturday in the same format]
 
-IMPORTANT: If you cannot generate authentic ${country} dishes, respond with an error message instead of creating non-authentic meals.`;
+AUTHENTICITY CHECK:
+If you cannot generate authentic ${country} dishes or are unsure about the authenticity of any meal, respond with an error message instead of creating non-authentic or fusion meals.`;
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -134,7 +134,7 @@ IMPORTANT: If you cannot generate authentic ${country} dishes, respond with an e
     // Check if the response contains an error message
     if (text.toLowerCase().includes("error") || text.toLowerCase().includes("cannot generate")) {
       console.error('AI indicated it cannot generate authentic meals:', text);
-      toast.error("Unable to generate authentic meals for the selected cuisine. Please try a different cuisine.");
+      toast.error(`Unable to generate authentic ${country} meals. Please try a different cuisine or country.`);
       return null;
     }
     
