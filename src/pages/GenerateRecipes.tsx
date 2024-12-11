@@ -19,6 +19,11 @@ interface Recipe {
   servings: number;
 }
 
+interface Ingredient {
+  name: string;
+  confidence: number;
+}
+
 export default function GenerateRecipes() {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
