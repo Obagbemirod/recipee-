@@ -114,9 +114,9 @@ const AffiliateProgram = () => {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
-                  <p>To join the Recipee Partner Program, we've partnered with Squaredance, a leading platform for influencer marketing. Here's how it works:</p>
+                  <p>To join the Recipee Partner Program, we've partnered with Zoho Thrive, a leading platform for influencer marketing. Here's how it works:</p>
                   <ol className="space-y-4 list-decimal list-inside text-muted-foreground">
-                    <li>Signing Up: To make joining our affiliate program seamless, we have chosen the *Zoho Thrive* as our Affiliate Management Platform. Click the link below to create your free account.</li>
+                    <li>Signing Up: To make joining our affiliate program seamless, we have chosen the Zoho Thrive as our Affiliate Management Platform. Click the link below to create your free account.</li>
                     <li>Apply to the Recipee Partner Program: Once you've signed up and your application is approved, you will be able to easily access your dashboard</li>
                     <li>Get Your Unique Link: After your application is approved, you'll receive your unique affiliate link. You can also create more custom links as needed</li>
                     <li>Start Sharing & Earning: Promote Recipee through your affiliate link(s) to your audience and watch your commissions grow</li>                 
