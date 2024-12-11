@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 import { generateRecipeFromImage } from "@/utils/gemini/generateRecipe";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { CookingGuide } from "@/components/CookingGuide";
@@ -17,11 +17,6 @@ interface Recipe {
   totalTime: string;
   difficulty: string;
   servings: number;
-}
-
-interface Ingredient {
-  name: string;
-  confidence: number;
 }
 
 export default function GenerateRecipes() {
@@ -71,8 +66,18 @@ export default function GenerateRecipes() {
     >
       <div className="container mx-auto px-4 py-8">
         <header className="flex justify-between items-center mb-8">
-          <div className="w-32">
-            <BrandLogo />
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="hover:bg-secondary/20"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="w-32">
+              <BrandLogo />
+            </div>
           </div>
         </header>
 

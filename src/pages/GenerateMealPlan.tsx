@@ -11,7 +11,8 @@ import { MealPlanForm } from "@/components/meal-plan/MealPlanForm";
 import { MealPlanDisplay } from "@/components/meal-plan/MealPlanDisplay";
 import { CuisineSelector } from "@/components/meal-plan/CuisineSelector";
 import { Button } from "@/components/ui/button";
-import { ChefHat } from "lucide-react";
+import { ChefHat, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   planName: z.string().min(1, "Plan name is required"),
@@ -20,6 +21,7 @@ const formSchema = z.object({
 });
 
 const GenerateMealPlan = () => {
+  const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [userCountry, setUserCountry] = useState<string>("");
@@ -70,7 +72,15 @@ const GenerateMealPlan = () => {
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lovable-uploads/c7fbef5a-f4ab-42f2-b76e-837675074d73.png')` 
       }}
     >
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          className="hover:bg-white/20 text-white"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
         <img 
           src="/lovable-uploads/d322a3a3-d51a-4bbc-a4ec-aef6e705df9c.png" 
           alt="Recipee Logo" 

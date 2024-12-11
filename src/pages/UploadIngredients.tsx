@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Camera, Video, Mic, Type } from "lucide-react";
+import { Camera, Video, Mic, Type, ArrowLeft } from "lucide-react";
 import { generateMealPlan } from "@/utils/gemini";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { VideoUploadSection } from "@/components/VideoUploadSection";
@@ -17,6 +17,7 @@ import { normalizeIngredient } from "@/utils/ingredientMapping";
 import { CuisineSelector } from "@/components/meal-plan/CuisineSelector";
 import { useForm, FormProvider } from "react-hook-form";
 import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 interface Ingredient {
   name: string;
@@ -24,6 +25,7 @@ interface Ingredient {
 }
 
 const UploadIngredients = () => {
+  const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingMealPlan, setIsGeneratingMealPlan] = useState(false);
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
@@ -113,8 +115,18 @@ const UploadIngredients = () => {
       <FormProvider {...methods}>
         <div className="container mx-auto px-4 py-8 max-w-screen-lg">
           <header className="flex justify-between items-center mb-8">
-            <div className="w-32">
-              <BrandLogo />
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="hover:bg-secondary/20"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="w-32">
+                <BrandLogo />
+              </div>
             </div>
           </header>
 
