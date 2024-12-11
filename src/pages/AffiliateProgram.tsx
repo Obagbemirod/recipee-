@@ -130,7 +130,7 @@ const AffiliateProgram = () => {
                   type="button"
                   size="lg"
                   className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold text-lg py-6 px-12 rounded-lg shadow-lg hover:shadow-xl transition-all"
-                  onClick={() => window.open('https://partners.squaredance.io/signup/referral/c_DKWdD8rf-0?s=a2', '_blank')}
+                  onClick={() => window.open('https://recipee.zohothrive.com/thrive/publicpages/affiliate-registration/recipee/769d4dfe24098f90bbae8054c396a57d1b19a1b9882d2d8616aca5665bf5bee3', '_blank')}
                 >
                   Apply Now
                 </Button>
