@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { supabase } from '@/lib/supabase';
 import { SubscriptionPlan } from '@/utils/subscriptionUtils';
 import { addDays, isAfter } from 'date-fns';
+import { User } from "@supabase/supabase-js";
 
 const AuthContext = createContext(null)
 
@@ -15,6 +16,7 @@ const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isTrialExpired, setIsTrialExpired] = useState(false);
     const [lastMealPlanGenerated, setLastMealPlanGenerated] = useState<Date | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
 
     // check subscription
     const checkSubscription = async () => {
@@ -24,6 +26,7 @@ const AuthProvider = ({ children }) => {
             if (!user) {
                 setPlan(null);
                 setIsLoading(false);
+                setCurrentUser(user)
                 return;
             }
 
@@ -106,6 +109,7 @@ const AuthProvider = ({ children }) => {
 
     let values = {
         plan,
+        currentUser,
         isLoading,
         isTrialExpired,
         canGenerateMealPlan,

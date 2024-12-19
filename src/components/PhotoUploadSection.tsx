@@ -13,15 +13,18 @@ interface Ingredient {
 interface PhotoUploadSectionProps {
   isUploading: boolean;
   onIngredientsIdentified: (ingredients: Ingredient[]) => void;
+  setImagePreview?: React.Dispatch<React.SetStateAction<File>>
 }
 
-export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified }: PhotoUploadSectionProps) => {
+export const PhotoUploadSection = ({ isUploading, onIngredientsIdentified, setImagePreview }: PhotoUploadSectionProps) => {
   const [localIsUploading, setLocalIsUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    setImagePreview(file)
 
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File size must be less than 10MB");

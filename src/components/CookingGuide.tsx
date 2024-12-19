@@ -12,10 +12,10 @@ import { Recipe } from "@/types/recipe";
 
 interface CookingGuideProps {
   recipe: Recipe;
-  imageUrl?: string;
+  file?: File;
 }
 
-export const CookingGuide = ({ recipe, imageUrl }: CookingGuideProps) => {
+export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
   const [openSections, setOpenSections] = useState({
     ingredients: false,
     equipment: false,
@@ -37,35 +37,31 @@ export const CookingGuide = ({ recipe, imageUrl }: CookingGuideProps) => {
       return;
     }
 
+    console.log("image -- ", file)
+    console.log("recipe -- ", recipe)
+
     setIsSaving(true);
     try {
-      let finalImageUrl = imageUrl;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        const base64Data = imageUrl.split(',')[1];
-        const fileName = `${Date.now()}_recipe.jpg`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('recipe_images')
-          .upload(fileName, decode(base64Data), {
-            contentType: 'image/jpeg',
-            upsert: false
-          });
 
-        if (uploadError) throw uploadError;
+      const fileName = `${Date.now()}_recipe.jpg`;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('recipe_images')
-          .getPublicUrl(fileName);
-          
-        finalImageUrl = publicUrl;
+      const { data, error } = await supabase.storage
+        .from("profile_images")
+        .upload(fileName, file);
+
+      if (error) {
+        throw new Error("Failed to upload image");
       }
+      const { data: publicUrlData } = supabase.storage
+        .from("profile_images")
+        .getPublicUrl(fileName);
 
-      const { error } = await supabase
+      const { error: saveRecipeError } = await supabase
         .from('saved_recipes')
         .insert({
           user_id: user.id,
           name: recipe.name,
-          image_url: finalImageUrl,
+          image_url: publicUrlData,
           ingredients: recipe.ingredients,
           instructions: recipe.instructions,
           equipment: recipe.equipment,
@@ -74,8 +70,8 @@ export const CookingGuide = ({ recipe, imageUrl }: CookingGuideProps) => {
           servings: recipe.servings
         });
 
-      if (error) throw error;
-      
+      if (saveRecipeError) throw saveRecipeError;
+
       toast.success("Recipe saved successfully!");
     } catch (error) {
       console.error('Error saving recipe:', error);
@@ -111,7 +107,7 @@ export const CookingGuide = ({ recipe, imageUrl }: CookingGuideProps) => {
 
         <Card className="mt-4 p-6 bg-white shadow-lg border-2 border-primary">
           <div className="space-y-6">
-            <RecipeHeader 
+            <RecipeHeader
               totalTime={recipe.totalTime}
               difficulty={recipe.difficulty}
               servings={recipe.servings}

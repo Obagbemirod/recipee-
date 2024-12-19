@@ -8,6 +8,8 @@ import { generateRecipeFromImage } from "@/utils/gemini/generateRecipe";
 import { PhotoUploadSection } from "@/components/PhotoUploadSection";
 import { CookingGuide } from "@/components/CookingGuide";
 import { BrandLogo } from "@/components/BrandLogo";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Recipe {
   name: string;
@@ -28,7 +30,10 @@ export default function GenerateRecipes() {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<File | null>(null);
+  const { currentUser } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+
 
   const handleIngredientsIdentified = async (ingredients: Ingredient[]) => {
     try {
@@ -43,30 +48,79 @@ export default function GenerateRecipes() {
     }
   };
 
-  const handleSaveRecipe = () => {
-    if (!recipe) return;
-    
+  const handleSaveRecipe = async () => {
+    console.log(currentUser)
+    if (currentUser) {
+      toast.error("Please login to save recipes");
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-      savedRecipes.push({
-        ...recipe,
-        id: Date.now(),
-        date: new Date().toISOString(),
-        image: imagePreview
-      });
-      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+
+      const fileName = `${Date.now()}_recipe.jpg`;
+
+      const { data, error } = await supabase.storage
+        .from("profile_images")
+        .upload(fileName, imagePreview);
+
+      if (error) {
+        throw new Error("Failed to upload image");
+      }
+      const { data: publicUrlData } = supabase.storage
+        .from("profile_images")
+        .getPublicUrl(fileName);
+
+      const { error: saveRecipeError } = await supabase
+        .from('saved_recipes')
+        .insert({
+          user_id: currentUser.id,
+          name: recipe.name,
+          image_url: publicUrlData,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          equipment: recipe.equipment,
+          total_time: recipe.totalTime,
+          difficulty: recipe.difficulty,
+          servings: recipe.servings
+        });
+
+      if (saveRecipeError) throw saveRecipeError;
+
       toast.success("Recipe saved successfully!");
       navigate("/saved-items?source=recipe");
     } catch (error) {
+      console.error('Error saving recipe:', error);
       toast.error("Failed to save recipe");
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  // const handleSaveRecipe = () => {
+  //   if (!recipe) return;
+
+  //   try {
+  //     const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+  //     savedRecipes.push({
+  //       ...recipe,
+  //       id: Date.now(),
+  //       date: new Date().toISOString(),
+  //       image: imagePreview
+  //     });
+  //     localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+  //     toast.success("Recipe saved successfully!");
+
+  //   } catch (error) {
+  //     toast.error("Failed to save recipe");
+  //   }
+  // };
+
   return (
-    <div 
+    <div
       className="min-h-screen bg-cover bg-center bg-no-repeat"
-      style={{ 
-        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/cd78387e-c9c1-45e1-9599-f505c716215c.png')` 
+      style={{
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/lovable-uploads/cd78387e-c9c1-45e1-9599-f505c716215c.png')`
       }}
     >
       <div className="container mx-auto px-4 py-8">
@@ -95,9 +149,10 @@ export default function GenerateRecipes() {
           </p>
 
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6">
-            <PhotoUploadSection 
+            <PhotoUploadSection
               isUploading={isUploading}
               onIngredientsIdentified={handleIngredientsIdentified}
+              setImagePreview={setImagePreview}
             />
 
             {recipe && (
@@ -106,14 +161,15 @@ export default function GenerateRecipes() {
                   {recipe.name}
                 </h2>
 
-                <CookingGuide recipe={recipe} />
+                <CookingGuide recipe={recipe} file={imagePreview} />
 
                 <Button
                   onClick={handleSaveRecipe}
                   className="w-full flex items-center justify-center gap-2"
+                  disabled={isSaving}
                 >
                   <Save className="h-4 w-4" />
-                  Save Recipe
+                  {isSaving ? 'Saving...' : 'Save Recipe'}
                 </Button>
               </div>
             )}

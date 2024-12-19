@@ -8,6 +8,7 @@ import { normalizeIngredient } from "@/utils/ingredientMapping";
 interface AudioRecordingSectionProps {
   isUploading: boolean;
   onIngredientsIdentified: (ingredients: { name: string; confidence: number }[]) => void;
+  setImagePreview?: React.Dispatch<React.SetStateAction<File>>
 }
 
 export const AudioRecordingSection = ({ isUploading, onIngredientsIdentified }: AudioRecordingSectionProps) => {
