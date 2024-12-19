@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { RecipeCard } from "@/components/RecipeCard";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Trash2 } from "lucide-react";
-import { MealPlanDay } from "@/components/MealPlanDay";
+import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,48 +15,35 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { SavedRecipeCard } from "@/components/saved-items/SavedRecipeCard";
+import { SavedMealPlanCard } from "@/components/saved-items/SavedMealPlanCard";
 
 const SavedItems = () => {
   const [activeTab, setActiveTab] = useState<"recipes" | "mealPlans">("recipes");
   const [expandedPlanId, setExpandedPlanId] = useState<number | null>(null);
-  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [deleteType, setDeleteType] = useState<"recipe" | "mealPlan" | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Load saved items from localStorage with error handling
-  const loadSavedItems = (key: string) => {
-    try {
-      const items = localStorage.getItem(key);
-      return items ? JSON.parse(items) : [];
-    } catch (error) {
-      console.error(`Error loading ${key}:`, error);
-      toast.error(`Error loading saved ${key}`);
-      return [];
-    }
-  };
-
-  const [savedRecipes, setSavedRecipes] = useState(() => loadSavedItems('savedRecipes'));
-  const [savedMealPlans, setSavedMealPlans] = useState(() => loadSavedItems('savedMealPlans'));
-
-  // Update localStorage whenever saved items change
-  useEffect(() => {
-    try {
-      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-    } catch (error) {
-      console.error('Error saving recipes:', error);
-      toast.error("Error saving recipes to local storage");
-    }
-  }, [savedRecipes]);
+  const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
+  const [savedMealPlans, setSavedMealPlans] = useState<any[]>([]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('savedMealPlans', JSON.stringify(savedMealPlans));
-    } catch (error) {
-      console.error('Error saving meal plans:', error);
-      toast.error("Error saving meal plans to local storage");
-    }
-  }, [savedMealPlans]);
+    fetchSavedRecipes();
+    // Keep existing meal plans loading logic
+    const loadSavedMealPlans = () => {
+      try {
+        const items = localStorage.getItem('savedMealPlans');
+        return items ? JSON.parse(items) : [];
+      } catch (error) {
+        console.error('Error loading meal plans:', error);
+        toast.error("Error loading saved meal plans");
+        return [];
+      }
+    };
+    setSavedMealPlans(loadSavedMealPlans());
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -71,17 +55,38 @@ const SavedItems = () => {
     }
   }, [location]);
 
-  const handleDelete = () => {
+  const fetchSavedRecipes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_recipes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSavedRecipes(data || []);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      toast.error("Failed to load saved recipes");
+    }
+  };
+
+  const handleDelete = async () => {
     if (!deleteItemId || !deleteType) return;
 
     try {
       if (deleteType === 'recipe') {
-        const updatedRecipes = savedRecipes.filter((recipe: any) => recipe.id !== deleteItemId);
-        setSavedRecipes(updatedRecipes);
+        const { error } = await supabase
+          .from('saved_recipes')
+          .delete()
+          .eq('id', deleteItemId);
+
+        if (error) throw error;
+        await fetchSavedRecipes();
         toast.success("Recipe deleted successfully");
       } else {
         const updatedMealPlans = savedMealPlans.filter((plan: any) => plan.id !== deleteItemId);
         setSavedMealPlans(updatedMealPlans);
+        localStorage.setItem('savedMealPlans', JSON.stringify(updatedMealPlans));
         toast.success("Meal plan deleted successfully");
       }
     } catch (error) {
@@ -136,26 +141,15 @@ const SavedItems = () => {
                     No saved recipes yet
                   </div>
                 ) : (
-                  savedRecipes.map((recipe: any, index: number) => (
-                    <div key={index} className="relative">
-                      <RecipeCard 
-                        title={recipe.name}
-                        image={recipe.image || "/placeholder.svg"}
-                        time={recipe.totalTime}
-                        difficulty={recipe.difficulty}
-                      />
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2"
-                        onClick={() => {
-                          setDeleteItemId(recipe.id);
-                          setDeleteType('recipe');
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  savedRecipes.map((recipe) => (
+                    <SavedRecipeCard
+                      key={recipe.id}
+                      recipe={recipe}
+                      onDelete={(id) => {
+                        setDeleteItemId(id);
+                        setDeleteType('recipe');
+                      }}
+                    />
                   ))
                 )}
               </div>
@@ -167,52 +161,16 @@ const SavedItems = () => {
                   </div>
                 ) : (
                   savedMealPlans.map((plan: any) => (
-                    <Card 
+                    <SavedMealPlanCard
                       key={plan.id}
-                      className="overflow-hidden hover:shadow-lg transition-shadow duration-300 relative"
-                    >
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2 z-10"
-                        onClick={() => {
-                          setDeleteItemId(plan.id);
-                          setDeleteType('mealPlan');
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <div 
-                        className="p-6 cursor-pointer"
-                        onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
-                      >
-                        <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                        <p className="text-sm text-gray-500 mb-4">
-                          Generated on {format(new Date(plan.date), "PPpp")}
-                        </p>
-                        <Button variant="outline" className="w-full">
-                          {expandedPlanId === plan.id ? "Hide Details" : "View Details"}
-                        </Button>
-                      </div>
-
-                      {expandedPlanId === plan.id && (
-                        <div className="border-t p-6">
-                          <div className="space-y-4">
-                            {Object.entries(plan)
-                              .filter(([key]) => !['id', 'name', 'date'].includes(key))
-                              .map(([day, meals]: [string, any]) => (
-                                <MealPlanDay
-                                  key={day}
-                                  day={day}
-                                  meals={meals}
-                                  readOnly={true}
-                                  onUpdate={() => {}}
-                                />
-                              ))}
-                          </div>
-                        </div>
-                      )}
-                    </Card>
+                      plan={plan}
+                      expandedPlanId={expandedPlanId}
+                      onExpand={setExpandedPlanId}
+                      onDelete={(id) => {
+                        setDeleteItemId(id.toString());
+                        setDeleteType('mealPlan');
+                      }}
+                    />
                   ))
                 )}
               </div>
