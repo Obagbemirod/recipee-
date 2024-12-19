@@ -214,6 +214,56 @@ export type Database = {
           },
         ]
       }
+      saved_recipes: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          image_url: string | null;
+          ingredients: Json;
+          instructions: Json;
+          equipment: string[];
+          total_time: string;
+          difficulty: string;
+          servings: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          image_url?: string | null;
+          ingredients: Json;
+          instructions: Json;
+          equipment: string[];
+          total_time: string;
+          difficulty: string;
+          servings: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          image_url?: string | null;
+          ingredients?: Json;
+          instructions?: Json;
+          equipment?: string[];
+          total_time?: string;
+          difficulty?: string;
+          servings?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "saved_recipes_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     }
     Views: {
       trial_status: {
@@ -262,7 +312,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -316,8 +366,8 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
+      Update: infer U
+    }
       ? U
       : never
     : never
