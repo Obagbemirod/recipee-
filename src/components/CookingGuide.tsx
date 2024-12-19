@@ -1,14 +1,27 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { Clock, ChefHat, Utensils, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { RecipeHeader } from "./recipe/RecipeHeader";
-import { RecipeSection } from "./recipe/RecipeSection";
-import { Recipe } from "@/types/recipe";
+
+interface Recipe {
+  name: string;
+  ingredients: { item: string; amount: string }[];
+  instructions: { step: number; description: string; time: string }[];
+  equipment: string[];
+  totalTime: string;
+  difficulty: string;
+  servings: number;
+}
 
 interface CookingGuideProps {
   recipe: Recipe;
@@ -61,7 +74,7 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
         .insert({
           user_id: user.id,
           name: recipe.name,
-          image_url: publicUrlData,
+          image_url: "",
           ingredients: recipe.ingredients,
           instructions: recipe.instructions,
           equipment: recipe.equipment,
@@ -81,6 +94,7 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
     }
   };
 
+  // Helper function to decode base64
   const decode = (base64: string) => {
     const binaryString = atob(base64);
     const bytes = new Uint8Array(binaryString.length);
@@ -107,7 +121,7 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
 
         <Card className="mt-4 p-6 bg-white shadow-lg border-2 border-primary">
           <div className="space-y-6">
-            <RecipeHeader
+            {/* <RecipeHeader
               totalTime={recipe.totalTime}
               difficulty={recipe.difficulty}
               servings={recipe.servings}
@@ -125,39 +139,57 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
                   </li>
                 ))}
               </ul>
-            </RecipeSection>
+            </RecipeSection> */}
 
-            <RecipeSection
-              title="Equipment Required"
-              isOpen={openSections.equipment}
-              onToggle={() => toggleSection('equipment')}
-            >
-              <ul className="list-disc list-inside space-y-2">
-                {recipe.equipment.map((item, index) => (
-                  <li key={index} className="text-muted-foreground">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </RecipeSection>
-
-            <RecipeSection
-              title="Step-by-Step Instructions"
-              isOpen={openSections.instructions}
-              onToggle={() => toggleSection('instructions')}
-            >
-              <ScrollArea className="h-[300px] pr-4">
-                <ol className="space-y-4">
-                  {recipe.instructions.map((instruction) => (
-                    <li key={instruction.step} className="border-l-2 border-primary pl-4 ml-4">
-                      <div className="font-medium text-secondary">Step {instruction.step}</div>
-                      <div className="text-sm text-muted-foreground mb-1">Time: {instruction.time}</div>
-                      <p className="text-muted-foreground">{instruction.description}</p>
+            <Collapsible>
+              <CollapsibleTrigger
+                onClick={() => toggleSection('equipment')}
+                className="flex items-center justify-between w-full text-lg font-semibold text-secondary py-2"
+              >
+                <span>Equipment Required</span>
+                {openSections.equipment ? (
+                  <ChevronUp className="h-5 w-5" />
+                ) : (
+                  <ChevronDown className="h-5 w-5" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <ul className="list-disc list-inside space-y-2">
+                  {recipe.equipment.map((item, index) => (
+                    <li key={index} className="text-muted-foreground">
+                      {item}
                     </li>
                   ))}
-                </ol>
-              </ScrollArea>
-            </RecipeSection>
+                </ul>
+              </CollapsibleContent>
+            </Collapsible>
+
+            <Collapsible>
+              <CollapsibleTrigger
+                onClick={() => toggleSection('instructions')}
+                className="flex items-center justify-between w-full text-lg font-semibold text-secondary py-2"
+              >
+                <span>Step-by-Step Instructions</span>
+                {openSections.instructions ? (
+                  <ChevronUp className="h-5 w-5" />
+                ) : (
+                  <ChevronDown className="h-5 w-5" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <ScrollArea className="h-[300px] pr-4">
+                  <ol className="space-y-4">
+                    {recipe.instructions.map((instruction) => (
+                      <li key={instruction.step} className="border-l-2 border-primary pl-4 ml-4">
+                        <div className="font-medium text-secondary">Step {instruction.step}</div>
+                        <div className="text-sm text-muted-foreground mb-1">Time: {instruction.time}</div>
+                        <p className="text-muted-foreground">{instruction.description}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </ScrollArea>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </Card>
 

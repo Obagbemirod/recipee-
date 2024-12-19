@@ -76,7 +76,7 @@ export default function GenerateRecipes() {
         .insert({
           user_id: currentUser.id,
           name: recipe.name,
-          image_url: publicUrlData,
+          image_url: "",
           ingredients: recipe.ingredients,
           instructions: recipe.instructions,
           equipment: recipe.equipment,
