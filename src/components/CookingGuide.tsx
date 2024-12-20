@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { RecipeHeader } from "./recipe/RecipeHeader";
+import { RecipeSection } from "./recipe/RecipeSection";
 
 interface Recipe {
   name: string;
@@ -74,7 +76,7 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
         .insert({
           user_id: user.id,
           name: recipe.name,
-          image_url: "",
+          image_url: publicUrlData.publicUrl,
           ingredients: recipe.ingredients,
           instructions: recipe.instructions,
           equipment: recipe.equipment,
@@ -121,7 +123,7 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
 
         <Card className="mt-4 p-6 bg-white shadow-lg border-2 border-primary">
           <div className="space-y-6">
-            {/* <RecipeHeader
+            <RecipeHeader
               totalTime={recipe.totalTime}
               difficulty={recipe.difficulty}
               servings={recipe.servings}
@@ -139,7 +141,7 @@ export const CookingGuide = ({ recipe, file }: CookingGuideProps) => {
                   </li>
                 ))}
               </ul>
-            </RecipeSection> */}
+            </RecipeSection>
 
             <Collapsible>
               <CollapsibleTrigger
