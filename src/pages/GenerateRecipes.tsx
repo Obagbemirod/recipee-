@@ -49,7 +49,6 @@ export default function GenerateRecipes() {
   };
 
   const handleSaveRecipe = async () => {
-    console.log(currentUser)
     if (currentUser) {
       toast.error("Please login to save recipes");
       return;
@@ -57,6 +56,12 @@ export default function GenerateRecipes() {
 
     setIsSaving(true);
     try {
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
 
       const fileName = `${Date.now()}_recipe.jpg`;
 
@@ -74,7 +79,7 @@ export default function GenerateRecipes() {
       const { error: saveRecipeError } = await supabase
         .from('saved_recipes')
         .insert({
-          user_id: currentUser.id,
+          user_id: user.id,
           name: recipe.name,
           image_url: publicUrlData.publicUrl,
           ingredients: recipe.ingredients,

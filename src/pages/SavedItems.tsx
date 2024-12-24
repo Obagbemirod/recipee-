@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const SavedItems = () => {
   const [activeTab, setActiveTab] = useState<"recipes" | "mealPlans">("recipes");
@@ -27,39 +28,49 @@ const SavedItems = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load saved items from localStorage with error handling
-  const loadSavedItems = (key: string) => {
-    try {
-      const items = localStorage.getItem(key);
-      return items ? JSON.parse(items) : [];
-    } catch (error) {
-      console.error(`Error loading ${key}:`, error);
-      toast.error(`Error loading saved ${key}`);
-      return [];
-    }
-  };
 
-  const [savedRecipes, setSavedRecipes] = useState(() => loadSavedItems('savedRecipes'));
-  const [savedMealPlans, setSavedMealPlans] = useState(() => loadSavedItems('savedMealPlans'));
+  const [savedRecipes, setSavedRecipes] = useState([]);
+  const [savedMealPlans, setSavedMealPlans] = useState([]);
 
-  // Update localStorage whenever saved items change
-  useEffect(() => {
-    try {
-      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-    } catch (error) {
-      console.error('Error saving recipes:', error);
-      toast.error("Error saving recipes to local storage");
-    }
-  }, [savedRecipes]);
+  // // Update localStorage whenever saved items change
+  // useEffect(() => {
+  //   try {
+  //     localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+  //   } catch (error) {
+  //     console.error('Error saving recipes:', error);
+  //     toast.error("Error saving recipes to local storage");
+  //   }
+  // }, [savedRecipes]);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   try {
+  //     localStorage.setItem('savedMealPlans', JSON.stringify(savedMealPlans));
+  //   } catch (error) {
+  //     console.error('Error saving meal plans:', error);
+  //     toast.error("Error saving meal plans to local storage");
+  //   }
+  // }, [savedMealPlans]);
+
+  // handle fetch saved recipes 
+  const handleSavedRecipes = async () => {
+
     try {
-      localStorage.setItem('savedMealPlans', JSON.stringify(savedMealPlans));
+      const { data: savedRecipeData, error: saveRecipeError } = await supabase
+        .from('saved_recipes')
+        .select("*")
+
+      if(saveRecipeError && !savedRecipeData) {
+        throw new Error("error fetching saved recipes")
+      }
+
+      console.log(savedRecipeData)
+      setSavedRecipes(savedRecipeData)
     } catch (error) {
-      console.error('Error saving meal plans:', error);
-      toast.error("Error saving meal plans to local storage");
+      console.error('Error saving recipe:', error);
+      toast.error("Failed to save recipe");
     }
-  }, [savedMealPlans]);
+
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -68,6 +79,7 @@ const SavedItems = () => {
       setActiveTab('mealPlans');
     } else if (source === 'recipe') {
       setActiveTab('recipes');
+      handleSavedRecipes()
     }
   }, [location]);
 
@@ -76,12 +88,10 @@ const SavedItems = () => {
 
     try {
       if (deleteType === 'recipe') {
-        const updatedRecipes = savedRecipes.filter((recipe: any) => recipe.id !== deleteItemId);
-        setSavedRecipes(updatedRecipes);
+
         toast.success("Recipe deleted successfully");
       } else {
-        const updatedMealPlans = savedMealPlans.filter((plan: any) => plan.id !== deleteItemId);
-        setSavedMealPlans(updatedMealPlans);
+
         toast.success("Meal plan deleted successfully");
       }
     } catch (error) {
@@ -92,6 +102,7 @@ const SavedItems = () => {
     setDeleteItemId(null);
     setDeleteType(null);
   };
+
 
   return (
     <div className="min-h-screen pt-20 bg-background">
@@ -138,9 +149,9 @@ const SavedItems = () => {
                 ) : (
                   savedRecipes.map((recipe: any, index: number) => (
                     <div key={index} className="relative">
-                      <RecipeCard 
+                      <RecipeCard
                         title={recipe.name}
-                        image={recipe.image || "/placeholder.svg"}
+                        image={recipe.image_url || "/placeholder.svg"}
                         time={recipe.totalTime}
                         difficulty={recipe.difficulty}
                       />
@@ -167,7 +178,7 @@ const SavedItems = () => {
                   </div>
                 ) : (
                   savedMealPlans.map((plan: any) => (
-                    <Card 
+                    <Card
                       key={plan.id}
                       className="overflow-hidden hover:shadow-lg transition-shadow duration-300 relative"
                     >
@@ -182,7 +193,7 @@ const SavedItems = () => {
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                      <div 
+                      <div
                         className="p-6 cursor-pointer"
                         onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
                       >
@@ -206,7 +217,7 @@ const SavedItems = () => {
                                   day={day}
                                   meals={meals}
                                   readOnly={true}
-                                  onUpdate={() => {}}
+                                  onUpdate={() => { }}
                                 />
                               ))}
                           </div>
