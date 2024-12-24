@@ -66,14 +66,14 @@ export default function GenerateRecipes() {
       const fileName = `${Date.now()}_recipe.jpg`;
 
       const { data, error } = await supabase.storage
-        .from("profile_images")
+        .from("recipe_images")
         .upload(fileName, imagePreview);
 
       if (error) {
         throw new Error("Failed to upload image");
       }
       const { data: publicUrlData } = supabase.storage
-        .from("profile_images")
+        .from("recipe_images")
         .getPublicUrl(fileName);
 
       const { error: saveRecipeError } = await supabase
